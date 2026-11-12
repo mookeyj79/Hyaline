@@ -71,6 +71,7 @@ Run both before every commit that touches `palette/` or `Ports/`.
 | `{{role\|rgb}}` | `r, g, b` |
 | `{{role\|rgba}}` | `rgba(r, g, b, a)` using the role's alpha |
 | `{{meta.name}}`, `{{variant.name}}`, `{{variant.mode}}` | theme name, variant name, `dark` or `light` |
+| `{{meta.repository}}` | the repo URL |
 
 Surface roles come in pairs: `chrome`, `panel`, and `raised` are translucent, `chrome_flat`, `panel_flat`, and `raised_flat` are the solid fallbacks. Use the flat ones anywhere the app cannot blur. Chrome (title bars, tabs, sidebars) carries `text` and solid accent fills only; everything else goes on `panel`.
 

@@ -10,9 +10,9 @@ This is not an app theme. It is treated as a port so it gets the same build and 
 
 | Hyaline Dark | Hyaline Light |
 |---|---|
-| ![Hyaline Dark](screenshots/dark.png) | ![Hyaline Light](screenshots/light.png) |
+| ![Hyaline Dark](screenshots/dark.jpg) | ![Hyaline Light](screenshots/light.jpg) |
 
-<!-- Screenshots are added by hand. Leave the paths in place. -->
+Screenshots taken with headless Chromium at 1280 × 960. Retake them when the palette or the page changes (see CONTRIBUTING.md).
 
 ## View it
 

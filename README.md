@@ -1,41 +1,53 @@
 # Hyaline
 
+[![check](https://github.com/mookeyj79/Hyaline/actions/workflows/check.yml/badge.svg)](https://github.com/mookeyj79/Hyaline/actions/workflows/check.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 *hyaline (HY-uh-lin): glassy, clear like glass.*
 
-Smoke by night, frost by day. One theme, two variants, the same look in every app.
+Smoke by night, frost by day. One color theme with two variants, ported to every app so your whole machine looks like it belongs together.
 
-| Variant | Mode | Look |
+| Hyaline Dark | Hyaline Light |
+|---|---|
+| [![Hyaline Dark](Ports/preview/screenshots/dark.jpg)](https://mookeyj79.github.io/Hyaline/Ports/preview/dist/dark/index.html) | [![Hyaline Light](Ports/preview/screenshots/light.jpg)](https://mookeyj79.github.io/Hyaline/Ports/preview/dist/light/index.html) |
+| Smoked, frosted panels with light text | Frosted white panels with dark ink |
+
+**[Open the live preview](https://mookeyj79.github.io/Hyaline/)** to see every role, mock apps, and diagrams in both variants.
+
+## Contents
+
+- [What you get](#what-you-get)
+- [Ports](#ports)
+- [Font](#font)
+- [Wallpapers](#wallpapers)
+- [How it works](#how-it-works)
+- [Build](#build)
+- [Add a port](#add-a-port)
+- [Contributing](#contributing)
+- [License](#license)
+
+## What you get
+
+- **Two variants that always ship together.** Switching between them should feel like the sun went down, not like you opened a different app.
+- **Colors with one job each.** Red is failure, green is success, yellow is change, blue is in progress, in every app. See [PHILOSOPHY.md](PHILOSOPHY.md).
+- **Glass where the app allows it.** Clear chrome (title bars, tabs, sidebars) over a wallpaper, with content on a denser panel so it stays readable.
+- **Readable first.** Every text color meets a contrast floor, and CI checks it on every change.
+- **One font everywhere:** FiraCode Nerd Font, with icons for prompts and file trees.
+
+| Diagrams | Every role, with contrast | Font |
 |---|---|---|
-| **Hyaline Dark** | Dark | Smoked, frosted panels with light text |
-| **Hyaline Light** | Light | Frosted white panels with dark ink |
-
-**[See it first: the preview page](https://mookeyj79.github.io/Hyaline/)** shows mock apps, every role, and contrast in both variants. Source in [`Ports/preview/`](Ports/preview/).
-
-<!-- Add a hero screenshot here once the first ports exist:
-![Hyaline Dark and Hyaline Light](assets/preview.png)
--->
-
-## Why
-
-I want every tool I use to look like it belongs to the same machine. Hyaline is a single palette with strict rules about what each color means, plus a port for each app generated from that palette. Change a color once and every port updates.
-
-## Status
-
-Early. The design rules are written, the palette and first ports are in progress.
+| [![Mermaid diagrams in Hyaline Dark](Ports/preview/screenshots/mermaid.jpg)](https://mookeyj79.github.io/Hyaline/) | [![Role swatches in Hyaline Light](Ports/preview/screenshots/roles.jpg)](https://mookeyj79.github.io/Hyaline/Ports/preview/dist/light/index.html) | [![FiraCode Nerd Font specimen](Ports/preview/screenshots/font.jpg)](https://mookeyj79.github.io/Hyaline/) |
 
 ## Ports
 
 | App | Tier | Status |
 |---|---|---|
+| [Preview page](Ports/preview/) | 1 Full glass | [Live](https://mookeyj79.github.io/Hyaline/) |
 | Windows Terminal | 1 Full glass | Planned |
 | Starship | 2 Flat | Planned |
 | VS Code | 2 Flat | Planned |
 | Typora | TBD | Planned |
 | Windows | TBD | Planned |
-
-Each port lives in its own folder, `Ports/<app_name>/`, with its own README: a step-by-step install guide.
-
-### Tiers
 
 Not every app can do glass. Each port says how far it gets:
 
@@ -43,18 +55,11 @@ Not every app can do glass. Each port says how far it gets:
 - **Tier 2, Flat**: full palette on solid surfaces, no blur
 - **Tier 3, Minimal**: background, accent, and status colors only
 
-## How it works
+### Install a port
 
-```
-palette/palette.json          every color, for both variants
-Ports/<app_name>/template/    theme files with {{role}} placeholders
-Ports/<app_name>/dist/        generated themes, ready to use
-build/                        turns palette + templates into dist
-```
-
-- **The palette is the only place colors live.** Templates name a role (`panel`, `text`, `accent`, `red`), never a hex value.
-- **Generated files are committed.** You can grab a theme from `dist/` without building anything.
-- **CI catches drift.** The build runs on every change and fails if a committed theme does not match the palette.
+1. Open the port's folder, `Ports/<app_name>/`, and read its `README.md`. It is a step-by-step install guide.
+2. Take the theme file from `dist/dark/` or `dist/light/`. Generated files are committed, so there is nothing to build.
+3. Follow the guide, including **Set the font**.
 
 ## Font
 
@@ -69,35 +74,35 @@ Hyaline recommends **[FiraCode Nerd Font](https://www.nerdfonts.com/font-downloa
 
 Free under the SIL Open Font License. See [ADR 0005](docs/adr/0005-recommended-font.md).
 
-## Install a port
+## Wallpapers
 
-1. Open `Ports/<app_name>/README.md`.
-2. Take the file from `dist/dark/` or `dist/light/`.
-3. Follow the install steps there.
+[![White Sands dunes](wallpapers/thumbs/white-sands-dunes.jpg)](wallpapers/white-sands-dunes.jpg)
 
-## Build
+Glass needs something behind it. [`wallpapers/`](wallpapers/) holds found images that are light, calm, and free to redistribute. Each one is credited and checked for contrast behind both variants. The first is White Sands dunes by Matt Le (CC0). See [`wallpapers/README.md`](wallpapers/README.md).
 
-Requires PowerShell 7.
+## How it works
 
 ```
-pwsh build/build.ps1                     # rebuild every port
-pwsh build/build.ps1 -Port <app_name>    # rebuild one port
-pwsh build/check.ps1                     # drift, raw color, and contrast checks
+palette/palette.json          every color, for both variants
+Ports/<app_name>/template/    theme files with {{role}} placeholders
+Ports/<app_name>/dist/        generated themes, ready to use
+build/                        turns palette + templates into dist, runs the checks
+wallpapers/                   backdrop images, with credits
+docs/adr/                     recorded decisions and why
+PHILOSOPHY.md                 the design rules
 ```
 
-## Add a port
+- **The palette is the only place colors live.** Templates name a role (`panel`, `text`, `accent`, `red`), never a hex value. Change a color once and every port updates.
+- **Generated files are committed.** You can grab a theme from `dist/` without building anything.
+- **CI catches drift.** `check.ps1` runs on every pull request and every push to `main`, and fails if a committed theme does not match the palette.
 
-This repo is set up for [Claude Code](https://claude.com/claude-code). Open it there and ask:
+### Glass
 
-> Can you make a theme for Typora?
+Where an app can blur, the window splits in two. The **chrome** (title bars, tabs, sidebars) is clear glass and carries only primary text. The **content** sits on a denser panel so every color stays readable over a wallpaper. See [ADR 0004](docs/adr/0004-chrome-and-content-glass-split.md).
 
-or run `/new-port typora`. The `new-port` skill looks up the app's theme format, picks a tier, maps the app's settings to palette roles, builds both variants, runs the checks, and writes the port README.
+### Design rules
 
-Doing it by hand works too. Read [PHILOSOPHY.md](PHILOSOPHY.md) first, then follow the steps in `.claude/skills/new-port/SKILL.md`.
-
-## Design rules
-
-[PHILOSOPHY.md](PHILOSOPHY.md) covers what each color means, how surfaces layer, the contrast floor, and what a port must never do. It also says that studying how Catppuccin, Nord, and other themes built their ports is expected. The short version:
+[PHILOSOPHY.md](PHILOSOPHY.md) covers what each color means, how surfaces layer, the contrast floor, and what a port must never do. The short version:
 
 1. Sameness beats perfection.
 2. Roles, not colors.
@@ -106,6 +111,35 @@ Doing it by hand works too. Read [PHILOSOPHY.md](PHILOSOPHY.md) first, then foll
 5. Readable first.
 6. Two variants, one theme.
 
+## Build
+
+Requires [PowerShell 7](https://learn.microsoft.com/powershell/scripting/install/installing-powershell).
+
+```sh
+pwsh build/build.ps1                     # rebuild every port
+pwsh build/build.ps1 -Port <app_name>    # rebuild one port
+pwsh build/check.ps1                     # palette, contrast, structure, raw color, drift, and placeholder checks
+```
+
+The preview page is published to GitHub Pages by [`.github/workflows/pages.yml`](.github/workflows/pages.yml) on every push to `main` that changes it.
+
+## Add a port
+
+This repo is set up for [Claude Code](https://claude.com/claude-code). Open it there and ask:
+
+> Can you make a theme for Typora?
+
+or run `/new-port typora`. The `new-port` skill looks up the app's theme format, picks a tier, maps the app's settings to palette roles, builds both variants, runs the checks, and writes the port's install guide.
+
+Doing it by hand works too: see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Contributing
+
+Ports, fixes, and wallpaper suggestions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) for the rules every port follows and how to propose a palette change.
+
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE), except for bundled third-party assets, which keep their own licenses:
+
+- Wallpapers: per image, listed in [`wallpapers/README.md`](wallpapers/README.md).
+- FiraCode Nerd Font in the preview page: SIL Open Font License 1.1, in [`Ports/preview/assets/fonts/`](Ports/preview/assets/fonts/).

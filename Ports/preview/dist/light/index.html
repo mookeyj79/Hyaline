@@ -79,6 +79,10 @@ button { font-family: inherit; }
 }
 .brand { font: 600 1rem var(--font-display); letter-spacing: .04em; }
 .brand small { font: 400 .72rem var(--font-mono); color: var(--text); margin-left: 6px; letter-spacing: 0; }
+.topbar-end { display: flex; align-items: center; gap: 14px; }
+.repo { color: var(--text); text-decoration: none; font: 500 .85rem var(--font-body); display: inline-flex; align-items: center; gap: 6px; }
+.repo span { font: 400 1.1rem var(--font-mono); }
+.repo:hover { text-decoration: underline; }
 .switch { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
 .switch a {
   padding: 6px 14px;
@@ -251,10 +255,13 @@ footer p + p { margin-top: 4px; }
 <body>
 <div class="topbar">
   <span class="brand">Hyaline<small>v0.2.0</small></span>
-  <nav class="switch" aria-label="Variant">
-    <a href="../dark/index.html" data-set="dark">Dark</a>
-    <a href="../light/index.html" data-set="light">Light</a>
-  </nav>
+  <div class="topbar-end">
+    <a class="repo" href="https://github.com/mookeyj79/Hyaline"><span aria-hidden="true">&#xF09B;</span> GitHub</a>
+    <nav class="switch" aria-label="Variant">
+      <a href="../dark/index.html" data-set="dark">Dark</a>
+      <a href="../light/index.html" data-set="light">Light</a>
+    </nav>
+  </div>
 </div>
 
 <main>
@@ -432,7 +439,7 @@ footer p + p { margin-top: 4px; }
 
   <footer class="panel">
     <p>Hyaline 0.2.0. Every color on this page is generated from <code>palette/palette.json</code>.</p>
-    <p>Ports and install guides are in the repo under <code>Ports/</code>.</p>
+    <p>Ports, install guides, and the palette are on <a href="https://github.com/mookeyj79/Hyaline">GitHub</a>.</p>
   </footer>
 </main>
 
