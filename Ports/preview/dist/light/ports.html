@@ -64,6 +64,13 @@ h2 { font: 500 .78rem var(--font-display); letter-spacing: .12em; text-transform
   background: var(--raised); border: 1px solid var(--line);
   font: 600 1rem var(--font-display); letter-spacing: .02em;
 }
+/* Port icons are single-color shapes (ADR 0007), drawn in the text color through a mask.
+   Brand marks fill their box and glyphs leave a margin, so brand marks are drawn smaller. */
+.mono .icon {
+  width: 24px; height: 24px; background: currentColor;
+  -webkit-mask: var(--icon) center / contain no-repeat; mask: var(--icon) center / contain no-repeat;
+}
+.mono .icon.is-brand { width: 20px; height: 20px; }
 .title { min-width: 0; }
 .card h3 { font: 600 1.05rem/1.25 var(--font-display); margin: 0; overflow-wrap: anywhere; }
 .card h3 a { color: var(--text); text-decoration: none; }
@@ -154,6 +161,7 @@ footer p + p { margin-top: 4px; }
   <footer class="panel">
     <p>Hyaline 0.3.0. This list is generated from each port's <code>port.json</code>, so it is always current.</p>
     <p>Every color on this page is generated from <code>palette/palette.json</code>.</p>
+    <p id="icon-credits" hidden></p>
   </footer>
 </main>
 
@@ -214,6 +222,33 @@ footer p + p { margin-top: 4px; }
     const words = p.name.split(/[\s-]+/).filter(Boolean);
     return (words.length > 1 ? words[0][0] + words[1][0] : p.name.slice(0, 2)).toUpperCase();
   }
+  // The monogram shows until the icon loads, and stays if it does not.
+  function badge(p) {
+    const b = el("div", "mono", monogram(p));
+    b.setAttribute("aria-hidden", "true");
+    if (p.icon) {
+      const url = "../../../../" + p.icon.path;
+      const probe = new Image();
+      probe.onload = function () {
+        const i = el("span", "icon" + (p.icon.kind === "brand" ? " is-brand" : ""));
+        i.style.setProperty("--icon", 'url("' + url + '")');
+        b.replaceChildren(i);
+      };
+      probe.src = url;
+    }
+    return b;
+  }
+  function iconCredits() {
+    const seen = {};
+    data.ports.forEach(function (p) {
+      if (p.icon) seen[p.icon.set + " by " + p.icon.author + " (" + p.icon.license + ")"] = true;
+    });
+    const list = Object.keys(seen).sort();
+    if (!list.length) return;
+    const node = document.getElementById("icon-credits");
+    node.textContent = "Icons: " + list.join(", ") + ". Brand marks belong to their owners. Each port's port.json records its icon's source.";
+    node.hidden = false;
+  }
   function categoryName(id) { return data.categories[id] || id; }
   function platformText(p) { return p.platforms.map(function (x) { return platformNames[x] || x; }).join(" · "); }
 
@@ -222,7 +257,7 @@ footer p + p { margin-top: 4px; }
     const c = el("article", "panel card" + (p.planned ? " is-planned" : ""));
 
     const head = el("div", "head");
-    head.appendChild(el("div", "mono", monogram(p))).setAttribute("aria-hidden", "true");
+    head.appendChild(badge(p));
     const title = el("div", "title");
     const h3 = el("h3");
     if (p.planned) { h3.textContent = p.name; }
@@ -259,6 +294,7 @@ footer p + p { margin-top: 4px; }
     return c;
   }
 
+  iconCredits();
   const all = data.ports.map(function (p) { return Object.assign({ planned: false }, p); })
     .concat(data.planned.map(function (p) { return Object.assign({ planned: true, variants: [] }, p); }));
   all.forEach(function (p) {

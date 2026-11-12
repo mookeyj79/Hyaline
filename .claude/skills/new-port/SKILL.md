@@ -116,6 +116,7 @@ The README is first and foremost a step-by-step install guide. Write it for some
 ## 9. Finish
 
 - Write `Ports/<app_name>/port.json` so the port shows on the ports page: `name`, `category` (an id from `Ports/ports.json`), `tier` (1 to 3), and `platforms` (`windows`, `macos`, `linux`, `web`). See CONTRIBUTING.md step 8. If the app is in `planned` in `Ports/ports.json`, remove it from there. If no category fits, ask the user before adding one. Do not list the port in the root README; the ports page is the list.
+- Give the card an icon with the `port-icon` skill (`/port-icon <app_name>`). If no icon fits, the monogram stays.
 - Commit on a branch named `port/<app_name>`.
 - Report back in a few lines: tier, what is covered, what is not, and what the user needs to do (install steps live in the README, screenshots are theirs to add).
 

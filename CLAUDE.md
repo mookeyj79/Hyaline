@@ -21,7 +21,8 @@ wallpapers/                 found backdrop images, thumbnails, and credits (READ
 palette/palette.json        every color, for both variants (source of truth for values)
 Ports/ports.json            category names, planned ports, and unlisted folders for the ports page
 Ports/<app_name>/
-  port.json                 name, category, tier, platforms (feeds the ports page)
+  port.json                 name, category, tier, platforms, icon credit (feeds the ports page)
+  icon.svg                  optional single-color card icon (ADR 0007)
   values.json               optional per-variant app values that are not colors ({{port.<key>}})
   template/                 files with {{role}} placeholders, no raw colors
   dist/dark/                generated output, committed
@@ -30,12 +31,14 @@ Ports/<app_name>/
 build/build.ps1             palette + templates = dist
 build/check.ps1             drift, raw-hex, placeholder, port list, and contrast checks
 build/site.ps1              assembles the GitHub Pages site and the port list into _site/
+build/icon.ps1              finds and fetches a port's card icon
 .claude/skills/new-port/    the new-port skill and the port README template
+.claude/skills/port-icon/   the port-icon skill
 ```
 
 ## Rules that are never broken
 
-1. **No color values outside `palette/palette.json`.** Templates use `{{role}}` placeholders only. This includes hex, rgb(), hsl(), and named colors. The one exception is wallpapers, which are image assets (ADR 0003).
+1. **No color values outside `palette/palette.json`.** Templates use `{{role}}` placeholders only. This includes hex, rgb(), hsl(), and named colors. The one exception is wallpapers, which are image assets (ADR 0003). Port icons are not an exception: they use `currentColor` only (ADR 0007).
 2. **Never invent a color.** If a port needs something the palette lacks, stop and propose a palette change to the user. Do not approximate.
 3. **Never edit files in `dist/` by hand.** Change the template or the palette, then rebuild.
 4. **Both variants or neither.** If the app supports only one mode, ship that one and say so in the port README.
@@ -63,6 +66,7 @@ pwsh build/build.ps1                     # rebuild every port
 pwsh build/build.ps1 -Port <app_name>    # rebuild one port
 pwsh build/check.ps1                     # run all checks (CI runs this too)
 pwsh build/site.ps1                      # assemble the Pages site into _site/
+pwsh build/icon.ps1 -Search <words>      # find a card icon (see the port-icon skill)
 ```
 
 Run both before every commit that touches `palette/` or `Ports/`.

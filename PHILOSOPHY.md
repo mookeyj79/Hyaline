@@ -162,3 +162,4 @@ Every palette change rebuilds every port. CI fails if any committed output does 
 - **Font.** FiraCode Nerd Font, set in every app that allows it. See [ADR 0005](docs/adr/0005-recommended-font.md).
 - **How clear the glass is.** Chrome is clear, content is dense. See [ADR 0004](docs/adr/0004-chrome-and-content-glass-split.md).
 - **See-through highlights.** One wash alpha per variant, applied to any color role. See [ADR 0006](docs/adr/0006-one-wash-alpha-for-highlights.md).
+- **Port icons.** Single-color, colored by the page, so they follow the palette rule. A brand mark where the app allows it, otherwise a glyph. See [ADR 0007](docs/adr/0007-port-icons-are-single-color.md).

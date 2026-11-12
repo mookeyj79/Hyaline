@@ -60,6 +60,10 @@ _Avoid_: Tint, highlight color
 Hyaline applied to one app, with its own folder, templates, generated output and install guide.
 _Avoid_: Theme (for a single app), plugin
 
+**Port icon**:
+The single-color mark on a port's card on the ports page, colored by the page. Either a brand mark (the app's own logo shape) or a glyph (a symbol for what the app is). The monogram stands in when there is none.
+_Avoid_: Logo, favicon
+
 **Tier**:
 The grade a port declares for how much of the theme the app allows: Full glass, Flat or Minimal.
 

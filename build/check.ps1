@@ -14,7 +14,9 @@
     3. Structure  Every port has a README.md and a template/ folder.
     4. Port list  Every port has a valid port.json (except folders listed as
                   unlisted), and planned ports in Ports/ports.json do not
-                  exist yet.
+                  exist yet. A port's icon.svg and the "icon" credit in its
+                  port.json come together, and the icon is plain shapes in
+                  currentColor on a 24 x 24 viewBox (ADR 0007).
     5. Raw color  No hex, rgb(), or hsl() values in templates or values.json.
                   Add "hyaline-ignore" to a line to skip it (for example a CSS
                   id selector that happens to look like a hex color).
@@ -257,7 +259,7 @@ $categories = @{}
 
 function Test-PortMeta($Meta, [string]$Where, [bool]$Planned) {
     if ($Meta -isnot [System.Collections.IDictionary]) { Add-Failure "Port list: $Where must be a JSON object."; return }
-    $known = @('name', 'category', 'tier', 'platforms', 'monogram') + $(if ($Planned) { 'folder' })
+    $known = @('name', 'category', 'tier', 'platforms', 'monogram') + $(if ($Planned) { 'folder' } else { 'icon' })
     foreach ($k in $Meta.Keys) {
         if ($k -notin $known) { Add-Failure "Port list: $Where has an unknown field '$k'." }
     }
@@ -284,6 +286,80 @@ function Test-PortMeta($Meta, [string]$Where, [bool]$Planned) {
     }
     if ($Meta.Contains('monogram') -and -not ($Meta['monogram'] -is [string] -and $Meta['monogram'] -match '^\S{1,3}$')) {
         Add-Failure "Port list: $Where has a 'monogram' that is not 1 to 3 characters."
+    }
+}
+
+# Icons (ADR 0007): single-color shapes that take their color from the page.
+# build/icon.ps1 writes them in this shape.
+$IconShapes = @('path', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'rect', 'g')
+$IconShapeAttrs = @('d', 'cx', 'cy', 'r', 'rx', 'ry', 'x', 'y', 'x1', 'y1', 'x2', 'y2', 'points', 'width', 'height',
+    'transform', 'fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'fill-rule', 'clip-rule')
+$IconRootAttrs = @('xmlns', 'viewBox', 'fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'fill-rule', 'clip-rule')
+$IconMaxBytes = 8KB
+
+function Test-PortIcon([string]$Dir, $Meta, [string]$Name) {
+    $svgPath = Join-Path $Dir 'icon.svg'
+    $hasSvg = Test-Path $svgPath
+    $hasCredit = $Meta -is [System.Collections.IDictionary] -and $Meta.Contains('icon')
+    if (-not $hasSvg -and -not $hasCredit) { return }
+    if ($hasSvg -and -not $hasCredit) { Add-Failure "Icon: Ports/$Name/icon.svg has no 'icon' credit in port.json. build/icon.ps1 prints it."; return }
+    if ($hasCredit -and -not $hasSvg) { Add-Failure "Icon: Ports/$Name/port.json has an 'icon' credit but there is no icon.svg."; return }
+
+    # The credit
+    $c = $Meta['icon']
+    $where = "Ports/$Name/port.json icon"
+    if ($c -isnot [System.Collections.IDictionary]) { Add-Failure "Icon: $where must be an object."; return }
+    $fields = @('kind', 'set', 'name', 'author', 'source', 'license', 'mark')
+    foreach ($k in $c.Keys) { if ($k -notin $fields) { Add-Failure "Icon: $where has an unknown field '$k'." } }
+    foreach ($k in 'set', 'name', 'author', 'license') {
+        if (-not ($c[$k] -is [string] -and $c[$k].Trim())) { Add-Failure "Icon: $where needs '$k'." }
+    }
+    if (-not ($c['source'] -is [string] -and $c['source'] -match '^https://\S+$')) { Add-Failure "Icon: $where needs 'source', an https URL." }
+    if ($c['kind'] -eq 'brand') {
+        if (-not ($c['mark'] -is [string] -and $c['mark'] -match '^https://\S+$')) {
+            Add-Failure "Icon: $where is a brand mark, so it needs 'mark': an https URL showing the app allows its mark to be used."
+        }
+    }
+    elseif ($c['kind'] -eq 'glyph') {
+        if ($c.Contains('mark')) { Add-Failure "Icon: $where is a glyph, so it takes no 'mark'." }
+    }
+    else { Add-Failure "Icon: $where needs 'kind': brand or glyph." }
+
+    # The file
+    $rel = "Ports/$Name/icon.svg"
+    if ((Get-Item $svgPath).Length -gt $IconMaxBytes) { Add-Failure "Icon: $rel is over $($IconMaxBytes / 1KB) KB. Icons are simple shapes."; return }
+    $text = [System.IO.File]::ReadAllText($svgPath)
+    $xml = [System.Xml.XmlDocument]::new()
+    $xml.XmlResolver = $null
+    try { $xml.LoadXml($text) }
+    catch { Add-Failure "Icon: $rel is not valid XML: $($_.Exception.Message)"; return }
+    if ($xml.DocumentType) { Add-Failure "Icon: $rel has a DOCTYPE. Remove it." }
+    $root = $xml.DocumentElement
+    if ($root.LocalName -ne 'svg' -or $root.NamespaceURI -ne 'http://www.w3.org/2000/svg') { Add-Failure "Icon: $rel is not an SVG."; return }
+    if ($root.GetAttribute('viewBox') -ne '0 0 24 24') { Add-Failure "Icon: $rel needs viewBox=`"0 0 24 24`", so every card icon is the same size." }
+
+    $paints = @('fill', 'stroke')
+    $check = {
+        param([System.Xml.XmlElement]$El, [string[]]$Allowed)
+        foreach ($a in $El.Attributes) {
+            if ($a.Prefix -eq 'xmlns' -or ($a.LocalName -notin $Allowed)) {
+                Add-Failure "Icon: $rel has the attribute '$($a.Name)' on <$($El.LocalName)>, which icons may not use."
+                continue
+            }
+            if ($a.LocalName -in $paints -and $a.Value -notin 'currentColor', 'none') {
+                Add-Failure "Icon: $rel has $($a.LocalName)=`"$($a.Value)`". Icons use currentColor or none only, so the page colors them."
+            }
+        }
+    }
+    & $check $root $IconRootAttrs
+    foreach ($node in $root.SelectNodes('.//node()')) {
+        if ($node.NodeType -in 'Comment', 'Whitespace', 'SignificantWhitespace') { continue }
+        if ($node.NodeType -ne 'Element') { Add-Failure "Icon: $rel has $($node.NodeType) content. Icons are shapes only."; continue }
+        if ($node.LocalName -notin $IconShapes -or $node.NamespaceURI -ne 'http://www.w3.org/2000/svg') {
+            Add-Failure "Icon: $rel has <$($node.LocalName)>. Icons may use only: $($IconShapes -join ', ')."
+            continue
+        }
+        & $check $node $IconShapeAttrs
     }
 }
 
@@ -325,6 +401,7 @@ foreach ($dir in $portDirs) {
     try { $meta = Get-Content -Raw -Path $metaPath | ConvertFrom-Json -AsHashtable }
     catch { Add-Failure "Port list: $where is not valid JSON: $($_.Exception.Message)"; continue }
     Test-PortMeta $meta $where $false
+    Test-PortIcon $dir.FullName $meta $dir.Name
 }
 
 if ($index -and $index['planned'] -is [System.Collections.IList]) {

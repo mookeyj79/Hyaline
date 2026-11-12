@@ -4,8 +4,9 @@
     Assembles the GitHub Pages site into _site/.
 
 .DESCRIPTION
-    Copies the preview port's dist/ and assets/ and the wallpapers, keeping
-    the repo layout so relative paths work. Then writes:
+    Copies the preview port's dist/ and assets/, each port's icon.svg, and
+    the wallpapers, keeping the repo layout so relative paths work. Then
+    writes:
 
         _site/index.html    opens the preview in the visitor's OS variant
         _site/ports/        opens the ports page the same way
@@ -60,6 +61,23 @@ foreach ($dir in Get-ChildItem -Path $PortsRoot -Directory | Sort-Object Name) {
     $variants = @(foreach ($v in 'dark', 'light') {
         if (Test-Path (Join-Path $dir.FullName 'dist' $v)) { $v }
     })
+    # Card icon (ADR 0007). The page falls back to the monogram without one.
+    $icon = $null
+    $iconPath = Join-Path $dir.FullName 'icon.svg'
+    if ((Test-Path $iconPath) -and $meta.ContainsKey('icon')) {
+        $iconOut = Join-Path $Out 'Ports' $dir.Name
+        New-Item -ItemType Directory -Path $iconOut -Force | Out-Null
+        Copy-Item -Path $iconPath -Destination $iconOut
+        $c = $meta['icon']
+        $icon = [ordered]@{
+            path    = "Ports/$($dir.Name)/icon.svg"
+            kind    = $c['kind']
+            set     = $c['set']
+            author  = $c['author']
+            license = $c['license']
+            source  = $c['source']
+        }
+    }
     $ports.Add([ordered]@{
         folder    = $dir.Name
         name      = $meta['name']
@@ -67,6 +85,7 @@ foreach ($dir in Get-ChildItem -Path $PortsRoot -Directory | Sort-Object Name) {
         tier      = $meta['tier']
         platforms = @($meta['platforms'])
         monogram  = if ($meta.ContainsKey('monogram')) { $meta['monogram'] } else { $null }
+        icon      = $icon
         variants  = $variants
     })
 }

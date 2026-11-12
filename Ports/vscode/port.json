@@ -3,5 +3,13 @@
   "category": "editor",
   "tier": 2,
   "platforms": ["windows", "macos", "linux"],
-  "monogram": "VS"
+  "monogram": "VS",
+  "icon": {
+    "kind": "glyph",
+    "set": "Lucide 1.72.0",
+    "name": "code-xml",
+    "author": "Lucide Icons and Contributors",
+    "source": "https://lucide.dev/icons/code-xml",
+    "license": "ISC"
+  }
 }
