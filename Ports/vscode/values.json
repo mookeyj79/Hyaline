@@ -1,0 +1,4 @@
+{
+  "dark": { "ui_theme": "vs-dark" },
+  "light": { "ui_theme": "vs" }
+}

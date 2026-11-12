@@ -1,0 +1,7 @@
+{
+  "name": "VS Code",
+  "category": "editor",
+  "tier": 2,
+  "platforms": ["windows", "macos", "linux"],
+  "monogram": "VS"
+}
