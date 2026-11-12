@@ -1,0 +1,38 @@
+{
+  "themes": [
+    {
+      "name": "Hyaline Light",
+      "window": {
+        "applicationTheme": "light",
+        "useMica": true,
+        "frame": "#1668d9",
+        "unfocusedFrame": "#d3dae3"
+      },
+      "tabRow": {
+        "background": "#ffffff4c",
+        "unfocusedBackground": "#ffffff4c"
+      },
+      "tab": {
+        "background": "#f3f6f9",
+        "unfocusedBackground": null
+      }
+    },
+    {
+      "name": "Hyaline Light Flat",
+      "window": {
+        "applicationTheme": "light",
+        "useMica": false,
+        "frame": "#1668d9",
+        "unfocusedFrame": "#d3dae3"
+      },
+      "tabRow": {
+        "background": "#e9eef3",
+        "unfocusedBackground": "#e9eef3"
+      },
+      "tab": {
+        "background": "#f3f6f9",
+        "unfocusedBackground": null
+      }
+    }
+  ]
+}

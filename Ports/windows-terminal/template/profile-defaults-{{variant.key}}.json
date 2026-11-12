@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "defaults": {
+      "colorScheme": "{{variant.name}}",
+      "opacity": {{panel|percent}},
+      "useAcrylic": true,
+      "font": {
+        "face": "FiraCode Nerd Font Mono"
+      }
+    }
+  },
+  "theme": "{{variant.name}}"
+}

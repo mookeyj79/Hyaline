@@ -1,0 +1,50 @@
+{
+  "schemes": [
+    {
+      "name": "Hyaline Dark",
+      "background": "#1c2028",
+      "foreground": "#f2f5f9",
+      "cursorColor": "#8ec5ff",
+      "selectionBackground": "#8ec5ff",
+      "black": "#565a62",
+      "red": "#ff9a9a",
+      "green": "#8fe0b0",
+      "yellow": "#f5d58a",
+      "blue": "#8ec5ff",
+      "purple": "#c9b0ff",
+      "cyan": "#8fe3ea",
+      "white": "#d0d6e0",
+      "brightBlack": "#b4bcc9",
+      "brightRed": "#ff9a9a",
+      "brightGreen": "#8fe0b0",
+      "brightYellow": "#f5d58a",
+      "brightBlue": "#8ec5ff",
+      "brightPurple": "#c9b0ff",
+      "brightCyan": "#8fe3ea",
+      "brightWhite": "#f2f5f9"
+    },
+    {
+      "name": "Hyaline Dark Flat",
+      "background": "#434850",
+      "foreground": "#f2f5f9",
+      "cursorColor": "#8ec5ff",
+      "selectionBackground": "#8ec5ff",
+      "black": "#565a62",
+      "red": "#ff9a9a",
+      "green": "#8fe0b0",
+      "yellow": "#f5d58a",
+      "blue": "#8ec5ff",
+      "purple": "#c9b0ff",
+      "cyan": "#8fe3ea",
+      "white": "#d0d6e0",
+      "brightBlack": "#b4bcc9",
+      "brightRed": "#ff9a9a",
+      "brightGreen": "#8fe0b0",
+      "brightYellow": "#f5d58a",
+      "brightBlue": "#8ec5ff",
+      "brightPurple": "#c9b0ff",
+      "brightCyan": "#8fe3ea",
+      "brightWhite": "#f2f5f9"
+    }
+  ]
+}

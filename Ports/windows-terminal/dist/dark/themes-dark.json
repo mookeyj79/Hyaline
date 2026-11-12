@@ -1,0 +1,38 @@
+{
+  "themes": [
+    {
+      "name": "Hyaline Dark",
+      "window": {
+        "applicationTheme": "dark",
+        "useMica": true,
+        "frame": "#8ec5ff",
+        "unfocusedFrame": "#6c7076"
+      },
+      "tabRow": {
+        "background": "#1c2028b2",
+        "unfocusedBackground": "#1c2028b2"
+      },
+      "tab": {
+        "background": "#434850",
+        "unfocusedBackground": null
+      }
+    },
+    {
+      "name": "Hyaline Dark Flat",
+      "window": {
+        "applicationTheme": "dark",
+        "useMica": false,
+        "frame": "#8ec5ff",
+        "unfocusedFrame": "#6c7076"
+      },
+      "tabRow": {
+        "background": "#575b63",
+        "unfocusedBackground": "#575b63"
+      },
+      "tab": {
+        "background": "#434850",
+        "unfocusedBackground": null
+      }
+    }
+  ]
+}
