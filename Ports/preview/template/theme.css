@@ -1,0 +1,24 @@
+/* {{variant.name}} roles for the preview page. Generated from palette/palette.json. */
+:root[data-variant="{{variant.mode}}"] {
+  color-scheme: {{variant.mode}};
+  --backdrop: {{backdrop}};
+  --chrome: {{chrome|rgba}};
+  --chrome-flat: {{chrome_flat}};
+  --panel: {{panel|rgba}};
+  --panel-flat: {{panel_flat}};
+  --raised: {{raised|rgba}};
+  --raised-flat: {{raised_flat}};
+  --line: {{line}};
+  --text: {{text}};
+  --text-dim: {{text_dim}};
+  --text-muted: {{text_muted}};
+  --accent: {{accent}};
+  --on-accent: {{on_accent}};
+  --red: {{red}};
+  --green: {{green}};
+  --yellow: {{yellow}};
+  --blue: {{blue}};
+  --magenta: {{magenta}};
+  --cyan: {{cyan}};
+  --orange: {{orange}};
+}

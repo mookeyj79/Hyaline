@@ -1,0 +1,66 @@
+name: pages
+
+# Publishes the preview page (Ports/preview/dist) to GitHub Pages.
+# Turn on once: Settings > Pages > Source: GitHub Actions.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Ports/preview/dist/**'
+      - 'Ports/preview/assets/**'
+      - 'wallpapers/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check before publishing
+        shell: pwsh
+        run: ./build/check.ps1
+
+      - name: Assemble site
+        run: |
+          name=$(jq -r .meta.name palette/palette.json)
+          # Keep the repo layout so the page's relative wallpaper path works.
+          mkdir -p _site/Ports/preview
+          cp -r Ports/preview/dist Ports/preview/assets _site/Ports/preview/
+          cp -r wallpapers _site/
+          cat > _site/index.html <<HTML
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+          <meta charset="utf-8">
+          <title>$name Preview</title>
+          <meta http-equiv="refresh" content="0; url=Ports/preview/dist/dark/index.html">
+          <script>
+            var light = window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches;
+            location.replace("Ports/preview/dist/" + (light ? "light" : "dark") + "/index.html");
+          </script>
+          </head>
+          <body><a href="Ports/preview/dist/dark/index.html">$name Dark</a> / <a href="Ports/preview/dist/light/index.html">$name Light</a></body>
+          </html>
+          HTML
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
