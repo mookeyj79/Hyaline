@@ -1,0 +1,24 @@
+/* Hyaline Light roles for the preview page. Generated from palette/palette.json. */
+:root[data-variant="light"] {
+  color-scheme: light;
+  --backdrop: #dfe6ee;
+  --chrome: rgba(255, 255, 255, 0.3);
+  --chrome-flat: #e9eef3;
+  --panel: rgba(255, 255, 255, 0.93);
+  --panel-flat: #f3f6f9;
+  --raised: rgba(255, 255, 255, 0.5);
+  --raised-flat: #f9fafc;
+  --line: #d3dae3;
+  --text: #1b2130;
+  --text-dim: #465066;
+  --text-muted: #667085;
+  --accent: #1668d9;
+  --on-accent: #ffffff;
+  --red: #cc2f47;
+  --green: #1a8147;
+  --yellow: #9a6400;
+  --blue: #1668d9;
+  --magenta: #7a48d8;
+  --cyan: #0a7a87;
+  --orange: #b95008;
+}

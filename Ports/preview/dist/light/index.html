@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en" data-variant="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hyaline Preview</title>
+<meta name="description" content="Hyaline 0.2.0: one theme, two variants. Mock apps, roles, and contrast for Hyaline Dark and Hyaline Light.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../dark/theme.css">
+<link rel="stylesheet" href="../light/theme.css">
+<style>
+/* The recommended font, FiraCode Nerd Font Mono, trimmed to the characters
+   this page uses. Full font and license: ../../assets/fonts/ */
+@font-face {
+  font-family: "FiraCode Nerd Font Mono";
+  src: url("../../assets/fonts/FiraCodeNerdFontMono-Regular.subset.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "FiraCode Nerd Font Mono";
+  src: url("../../assets/fonts/FiraCodeNerdFontMono-Medium.subset.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+/* Every color on this page is a role variable from theme.css.
+   theme.css is generated from palette/palette.json. Do not add color values here. */
+:root {
+  --font-display: "Chakra Petch", "Trebuchet MS", sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "FiraCode Nerd Font Mono", "FiraCode Nerd Font", "Fira Code", Consolas, Menlo, monospace;
+  --blur: blur(18px);
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--backdrop);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+}
+/* Backdrop: a wallpaper from wallpapers/ (ADR 0003), over the backdrop role. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--backdrop) url("../../../../wallpapers/white-sands-dunes.jpg") center / cover no-repeat;
+}
+::selection { background: var(--accent); color: var(--on-accent); }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button { font-family: inherit; }
+
+/* Surfaces. Text never sits directly on the backdrop. */
+.panel {
+  background: var(--panel);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.raised { background: var(--raised); }
+
+/* Top bar */
+.topbar {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 8px 16px;
+  background: var(--chrome);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  border-bottom: 1px solid var(--line);
+}
+.brand { font: 600 1rem var(--font-display); letter-spacing: .04em; }
+.brand small { font: 400 .72rem var(--font-mono); color: var(--text); margin-left: 6px; letter-spacing: 0; }
+.switch { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.switch a {
+  padding: 6px 14px;
+  font: 500 .82rem var(--font-body);
+  color: var(--text);
+  text-decoration: none;
+  background: var(--raised);
+}
+.switch a + a { border-left: 1px solid var(--line); }
+.switch a[aria-current="true"] { background: var(--accent); color: var(--on-accent); }
+
+main {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.intro { padding: 20px; display: flex; flex-direction: column; gap: 8px; }
+h1 {
+  font: 600 1.9rem/1.15 var(--font-display);
+  margin: 0;
+  text-wrap: balance;
+}
+h1 span { color: var(--accent); text-transform: capitalize; }
+.intro p { margin: 0; color: var(--text-dim); max-width: 62ch; }
+.intro .note { color: var(--text-muted); font-size: .85rem; }
+
+/* Mock app windows */
+.panel.win { overflow: hidden; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+/* Content inside a window sits on panel; the title bar is chrome. */
+.win > :not(.bar):not(.status) {
+  background: var(--panel);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+}
+.bar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 8px 12px;
+  background: var(--chrome);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  border-bottom: 1px solid var(--line);
+  font: 400 .75rem var(--font-mono);
+  color: var(--text);
+}
+.bar .tab { padding: 2px 10px; border-radius: 5px; background: var(--raised); }
+.bar .url { flex: 1; min-width: 0; padding: 3px 12px; border-radius: 99px; background: var(--raised); overflow-wrap: anywhere; }
+.bar .kind { margin-left: auto; font: 500 .7rem var(--font-display); letter-spacing: .1em; text-transform: uppercase; }
+pre {
+  margin: 0;
+  padding: 14px;
+  overflow-x: auto;
+  font: 400 .8rem/1.65 var(--font-mono);
+  color: var(--text);
+  tab-size: 2;
+}
+.r { color: var(--red); } .g { color: var(--green); } .y { color: var(--yellow); }
+.b { color: var(--blue); } .m { color: var(--magenta); } .c { color: var(--cyan); }
+.o { color: var(--orange); } .mu { color: var(--text-muted); } .d { color: var(--text-dim); }
+.ac { color: var(--accent); }
+.err { text-decoration: underline wavy var(--red); text-underline-offset: 3px; }
+.ln { color: var(--text-muted); user-select: none; display: inline-block; width: 2ch; margin-right: 14px; text-align: right; }
+.hl { background: var(--raised); display: inline-block; width: 100%; }
+.cursor { display: inline-block; width: .6em; height: 1.1em; vertical-align: text-bottom; background: var(--accent); animation: blink 1.1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.status { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 4px 12px; background: var(--accent); color: var(--on-accent); font: 500 .7rem var(--font-mono); }
+
+.pad { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.pill { font: 500 .72rem var(--font-mono); padding: 1px 9px; border-radius: 99px; border: 1px solid currentColor; white-space: nowrap; }
+.btn { font-weight: 500; font-size: .85rem; padding: 7px 14px; border-radius: 6px; border: 1px solid var(--accent); background: var(--accent); color: var(--on-accent); cursor: pointer; }
+.btn.ghost { background: none; color: var(--accent); }
+.btn.danger { background: none; color: var(--red); border-color: var(--red); }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: currentColor; display: inline-block; flex: none; }
+.dot.live { animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .35; } }
+
+/* Docs page */
+.nav { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.nav b { font: 600 1.05rem var(--font-display); margin-right: auto; }
+.nav a { color: var(--text-dim); font-size: .85rem; text-decoration: none; }
+.nav a[aria-current] { color: var(--accent); }
+.doc h3 { font: 600 1.15rem/1.25 var(--font-display); margin: 0; }
+.doc .meta { font: .72rem var(--font-mono); color: var(--text-muted); }
+.doc p { margin: 0; color: var(--text-dim); font-size: .92rem; max-width: 62ch; }
+.doc code { font: .82rem var(--font-mono); color: var(--orange); background: var(--raised); padding: 1px 5px; border-radius: 4px; }
+.callout { border: 1px solid var(--line); border-left: 3px solid currentColor; border-radius: 0 6px 6px 0; padding: 8px 12px; background: var(--raised); font-size: .88rem; }
+.callout b { font-weight: 500; }
+.callout span { color: var(--text-dim); }
+.field { display: flex; flex-direction: column; gap: 4px; font-size: .82rem; color: var(--text-dim); }
+.field input {
+  font: .85rem var(--font-body); color: var(--text);
+  background: var(--raised); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px;
+}
+.field input:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
+.field input::placeholder { color: var(--text-muted); }
+
+/* Pipeline */
+.phead { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.phead b { font: 600 1rem var(--font-display); }
+.phead .msg { color: var(--text-dim); font-size: .85rem; }
+.stages { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 6px; }
+.stage { padding: 8px 10px; border: 1px solid var(--line); border-top: 3px solid currentColor; border-radius: 8px; font: .72rem var(--font-mono); display: flex; flex-direction: column; gap: 2px; }
+.stage b { font-weight: 500; }
+.stage span { color: var(--text-muted); }
+.job { display: grid; grid-template-columns: auto 1fr auto auto; gap: 10px; align-items: center; padding: 7px 0; border-top: 1px solid var(--line); font: .78rem var(--font-mono); }
+.job span { color: var(--text); overflow-wrap: anywhere; }
+.job em { font-style: normal; }
+.job time { color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+/* Dashboard */
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.tile { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--raised); display: flex; flex-direction: column; gap: 4px; }
+.tile .name { display: flex; align-items: center; gap: 7px; font: 500 .78rem var(--font-mono); }
+.tile .name span { color: var(--text); }
+.tile .val { font: 600 1.25rem/1.2 var(--font-display); color: var(--text); font-variant-numeric: tabular-nums; }
+.tile .lab { font-size: .72rem; color: var(--text-muted); }
+.meter { height: 5px; border-radius: 3px; background: var(--line); overflow: hidden; margin-top: 2px; }
+.meter i { display: block; height: 100%; background: currentColor; border-radius: 3px; }
+
+/* Mermaid */
+.diagram { background: var(--panel-flat); border: 1px solid var(--line); border-radius: 8px; padding: 12px; overflow-x: auto; }
+.diagram svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.diagram pre { padding: 0; color: var(--text-dim); }
+.diagram-note { margin: 0; font-size: .8rem; color: var(--text-muted); }
+.diagram-note code { font-family: var(--font-mono); color: var(--orange); }
+
+/* Font specimen */
+.specimen { border: 1px solid var(--line); border-radius: 8px; background: var(--raised); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; font-family: var(--font-mono); min-width: 0; }
+.spec-name { font-weight: 500; font-size: 1.15rem; }
+.spec-line { font-size: .9rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.icons { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .78rem; color: var(--text-dim); }
+.icons span { display: inline-flex; align-items: center; gap: 6px; }
+.icons b { font-weight: 400; font-size: 1.15rem; }
+
+/* Reference sections */
+.ref { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+h2 { font: 600 1.1rem var(--font-display); margin: 0; }
+h2 + p { margin: -6px 0 0; color: var(--text-dim); font-size: .9rem; }
+h3.group { font: 500 .75rem var(--font-display); letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); margin: 6px 0 0; }
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+.sw { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--raised); }
+.sw .chip { height: 40px; border-bottom: 1px solid var(--line); }
+.sw .info { padding: 6px 9px 8px; font: .72rem/1.45 var(--font-mono); display: flex; flex-direction: column; }
+.sw .info b { font-weight: 500; color: var(--text); }
+.sw .info span { color: var(--text-dim); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.sw .info em { font-style: normal; color: var(--text-muted); font-family: var(--font-body); }
+.sw .info .pass { color: var(--green); }
+.sw .info .fail { color: var(--red); }
+table { border-collapse: collapse; width: 100%; font-size: .85rem; }
+th, td { text-align: left; padding: 6px 8px; border-top: 1px solid var(--line); vertical-align: top; }
+th { font: 500 .72rem var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); border-top: 0; }
+td code { font: .8rem var(--font-mono); }
+td.d { color: var(--text-dim); }
+footer { padding: 14px 16px; color: var(--text-muted); font-size: .8rem; }
+footer p { margin: 0; }
+footer p + p { margin-top: 4px; }
+
+@media (max-width: 480px) {
+  .job { grid-template-columns: auto 1fr auto; }
+  .job time { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cursor, .dot.live { animation: none; }
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="brand">Hyaline<small>v0.2.0</small></span>
+  <nav class="switch" aria-label="Variant">
+    <a href="../dark/index.html" data-set="dark">Dark</a>
+    <a href="../light/index.html" data-set="light">Light</a>
+  </nav>
+</div>
+
+<main>
+  <section class="panel intro" aria-labelledby="title">
+    <h1 id="title">Hyaline <span id="variant-name">light</span></h1>
+    <p>Smoke by night, frost by day. One theme, two variants, the same look in every app. Switch variants at the top and everything below repaints.</p>
+    <p class="note">The apps below are mockups that show how each role is used. They are not screenshots of real ports. All sample data is made up.</p>
+    <p class="note">The top bar and the title bars are chrome: clear glass that carries primary text only. Everything you read sits on the denser panel, so every color stays readable over the wallpaper.</p>
+  </section>
+
+  <section class="panel win" aria-label="Terminal mockup">
+    <div class="bar"><span class="tab">&#xF489; bash</span><span>~/code/website</span><span class="kind">Terminal</span></div>
+<pre><span class="c">&#xF07B; ~/code/website</span> <span class="d">on</span> <span class="m">&#xE725; main</span> <span class="y">[!3 +1]</span> <span class="d">via</span> <span class="g">&#xE718; v22</span>
+<span class="g">❯</span> npm test
+ <span class="g">&#xF00C; pass</span>  render header <span class="mu">(12 ms)</span>
+ <span class="g">&#xF00C; pass</span>  render footer <span class="mu">(8 ms)</span>
+ <span class="r">&#xF00D; fail</span>  links resolve
+     <span class="r">Error:</span> <span class="c">src/pages/about.md</span><span class="d">:</span><span class="o">14</span> points to a missing page
+ <span class="d">Tests:</span> <span class="r">1 failed</span>, <span class="g">2 passed</span>, <span class="o">3</span> total
+
+<span class="r">❯</span> git status <span class="o">--short</span>
+ <span class="y">M</span> src/pages/about.md
+ <span class="g">A</span> src/pages/contact.md
+ <span class="r">D</span> src/pages/old.md
+<span class="mu">?? notes.txt</span>
+
+<span class="g">❯</span> <span class="cursor"></span></pre>
+  </section>
+
+  <section class="panel win" aria-label="Code editor mockup">
+    <div class="bar"><span class="tab">&#xE628; load.ts</span><span>&#xE628; render.ts</span><span>&#xE80B; palette.json</span><span class="kind">Editor</span></div>
+<pre><span class="ln">1</span><span class="mu">// Load one variant of the theme</span>
+<span class="ln">2</span><span class="m">import</span> <span class="d">{</span> <span class="b">readFile</span> <span class="d">}</span> <span class="m">from</span> <span class="g">"node:fs/promises"</span><span class="d">;</span>
+<span class="ln">3</span>
+<span class="ln">4</span><span class="m">type</span> <span class="c">Mode</span> <span class="d">=</span> <span class="g">"dark"</span> <span class="d">|</span> <span class="g">"light"</span><span class="d">;</span>
+<span class="ln">5</span>
+<span class="ln">6</span><span class="y">@cached</span>
+<span class="ln">7</span><span class="m">export async function</span> <span class="b">loadVariant</span><span class="d">(</span>mode<span class="d">:</span> <span class="c">Mode</span><span class="d">,</span> retries <span class="d">=</span> <span class="o">3</span><span class="d">):</span> <span class="c">Promise</span><span class="d">&lt;</span><span class="c">Variant</span><span class="d">&gt; {</span>
+<span class="hl"><span class="ln">8</span>  <span class="m">const</span> raw <span class="d">=</span> <span class="m">await</span> <span class="b">readFile</span><span class="d">(</span><span class="m">PALETTE_PATH</span><span class="d">,</span> <span class="g">"utf8"</span><span class="d">);</span></span>
+<span class="ln">9</span>  <span class="m">return</span> <span class="c">JSON</span><span class="d">.</span><span class="b">parse</span><span class="d">(</span>raw<span class="d">).</span><span class="b">variants</span><span class="d">[</span>mode<span class="d">]</span> <span class="d">??</span> <span class="err">fallbak</span><span class="d">;</span>
+<span class="ln">10</span><span class="d">}</span></pre>
+    <div class="status"><span>main</span><span>1 error, 0 warnings</span><span>TypeScript</span><span>Ln 8, Col 24</span></div>
+  </section>
+
+  <section class="panel win" aria-label="Documentation site mockup">
+    <div class="bar"><span class="url">docs.example.com/guide/install</span><span class="kind">Web</span></div>
+    <div class="nav"><b>Example Docs</b><a href="#title" aria-current="page" onclick="return false">Guide</a><a href="#title" onclick="return false">API</a><a href="#title" onclick="return false">Changelog</a></div>
+    <div class="pad doc">
+      <span class="meta">Guide / Install / 4 min read</span>
+      <h3>Install the command line tool</h3>
+      <p>Body text uses the dim text role. Links look like <a href="#title" onclick="return false">this one</a>, and inline code like <code>--version</code> uses orange.</p>
+      <div class="callout b"><b>Note.</b> <span>Info messages use blue.</span></div>
+      <div class="callout y"><b>Warning.</b> <span>This replaces your current config file.</span></div>
+      <div class="callout r"><b>Error.</b> <span>Version 1.x is no longer supported.</span></div>
+      <label class="field">Email for release notes<input type="email" placeholder="you@example.com"></label>
+      <div class="row"><span class="pill c">install</span><span class="pill c">cli</span><span class="pill m">beta</span></div>
+    </div>
+  </section>
+
+  <section class="panel win" aria-label="CI pipeline mockup">
+    <div class="bar"><span class="url">git.example.com/team/website/pipelines/482</span><span class="kind">CI</span></div>
+    <div class="pad">
+      <div class="phead"><b>Pipeline 482</b><span class="pill b">running</span><span class="msg">fix: broken link on about page</span></div>
+      <div class="stages">
+        <div class="stage g"><b>lint</b><span>passed 0:41</span></div>
+        <div class="stage g"><b>build</b><span>passed 1:12</span></div>
+        <div class="stage b"><b>test</b><span>running</span></div>
+        <div class="stage m"><b>deploy</b><span>planned</span></div>
+      </div>
+      <div>
+        <div class="job g"><i class="dot"></i><span>eslint</span><em>passed</em><time>0:18</time></div>
+        <div class="job g"><i class="dot"></i><span>build-site</span><em>passed</em><time>1:12</time></div>
+        <div class="job y"><i class="dot"></i><span>bundle-size</span><em>warning</em><time>0:31</time></div>
+        <div class="job b"><i class="dot live"></i><span>unit-tests</span><em>running</em><time>2:07</time></div>
+        <div class="job r"><i class="dot"></i><span>link-check</span><em>failed</em><time>0:09</time></div>
+      </div>
+      <div class="row"><button class="btn" type="button">Retry failed</button><button class="btn ghost" type="button">View logs</button><button class="btn danger" type="button">Cancel</button></div>
+    </div>
+  </section>
+
+  <section class="panel win" aria-label="Status dashboard mockup">
+    <div class="bar"><span class="tab">Services</span><span>Storage</span><span>Network</span><span class="kind">Dashboard</span></div>
+    <div class="pad">
+      <div class="tiles">
+        <div class="tile g"><div class="name"><i class="dot"></i><span>Web</span></div><div class="val">healthy</div><div class="lab">CPU 34%</div><div class="meter"><i style="width:34%"></i></div></div>
+        <div class="tile y"><div class="name"><i class="dot"></i><span>Storage</span></div><div class="val">81%</div><div class="lab">nearly full</div><div class="meter"><i style="width:81%"></i></div></div>
+        <div class="tile r"><div class="name"><i class="dot"></i><span>Mail</span></div><div class="val">down</div><div class="lab">unreachable 12 min</div><div class="meter"><i style="width:6%"></i></div></div>
+        <div class="tile b"><div class="name"><i class="dot live"></i><span>Backup</span></div><div class="val">running</div><div class="lab">48% copied</div><div class="meter"><i style="width:48%"></i></div></div>
+        <div class="tile m"><div class="name"><i class="dot"></i><span>Search</span></div><div class="val">planned</div><div class="lab">next quarter</div><div class="meter"><i style="width:0%"></i></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel win" aria-label="Mermaid diagrams">
+    <div class="bar"><span class="tab">&#xE609; deploy.md</span><span>&#xE609; login.md</span><span class="kind">Mermaid</span></div>
+    <div class="pad">
+      <div class="diagram">
+<pre class="mermaid-src">flowchart LR
+  subgraph ci [CI]
+    push[Push] --> checks{Checks pass?}
+  end
+  checks -- yes --> deploy[Deploy: passed]:::ok
+  checks -- no --> fix[Fix: failed]:::fail
+  deploy --> watch[Monitor: running]:::active
+  watch -- slow --> look[Investigate: warning]:::warn
+  fix -. later .-> refactor[Refactor: planned]:::planned</pre>
+      </div>
+      <div class="diagram">
+<pre class="mermaid-src">sequenceDiagram
+  participant U as Browser
+  participant A as API
+  participant D as Database
+  U->>A: POST /login
+  activate A
+  A->>D: find user
+  D-->>A: user row
+  Note over A,D: Password is checked here
+  alt valid password
+    A-->>U: 200 OK
+  else wrong password
+    A-->>U: 401 Unauthorized
+  end
+  deactivate A</pre>
+      </div>
+      <p class="diagram-note">Rendered with Mermaid's <code>base</code> theme. Every theme variable these diagrams use is set from a role, so Mermaid never mixes colors of its own.</p>
+    </div>
+  </section>
+
+  <section class="panel ref" aria-labelledby="roles">
+    <h2 id="roles">Roles</h2>
+    <p>Every color in every port comes from one of these. Contrast is measured against the flat panel, the worst case.</p>
+    <div id="swatches"></div>
+  </section>
+
+  <section class="panel ref" aria-labelledby="font">
+    <h2 id="font">Font</h2>
+    <p>Hyaline recommends <a href="https://www.nerdfonts.com/font-downloads">FiraCode Nerd Font</a>: monospaced, with programming ligatures and the icons that shell prompts and file trees use. Every mono line on this page is set in it.</p>
+    <div class="specimen">
+      <div class="spec-name">FiraCode Nerd Font Mono</div>
+      <div class="spec-line">The quick brown fox jumps over the lazy dog 0123456789</div>
+      <div class="spec-line"><span class="d">Ligatures</span>  <span class="b">=&gt;</span>  <span class="b">-&gt;</span>  <span class="m">!=</span>  <span class="m">===</span>  <span class="o">&lt;=</span>  <span class="o">&gt;=</span>  <span class="c">::</span>  <span class="y">//</span>  <span class="g">www</span>  <span class="d">0O 1lI</span></div>
+      <div class="icons">
+        <span><b class="c">&#xF07B;</b>folder</span>
+        <span><b class="m">&#xE725;</b>branch</span>
+        <span><b class="g">&#xF00C;</b>pass</span>
+        <span><b class="r">&#xF00D;</b>fail</span>
+        <span><b class="y">&#xF071;</b>warning</span>
+        <span><b class="b">&#xF017;</b>running</span>
+        <span><b class="b">&#xE628;</b>TypeScript</span>
+        <span><b class="g">&#xE718;</b>Node.js</span>
+        <span><b class="ac">&#xF489;</b>terminal</span>
+      </div>
+    </div>
+    <p>Install it from the <a href="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip">Nerd Fonts release</a>. Each port's install guide says where to set it in that app.</p>
+  </section>
+
+  <section class="panel ref" aria-labelledby="syntax">
+    <h2 id="syntax">Syntax mapping</h2>
+    <p>The same tokens get the same role in every editor and highlighter.</p>
+    <table>
+      <thead><tr><th>Token</th><th>Role</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>Keys, properties, functions</td><td class="d">Blue</td><td><code class="b">loadVariant</code></td></tr>
+        <tr><td>Strings</td><td class="d">Green</td><td><code class="g">"utf8"</code></td></tr>
+        <tr><td>Numbers, flags</td><td class="d">Orange</td><td><code class="o">3 --short</code></td></tr>
+        <tr><td>Keywords, booleans, constants</td><td class="d">Magenta</td><td><code class="m">const true</code></td></tr>
+        <tr><td>Types, references, anchors</td><td class="d">Cyan</td><td><code class="c">Promise</code></td></tr>
+        <tr><td>Tags, annotations, decorators</td><td class="d">Yellow</td><td><code class="y">@cached</code></td></tr>
+        <tr><td>Errors, invalid</td><td class="d">Red</td><td><code class="r">Error:</code></td></tr>
+        <tr><td>Punctuation</td><td class="d">Dim text</td><td><code class="d">{ } ;</code></td></tr>
+        <tr><td>Comments</td><td class="d">Muted text</td><td><code class="mu">// note</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <footer class="panel">
+    <p>Hyaline 0.2.0. Every color on this page is generated from <code>palette/palette.json</code>.</p>
+    <p>Ports and install guides are in the repo under <code>Ports/</code>.</p>
+  </footer>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<script>
+(function () {
+  const root = document.documentElement;
+  const names = { dark: "Dark", light: "Light" };
+
+  const groups = [
+    { title: "Surfaces", roles: [
+      ["backdrop", "Behind the app"],
+      ["chrome", "Frame, translucent"],
+      ["chrome-flat", "Frame, solid"],
+      ["panel", "Main surface, translucent"],
+      ["panel-flat", "Main surface, solid"],
+      ["raised", "Lifted surface, translucent"],
+      ["raised-flat", "Lifted surface, solid"],
+      ["line", "Borders and dividers"]
+    ]},
+    { title: "Text", roles: [
+      ["text", "Content", 4.5],
+      ["text-dim", "Supporting", 4.5],
+      ["text-muted", "Comments, metadata", 3]
+    ]},
+    { title: "Signal", roles: [
+      ["accent", "You are here", 4.5],
+      ["on-accent", "Text on accent", 4.5, "accent"],
+      ["red", "Failure, removal", 4.5],
+      ["green", "Success, addition", 4.5],
+      ["yellow", "Caution, change", 4.5],
+      ["blue", "Info, in progress", 4.5],
+      ["magenta", "Special, planned", 4.5],
+      ["cyan", "Reference", 4.5],
+      ["orange", "Literal", 4.5]
+    ]}
+  ];
+
+  function role(name) {
+    return getComputedStyle(root).getPropertyValue("--" + name).trim();
+  }
+  function luminance(hex) {
+    const m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex);
+    if (!m) return null;
+    const c = m.slice(1).map(function (h) {
+      const v = parseInt(h, 16) / 255;
+      return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  }
+  function contrast(a, b) {
+    const la = luminance(a), lb = luminance(b);
+    if (la === null || lb === null) return null;
+    return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+  }
+
+  function renderSwatches() {
+    const host = document.getElementById("swatches");
+    host.textContent = "";
+    groups.forEach(function (g) {
+      const h = document.createElement("h3");
+      h.className = "group";
+      h.textContent = g.title;
+      const grid = document.createElement("div");
+      grid.className = "swatches";
+      g.roles.forEach(function (r) {
+        const [name, meaning, floor, against] = r;
+        const value = role(name);
+        const sw = document.createElement("div");
+        sw.className = "sw";
+        const chip = document.createElement("div");
+        chip.className = "chip";
+        chip.style.background = "var(--" + name + ")";
+        const info = document.createElement("div");
+        info.className = "info";
+        const b = document.createElement("b"); b.textContent = name.replace("-", "_");
+        const v = document.createElement("span"); v.textContent = value;
+        const e = document.createElement("em"); e.textContent = meaning;
+        info.append(b, v, e);
+        if (floor) {
+          const bg = against || "panel-flat";
+          const ratio = contrast(value, role(bg));
+          if (ratio !== null) {
+            const ok = ratio >= floor;
+            const s = document.createElement("span");
+            s.className = ok ? "pass" : "fail";
+            s.textContent = ratio.toFixed(2) + ":1 " + (ok ? "pass" : "fail") + " on " + bg.replace("-", "_");
+            info.append(s);
+          }
+        }
+        sw.append(chip, info);
+        grid.append(sw);
+      });
+      host.append(h, grid);
+    });
+  }
+
+  // Mermaid: every variable the flowchart and sequence diagrams read is set
+  // from a role, so Mermaid has nothing left to derive on its own.
+  const diagrams = Array.from(document.querySelectorAll(".diagram")).map(function (el) {
+    return { el: el, src: el.querySelector(".mermaid-src").textContent };
+  });
+  let renderCount = 0;
+
+  function mermaidVariables(mode) {
+    const r = role;
+    return {
+      darkMode: mode === "dark",
+      fontFamily: getComputedStyle(root).getPropertyValue("--font-body").trim(),
+      fontSize: "14px",
+      background: r("panel-flat"),
+      // Nodes
+      primaryColor: r("raised-flat"),
+      primaryTextColor: r("text"),
+      primaryBorderColor: r("text-muted"),
+      secondaryColor: r("raised-flat"),
+      secondaryTextColor: r("text"),
+      secondaryBorderColor: r("text-muted"),
+      tertiaryColor: r("panel-flat"),
+      tertiaryTextColor: r("text"),
+      tertiaryBorderColor: r("line"),
+      mainBkg: r("raised-flat"),
+      nodeBorder: r("text-muted"),
+      nodeTextColor: r("text"),
+      textColor: r("text"),
+      titleColor: r("text-dim"),
+      // Edges
+      lineColor: r("text-dim"),
+      arrowheadColor: r("text-dim"),
+      edgeLabelBackground: r("panel-flat"),
+      // Subgraphs
+      clusterBkg: r("panel-flat"),
+      clusterBorder: r("line"),
+      // Notes are annotations: yellow
+      noteBkgColor: r("raised-flat"),
+      noteTextColor: r("text"),
+      noteBorderColor: r("yellow"),
+      // Sequence diagrams
+      actorBkg: r("raised-flat"),
+      actorBorder: r("text-muted"),
+      actorTextColor: r("text"),
+      actorLineColor: r("line"),
+      signalColor: r("text-dim"),
+      signalTextColor: r("text"),
+      labelBoxBkgColor: r("raised-flat"),
+      labelBoxBorderColor: r("text-muted"),
+      labelTextColor: r("text"),
+      loopTextColor: r("text-dim"),
+      activationBkgColor: r("raised-flat"),
+      activationBorderColor: r("blue"),
+      sequenceNumberColor: r("on-accent"),
+      // Parse errors
+      errorBkgColor: r("panel-flat"),
+      errorTextColor: r("red")
+    };
+  }
+
+  function statusClasses() {
+    // Status nodes keep the neutral fill and take the role on the border.
+    // Every label also says its status in words.
+    return [
+      ["ok", "green"], ["fail", "red"], ["warn", "yellow"],
+      ["active", "blue"], ["planned", "magenta"]
+    ].map(function (c) {
+      return "  classDef " + c[0] + " stroke:" + role(c[1]) + ",stroke-width:2px,color:" + role("text");
+    }).join("\n");
+  }
+
+  async function renderDiagrams(mode) {
+    if (!window.mermaid) return; // offline: the source stays visible
+    window.mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: "strict",
+      theme: "base",
+      themeVariables: mermaidVariables(mode)
+    });
+    for (const d of diagrams) {
+      const src = d.src.startsWith("flowchart") ? d.src + "\n" + statusClasses() : d.src;
+      try {
+        const out = await window.mermaid.render("mermaid-" + (++renderCount), src);
+        d.el.innerHTML = out.svg;
+      } catch (err) {
+        d.el.textContent = "Diagram failed to render: " + err.message;
+      }
+    }
+  }
+
+  function setVariant(mode) {
+    root.dataset.variant = mode;
+    document.getElementById("variant-name").textContent = names[mode];
+    document.querySelectorAll(".switch a").forEach(function (a) {
+      a.setAttribute("aria-current", String(a.dataset.set === mode));
+    });
+    renderSwatches();
+    renderDiagrams(mode);
+  }
+
+  document.querySelectorAll(".switch a").forEach(function (a) {
+    a.addEventListener("click", function (ev) {
+      ev.preventDefault();
+      setVariant(a.dataset.set);
+    });
+  });
+  setVariant(root.dataset.variant);
+})();
+</script>
+</body>
+</html>
