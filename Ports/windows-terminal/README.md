@@ -200,7 +200,7 @@ The glass scheme's `background` is the panel tint and `opacity` is the panel alp
 - **Selected text** keeps its own color on the `accent` selection. Windows Terminal has no selection text color setting. Check that selected text is readable when taking screenshots, especially in Light.
 - **Window frame colors** (`frame`, `unfocusedFrame`) only work in Windows Terminal Preview on Windows 11, per the docs. Other versions ignore them.
 - **Mica** needs Windows 11 build 22621 or later. Without it the glass tab row is not see-through.
-- **Bright ANSI colors** match their normal colors on purpose ([ADR 0001](../../docs/adr/0001-bright-ansi-colors-reuse-normal-hues.md)).
+- **Bright ANSI colors** match their normal colors on purpose.
 - **Scrollbar, command palette, and settings screen** follow `applicationTheme`, not Hyaline colors.
 - **Not tested on a real machine yet.** Screenshots and a tested version are still to come.
 
