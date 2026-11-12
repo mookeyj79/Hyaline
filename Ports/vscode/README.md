@@ -523,7 +523,20 @@ Semantic tokens follow the same table: types, classes, and namespaces are `cyan`
 - **Button hover** does not change color. The palette has one accent, with no hover shade.
 - **Shadows** under widgets and menus use VS Code's default shadow.
 - **Settings not listed above** keep VS Code's default for the base theme (Dark Modern or Light Modern). That covers newer or rarely seen parts, such as the notebook editor, chat, and the welcome page.
-- **Not tested on a real machine yet.** Screenshots and a tested version are still to come.
+- **Not tested on a real machine yet.** See [Still to do](#still-to-do).
+
+### Still to do
+
+Before this port counts as finished:
+
+1. **Test the VSIX install.** Follow [Install](#install) on Windows from a clean VS Code. Note any question `vsce` asks and anything that differs from the steps.
+2. **Test the folder install.** Follow [Install without Node.js](#install-without-nodejs). If VS Code ignores the copied folders, remove that section and say so under Troubleshooting.
+3. **Check both variants.** Switch with **Ctrl+K**, **Ctrl+T**. Open a diff, select code, and run a search. Check that selected and highlighted code is readable, especially yellow and cyan in Light.
+4. **Check following Windows.** Turn on the settings in [Switch between Dark and Light](#switch-between-dark-and-light) and change the Windows mode.
+5. **Fill in "Tested with"** at the top with the VS Code version and OS.
+6. **Add screenshots.** Save one per variant as `screenshots/dark.png` and `screenshots/light.png` in this folder.
+7. **Set the publisher.** `template/package.json` uses `hyaline` as a placeholder. Replace it with the real Marketplace publisher ID once one exists, then rebuild.
+8. **Publish to the Marketplace.** Only after steps 1 to 7. Tracked in [issue #14](https://github.com/mookeyj79/Hyaline/issues/14).
 
 ### Sources and credits
 
