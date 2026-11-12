@@ -39,7 +39,7 @@ Not every app can do glass. Each port says how far it gets:
 
 - **Tier 1, Full glass**: full palette, translucency, and blur
 - **Tier 2, Flat**: full palette on solid surfaces, no blur
-- **Tier 3, Accent**: background, accent, and status colors only
+- **Tier 3, Minimal**: background, accent, and status colors only
 
 ## How it works
 

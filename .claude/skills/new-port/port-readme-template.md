@@ -1,6 +1,6 @@
 # Hyaline for <App>
 
-**Tier:** <1 Full glass | 2 Flat | 3 Accent>
+**Tier:** <1 Full glass | 2 Flat | 3 Minimal>
 **Variants:** Hyaline Dark, Hyaline Light
 **Tested with:** <App> <version> on <OS>
 

@@ -83,7 +83,7 @@ Not every app can do everything. Each port declares its tier in its README.
 |---|---|---|
 | **1** | Full glass | Complete palette, translucency, and blur |
 | **2** | Flat | Complete palette using flat fallbacks. No blur. |
-| **3** | Accent | The app only allows limited theming: background, accent, and status colors |
+| **3** | Minimal | The app only allows limited theming: background, accent, and status colors |
 
 A Tier 3 port is a win, not a compromise. The tier exists so "close enough" is a defined grade and not an argument to have every time.
 
@@ -99,7 +99,7 @@ The light variant is where this bites. Yellow and cyan get darkened until they p
 
 ## Hard no's
 
-- **No hex values outside the palette.** Ports reference roles only.
+- **No hex values outside the palette.** Ports reference roles only. Wallpapers are the one exception: they are image assets, not colors (ADR 0003).
 - **No inventing colors in a port.** If a port truly needs a new one, it goes into the palette and becomes available to every port.
 - **No single-variant ports.** Ship Dark and Light together. If an app only supports one mode, say so in the README.
 - **No pure black backgrounds and no pure white text.** Smoke is not black, and nothing here should glow.
@@ -141,8 +141,8 @@ The palette is versioned.
 
 Every palette change rebuilds every port. CI fails if any committed output does not match the current palette.
 
-## Open questions
+## Settled questions
 
-- **Bright terminal colors.** Same hue as the normal eight, or slightly lifted?
-- **Accent.** One fixed blue, or a small set of selectable accents?
-- **Backdrop.** Does the repo ship wallpapers, or just describe what a good one looks like?
+- **Bright terminal colors.** The bright six reuse their normal roles. Black and white slots map to neutral roles by brightness. See [ADR 0001](docs/adr/0001-bright-ansi-colors-reuse-normal-hues.md).
+- **Accent.** One fixed blue. See [ADR 0002](docs/adr/0002-one-fixed-accent.md).
+- **Backdrop.** The repo will ship wallpapers: found images with a license that allows redistribution and a recorded credit. They are the one exception to the palette rule. See [ADR 0003](docs/adr/0003-wallpapers-are-found-images.md) and [issue #1](https://github.com/mookeyj79/Hyaline/issues/1).

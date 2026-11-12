@@ -52,7 +52,7 @@ Per PHILOSOPHY.md:
 
 - **Tier 1, Full glass**: full palette plus translucency and blur
 - **Tier 2, Flat**: full palette with `panel_flat` and `raised_flat`
-- **Tier 3, Accent**: only background, accent, and status colors
+- **Tier 3, Minimal**: only background, accent, and status colors
 
 Tell the user the tier and the known gaps in two or three lines, then carry on. Only wait for an answer if the port would be Tier 3 or worse than they likely expect.
 
@@ -65,7 +65,14 @@ List every color slot the app exposes and assign each one a role. Write this as 
 - Focus, selection, cursor, links, primary buttons: `accent`, with `on_accent` for text on top of it
 - State: `red` failure, `green` success, `yellow` change or warning, `blue` info or in progress
 - Syntax: follow the syntax mapping table in PHILOSOPHY.md exactly
-- Terminal ANSI: black and white map to neutral roles, the six colors map to their namesakes, purple maps to `magenta`
+- Terminal ANSI: the six colors map to their namesakes, purple maps to `magenta`, and each bright color reuses its normal role (ADR 0001). Black and white map to neutrals by brightness:
+
+  | Slot | Dark | Light |
+  |---|---|---|
+  | black | `raised_flat` | `text` |
+  | bright black | `text_muted` | `text_muted` |
+  | white | `text_dim` | `line` |
+  | bright white | `text` | `raised_flat` |
 
 If a slot has no fitting role, use the closest one. If nothing is close, stop and propose a palette change. Never invent a color.
 

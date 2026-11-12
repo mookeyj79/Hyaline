@@ -15,6 +15,9 @@ The design rules are in PHILOSOPHY.md. They are binding, not background reading:
 
 ```
 PHILOSOPHY.md               design rules (source of truth for decisions)
+GLOSSARY.md                 project terms
+docs/adr/                   recorded decisions and why
+wallpapers/                 found backdrop images with credits (planned, issue #1)
 palette/palette.json        every color, for both variants (source of truth for values)
 Ports/<app_name>/
   template/                 files with {{role}} placeholders, no raw colors
@@ -28,7 +31,7 @@ build/check.ps1             drift, raw-hex, placeholder, and contrast checks
 
 ## Rules that are never broken
 
-1. **No color values outside `palette/palette.json`.** Templates use `{{role}}` placeholders only. This includes hex, rgb(), hsl(), and named colors.
+1. **No color values outside `palette/palette.json`.** Templates use `{{role}}` placeholders only. This includes hex, rgb(), hsl(), and named colors. The one exception is wallpapers, which are image assets (ADR 0003).
 2. **Never invent a color.** If a port needs something the palette lacks, stop and propose a palette change to the user. Do not approximate.
 3. **Never edit files in `dist/` by hand.** Change the template or the palette, then rebuild.
 4. **Both variants or neither.** If the app supports only one mode, ship that one and say so in the port README.
