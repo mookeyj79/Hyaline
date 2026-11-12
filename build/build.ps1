@@ -19,6 +19,8 @@
         {{role|percent}}   alpha as a whole percent, 0 to 100
         {{role|wash}}      #rrggbbaa using the variant's wash alpha, for
                            see-through highlights (selection, diff lines)
+        {{role|washflat}}  #rrggbb, the wash laid over panel_flat, for apps
+                           that take solid colors only
         {{role|clear}}     #rrggbb00, fully transparent, for app settings
                            that must be switched off with a color
         {{ansi.<slot>}}    the role for a terminal ANSI slot (ADR 0001):
@@ -95,6 +97,9 @@ function Read-Palette {
             $wash = [double]$v['wash']
             if ($wash -le 0 -or $wash -ge 1) { throw "Variant '$vKey' has a wash outside 0 to 1." }
             foreach ($r in @($roles.Values)) { $r['wash'] = $wash }
+            if ($roles.ContainsKey('panel_flat')) {
+                foreach ($r in @($roles.Values)) { $r['wash_bg'] = $roles['panel_flat'].hex }
+            }
         }
         $v['_roles'] = $roles
         $v['_key'] = $vKey
@@ -143,6 +148,15 @@ function Format-Role {
         'wash'   {
             if (-not $Role.Contains('wash')) { throw "The palette has no wash for this variant: $Token." }
             return $hex + ([int][math]::Round($Role.wash * 255)).ToString('x2')
+        }
+        'washflat' {
+            if (-not $Role.Contains('wash') -or -not $Role.Contains('wash_bg')) { throw "The palette has no wash or panel_flat for this variant: $Token." }
+            $out = foreach ($i in 1, 3, 5) {
+                $f = [Convert]::ToInt32($hex.Substring($i, 2), 16)
+                $b = [Convert]::ToInt32($Role.wash_bg.Substring($i, 2), 16)
+                ([int][math]::Round($f * $Role.wash + $b * (1 - $Role.wash))).ToString('x2')
+            }
+            return '#' + ($out -join '')
         }
         default  { throw "Unknown filter '$Filter' in $Token." }
     }

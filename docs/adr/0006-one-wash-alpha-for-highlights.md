@@ -16,4 +16,5 @@ The role colors already sit at about 4.5:1 on `panel_flat` (Dark `red`, Light `g
 - Palette 0.3.0, a minor change: a new value, no role changed meaning.
 - `check.ps1` measures every text and color role on every color role's wash.
 - The rule covers one wash layer. Where an app stacks two (a selection over an added line), the result is darker than the floor assumes. Ports avoid stacking where the app allows it.
+- Apps that take solid colors only get the wash already laid over `panel_flat` with `{{role|washflat}}`. It is the same color the contrast check measures, so it passes the same floor. Added for Claude Code, palette unchanged.
 - Washes are for highlights under text. Solid fills with `on_accent` text stay the way to mark selected items in lists and menus.

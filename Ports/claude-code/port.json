@@ -1,0 +1,14 @@
+{
+  "name": "Claude Code",
+  "category": "other",
+  "tier": 2,
+  "platforms": ["windows", "macos", "linux"],
+  "icon": {
+    "kind": "glyph",
+    "set": "Lucide 1.72.0",
+    "name": "sparkles",
+    "author": "Lucide Icons and Contributors",
+    "source": "https://lucide.dev/icons/sparkles",
+    "license": "ISC"
+  }
+}
