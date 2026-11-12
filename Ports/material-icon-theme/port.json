@@ -1,0 +1,6 @@
+{
+  "name": "Material Icon Theme",
+  "category": "editor",
+  "tier": 3,
+  "platforms": ["windows", "macos", "linux"]
+}

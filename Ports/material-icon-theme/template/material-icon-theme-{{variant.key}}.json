@@ -1,0 +1,6 @@
+{
+  "workbench.iconTheme": "material-icon-theme",
+  "material-icon-theme.folders.color": "{{text_dim}}",
+  "material-icon-theme.rootFolders.color": "{{text}}",
+  "material-icon-theme.files.color": "{{text_muted}}"
+}
