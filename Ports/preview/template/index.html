@@ -81,8 +81,9 @@ button { font-family: inherit; }
 .brand small { font: 400 .72rem var(--font-mono); color: var(--text); margin-left: 6px; letter-spacing: 0; }
 .topbar-end { display: flex; align-items: center; gap: 14px; }
 .repo { color: var(--text); text-decoration: none; font: 500 .85rem var(--font-body); display: inline-flex; align-items: center; gap: 6px; }
-.repo span { font: 400 1.1rem var(--font-mono); }
-.repo:hover { text-decoration: underline; }
+.repo-icon { font: 400 1.1rem var(--font-mono); }
+/* Underline only the word: the flex gap would break a line drawn across the whole link. */
+.repo:hover .repo-label, .repo:focus-visible .repo-label { text-decoration: underline; text-underline-offset: 3px; }
 .switch { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
 .switch a {
   padding: 6px 14px;
@@ -256,7 +257,7 @@ footer p + p { margin-top: 4px; }
 <div class="topbar">
   <span class="brand">{{meta.name}}<small>v{{meta.version}}</small></span>
   <div class="topbar-end">
-    <a class="repo" href="{{meta.repository}}"><span aria-hidden="true">&#xF09B;</span> GitHub</a>
+    <a class="repo" href="{{meta.repository}}"><span class="repo-icon" aria-hidden="true">&#xF09B;</span><span class="repo-label">GitHub</span></a>
     <nav class="switch" aria-label="Variant">
       <a href="../dark/index.html" data-set="dark">Dark</a>
       <a href="../light/index.html" data-set="light">Light</a>
