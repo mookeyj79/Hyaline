@@ -15,7 +15,7 @@
     4. Port list  Every port has a valid port.json (except folders listed as
                   unlisted), and planned ports in Ports/ports.json do not
                   exist yet.
-    5. Raw color  No hex, rgb(), or hsl() values in templates.
+    5. Raw color  No hex, rgb(), or hsl() values in templates or values.json.
                   Add "hyaline-ignore" to a line to skip it (for example a CSS
                   id selector that happens to look like a hex color).
     6. Drift      Committed dist/ matches a fresh build.
@@ -358,7 +358,10 @@ $funcPattern = '\b(?:rgba?|hsla?)\(\s*[\d.]'
 foreach ($dir in $portDirs) {
     $templateDir = Join-Path $dir.FullName 'template'
     if (-not (Test-Path $templateDir)) { continue }
-    foreach ($file in Get-ChildItem -Path $templateDir -Recurse -File -Force) {
+    $scan = @(Get-ChildItem -Path $templateDir -Recurse -File -Force)
+    $valuesPath = Join-Path $dir.FullName 'values.json'
+    if (Test-Path $valuesPath) { $scan += Get-Item -Path $valuesPath }
+    foreach ($file in $scan) {
         $bytes = [System.IO.File]::ReadAllBytes($file.FullName)
         if ((Test-IsBinary $bytes) -and -not ($bytes.Length -ge 2 -and $bytes[0] -in 0xFF, 0xFE)) { continue }
         $rel = [System.IO.Path]::GetRelativePath($RepoRoot, $file.FullName) -replace '\\', '/'

@@ -39,10 +39,12 @@ The quickest way is [Claude Code](https://claude.com/claude-code): open the repo
    | `{{role\|rgba}}` | `rgba(r, g, b, a)` using the role's alpha |
    | `{{role\|hexa}}` | `#rrggbbaa` using the role's alpha |
    | `{{role\|percent}}` | the role's alpha as a whole percent, `0` to `100` |
-| `{{role\|wash}}` | `#rrggbbaa` using the variant's `wash` alpha, for see-through highlights |
+   | `{{role\|wash}}` | `#rrggbbaa` using the variant's `wash` alpha, for see-through highlights |
+   | `{{role\|clear}}` | `#rrggbb00`, fully transparent, for app settings that can only be switched off with a color |
    | `{{ansi.<slot>}}` | the role for a terminal ANSI slot per ADR 0001 (`black` to `white`, `bright_<slot>`), takes the same filters |
    | `{{meta.name}}`, `{{variant.name}}`, `{{variant.mode}}` | theme name, variant name, `dark` or `light` |
    | `{{meta.repository}}` | the repo URL |
+   | `{{port.<key>}}` | a per-variant app value that is not a color, from `Ports/<app_name>/values.json` (`{ "dark": { "<key>": "..." }, "light": { ... } }`) |
 
 5. **Build and check**:
 

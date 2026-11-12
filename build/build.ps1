@@ -19,11 +19,16 @@
         {{role|percent}}   alpha as a whole percent, 0 to 100
         {{role|wash}}      #rrggbbaa using the variant's wash alpha, for
                            see-through highlights (selection, diff lines)
+        {{role|clear}}     #rrggbb00, fully transparent, for app settings
+                           that must be switched off with a color
         {{ansi.<slot>}}    the role for a terminal ANSI slot (ADR 0001):
                            black, red, green, yellow, blue, magenta, cyan,
                            white, and bright_<each>. Takes the same filters.
         {{meta.name}}      {{meta.version}}
         {{variant.name}}   {{variant.mode}}   {{variant.key}}
+        {{port.<key>}}     a per-variant app value (not a color) from
+                           Ports/<port>/values.json:
+                           { "dark": { "<key>": "..." }, "light": { ... } }
 
 .PARAMETER Port
     Build only this port (the folder name under Ports/).
@@ -134,6 +139,7 @@ function Format-Role {
         'hexa'   { return $hex + ([int][math]::Round($Role.alpha * 255)).ToString('x2') }
         'alpha'  { return $a }
         'percent' { return [string][int][math]::Round($Role.alpha * 100) }
+        'clear'  { return $hex + '00' }
         'wash'   {
             if (-not $Role.Contains('wash')) { throw "The palette has no wash for this variant: $Token." }
             return $hex + ([int][math]::Round($Role.wash * 255)).ToString('x2')
@@ -143,7 +149,7 @@ function Format-Role {
 }
 
 function Resolve-Token {
-    param([string]$Name, [string]$Filter, $Palette, $Variant, [string]$Source)
+    param([string]$Name, [string]$Filter, $Palette, $Variant, [string]$Source, $PortValues)
     $token = '{{' + $Name + $(if ($Filter) { "|$Filter" }) + '}}'
     $value = $null
     switch -Regex ($Name) {
@@ -156,6 +162,12 @@ function Resolve-Token {
             $k = $Matches[1]
             if ($k -eq 'key') { $value = $Variant['_key'] }
             elseif ($k -in 'name', 'mode') { $value = [string]$Variant[$k] }
+            break
+        }
+        '^port\.(.+)$' {
+            $k = $Matches[1]
+            $set = if ($PortValues) { $PortValues[$Variant['_key']] } else { $null }
+            if ($set -is [System.Collections.IDictionary] -and $set.Contains($k)) { $value = [string]$set[$k] }
             break
         }
         '^ansi\.(.+)$' {
@@ -177,10 +189,10 @@ function Resolve-Token {
 }
 
 function Expand-Text {
-    param([string]$Text, $Palette, $Variant, [string]$Source)
+    param([string]$Text, $Palette, $Variant, [string]$Source, $PortValues)
     return $Text -creplace $Placeholder, {
         Resolve-Token -Name $_.Groups[1].Value -Filter $_.Groups[2].Value `
-            -Palette $Palette -Variant $Variant -Source $Source
+            -Palette $Palette -Variant $Variant -Source $Source -PortValues $PortValues
     }
 }
 
@@ -243,6 +255,8 @@ foreach ($dir in $portDirs) {
     }
     $outRoot = if ($Destination) { Join-Path $Destination $dir.Name } else { Join-Path $dir.FullName 'dist' }
     $files = @(Get-ChildItem -Path $templateDir -Recurse -File -Force)
+    $valuesPath = Join-Path $dir.FullName 'values.json'
+    $portValues = if (Test-Path $valuesPath) { Get-Content -Raw -Path $valuesPath | ConvertFrom-Json -AsHashtable } else { $null }
 
     foreach ($vKey in @($palette.variants.Keys)) {
         $variant = $palette.variants[$vKey]
@@ -253,7 +267,7 @@ foreach ($dir in $portDirs) {
         foreach ($file in $files) {
             $rel = [System.IO.Path]::GetRelativePath($templateDir, $file.FullName)
             $source = "Ports/$($dir.Name)/template/$($rel -replace '\\', '/')"
-            $relOut = Expand-Text -Text $rel -Palette $palette -Variant $variant -Source "$source (file name)"
+            $relOut = Expand-Text -Text $rel -Palette $palette -Variant $variant -Source "$source (file name)" -PortValues $portValues
             $target = Join-Path $outDir $relOut
 
             $tpl = Read-Template -Path $file.FullName
@@ -263,7 +277,7 @@ foreach ($dir in $portDirs) {
                 [System.IO.File]::WriteAllBytes($target, $tpl.Bytes)
             }
             else {
-                $text = Expand-Text -Text $tpl.Text -Palette $palette -Variant $variant -Source $source
+                $text = Expand-Text -Text $tpl.Text -Palette $palette -Variant $variant -Source $source -PortValues $portValues
                 Write-Rendered -Path $target -Text $text -Encoding $tpl.Encoding
             }
             $fileCount++
