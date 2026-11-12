@@ -1,7 +1,7 @@
 {
   "meta": {
     "name": "Hyaline",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "repository": "https://github.com/mookeyj79/Hyaline"
   },
   "variants": {
@@ -21,15 +21,15 @@
         "text": "#f2f5f9",
         "text_dim": "#d0d6e0",
         "text_muted": "#b4bcc9",
-        "accent": "#8ec5ff",
+        "accent": "#9cc6e8",
         "on_accent": "#1c2028",
-        "red": "#ff9a9a",
-        "green": "#8fe0b0",
-        "yellow": "#f5d58a",
-        "blue": "#8ec5ff",
-        "magenta": "#c9b0ff",
-        "cyan": "#8fe3ea",
-        "orange": "#ffb48a"
+        "red": "#f1afa7",
+        "green": "#a3d9c0",
+        "yellow": "#ddd99a",
+        "blue": "#9cc6e8",
+        "magenta": "#dfb1d9",
+        "cyan": "#a6d2db",
+        "orange": "#e6c196"
       }
     },
     "light": {
@@ -48,15 +48,15 @@
         "text": "#1b2130",
         "text_dim": "#465066",
         "text_muted": "#667085",
-        "accent": "#1668d9",
+        "accent": "#2973b0",
         "on_accent": "#ffffff",
-        "red": "#cc2f47",
-        "green": "#1a8147",
-        "yellow": "#9a6400",
-        "blue": "#1668d9",
-        "magenta": "#7a48d8",
-        "cyan": "#0a7a87",
-        "orange": "#b95008"
+        "red": "#c04538",
+        "green": "#207e52",
+        "yellow": "#78710a",
+        "blue": "#2973b0",
+        "magenta": "#ae47a0",
+        "cyan": "#18788b",
+        "orange": "#a16017"
       }
     }
   }
