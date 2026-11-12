@@ -29,8 +29,12 @@ _Avoid_: Background (ambiguous with panel)
 A found image shipped as a backdrop. Light, low detail and low saturation, and shared by both variants.
 _Avoid_: Background image
 
+**Chrome**:
+The frame around content: title bars, tabs, sidebars, toolbars. The clearest glass, so it carries only primary text and solid accent fills.
+_Avoid_: Frame, toolbar color
+
 **Panel**:
-The main surface of an app. Smoke-tinted in Dark, frost-tinted in Light.
+The main surface of an app, where content lives. Smoke-tinted in Dark, frost-tinted in Light.
 _Avoid_: Background, window
 
 **Raised**:

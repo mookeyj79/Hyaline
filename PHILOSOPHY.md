@@ -31,7 +31,8 @@ Every port is built from the same layers, back to front:
 | Layer | What it is |
 |---|---|
 | **Backdrop** | Whatever is behind the app: wallpaper, or a soft neutral where there is none. Always light and airy, in both variants. |
-| **Panel** | The main surface. Smoke-tinted in Dark, frost-tinted in Light. Translucent where possible. |
+| **Chrome** | The frame around content: title bars, tabs, sidebars, toolbars. The clearest glass. Carries primary text and solid accent fills only. |
+| **Panel** | The main surface, where content lives. Smoke-tinted in Dark, frost-tinted in Light. Translucent where possible, but dense enough that every role stays readable over a wallpaper. |
 | **Raised** | A slightly lifted surface on top of a panel: title bars, tabs, cards, inputs. |
 | **Line** | Borders and dividers. Thin, low contrast, never decorative. |
 | **Text** | Three strengths: primary (content), dim (supporting), muted (comments, metadata). |
@@ -41,6 +42,17 @@ Every port is built from the same layers, back to front:
 Many apps cannot do translucency. For those, the palette defines a **flat** value for each surface: the solid color the panel would appear as over a neutral backdrop.
 
 Flat is not a lesser version. It is the same theme with the window closed.
+
+One exception: Hyaline Light's `panel_flat` is pinned to the frost tint instead of being derived from the panel's alpha, so flat Light ports keep their frost. See [ADR 0004](docs/adr/0004-chrome-and-content-glass-split.md).
+
+### Chrome and content
+
+Glass that is clear enough to see through is not safe behind colored text. So the window is split:
+
+- **Chrome** is clear glass. It holds primary text and solid accent fills (a selected tab, an active item) with `on_accent`. No dim, muted, or colored text.
+- **Panel** holds content: code, output, documents. Every role passes there.
+
+If an app cannot tell chrome from content, use `panel` everywhere.
 
 ## Color roles
 
@@ -146,3 +158,5 @@ Every palette change rebuilds every port. CI fails if any committed output does 
 - **Bright terminal colors.** The bright six reuse their normal roles. Black and white slots map to neutral roles by brightness. See [ADR 0001](docs/adr/0001-bright-ansi-colors-reuse-normal-hues.md).
 - **Accent.** One fixed blue. See [ADR 0002](docs/adr/0002-one-fixed-accent.md).
 - **Backdrop.** The repo will ship wallpapers: found images with a license that allows redistribution and a recorded credit. They are the one exception to the palette rule. See [ADR 0003](docs/adr/0003-wallpapers-are-found-images.md) and [issue #1](https://github.com/mookeyj79/Hyaline/issues/1).
+- **Font.** FiraCode Nerd Font, set in every app that allows it. See [ADR 0005](docs/adr/0005-recommended-font.md).
+- **How clear the glass is.** Chrome is clear, content is dense. See [ADR 0004](docs/adr/0004-chrome-and-content-glass-split.md).

@@ -26,6 +26,15 @@ Files to use:
 - Hyaline Dark: `dist/dark/<file>`
 - Hyaline Light: `dist/light/<file>`
 
+## Set the font
+
+Hyaline uses [FiraCode Nerd Font](https://www.nerdfonts.com/font-downloads). If it is not installed yet, follow [Font](../../README.md#font) in the main README.
+
+1. <Where to set the font in this app. Real menu or setting name.>
+2. <Pick **FiraCode Nerd Font Mono**. Say which name the app shows if it differs.>
+
+<If the app cannot change its font, say so in one line and delete the steps.>
+
 ## Check that it worked
 
 <What the reader should see. One or two lines.>

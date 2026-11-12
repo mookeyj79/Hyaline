@@ -31,6 +31,7 @@ Search the web and read the app's official documentation. Do not rely on memory 
 - **Reach**: what can be colored (background, text, syntax, UI chrome, status colors)
 - **Modes**: does it support light and dark, and can it follow the OS setting
 - **Translucency**: can the window or panels be transparent or blurred
+- **Font**: can the font be set, and where (setting name, file key, or menu)
 - **Versioning**: does the format differ between app versions
 
 Then look at how other themes ported to this app. This is expected, not optional. Find the Catppuccin port first (it has the widest coverage), then Nord, Dracula, or Rosé Pine. From them, learn:
@@ -51,7 +52,7 @@ If the app cannot be themed at all, say so and stop. Do not ship a workaround th
 Per PHILOSOPHY.md:
 
 - **Tier 1, Full glass**: full palette plus translucency and blur
-- **Tier 2, Flat**: full palette with `panel_flat` and `raised_flat`
+- **Tier 2, Flat**: full palette with `chrome_flat`, `panel_flat`, and `raised_flat`
 - **Tier 3, Minimal**: only background, accent, and status colors
 
 Tell the user the tier and the known gaps in two or three lines, then carry on. Only wait for an answer if the port would be Tier 3 or worse than they likely expect.
@@ -60,7 +61,7 @@ Tell the user the tier and the known gaps in two or three lines, then carry on. 
 
 List every color slot the app exposes and assign each one a role. Write this as a table. It goes in the README.
 
-- Surfaces: `panel` or `panel_flat` for the main area, `raised` or `raised_flat` for bars, tabs, cards, inputs
+- Surfaces: `chrome` or `chrome_flat` for the frame (title bars, tab strips, sidebars, toolbars), `panel` or `panel_flat` for content, `raised` or `raised_flat` for tabs, cards, inputs. Chrome carries `text` and solid accent fills only (ADR 0004). If the app does not separate frame from content, use `panel` for both.
 - Text: `text` for content, `text_dim` for supporting, `text_muted` for comments and metadata
 - Focus, selection, cursor, links, primary buttons: `accent`, with `on_accent` for text on top of it
 - State: `red` failure, `green` success, `yellow` change or warning, `blue` info or in progress
@@ -109,6 +110,7 @@ The README is first and foremost a step-by-step install guide. Write it for some
 - Use real paths, real menu names, and real setting names, taken from the docs you read in step 3. Windows first.
 - Say what the reader should see when a step worked.
 - Include how to switch variants and how to uninstall.
+- Fill in **Set the font**: where this app sets its font, pointing to FiraCode Nerd Font Mono (ADR 0005). If the app cannot change its font, say so.
 - Keep reference material (role mapping, known gaps, sources) below the guide.
 
 ## 9. Finish

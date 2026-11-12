@@ -9,6 +9,8 @@ Smoke by night, frost by day. One theme, two variants, the same look in every ap
 | **Hyaline Dark** | Dark | Smoked, frosted panels with light text |
 | **Hyaline Light** | Light | Frosted white panels with dark ink |
 
+**[See it first: the preview page](https://mookeyj79.github.io/Hyaline/)** shows mock apps, every role, and contrast in both variants. Source in [`Ports/preview/`](Ports/preview/).
+
 <!-- Add a hero screenshot here once the first ports exist:
 ![Hyaline Dark and Hyaline Light](assets/preview.png)
 -->
@@ -53,6 +55,19 @@ build/                        turns palette + templates into dist
 - **The palette is the only place colors live.** Templates name a role (`panel`, `text`, `accent`, `red`), never a hex value.
 - **Generated files are committed.** You can grab a theme from `dist/` without building anything.
 - **CI catches drift.** The build runs on every change and fails if a committed theme does not match the palette.
+
+## Font
+
+Hyaline recommends **[FiraCode Nerd Font](https://www.nerdfonts.com/font-downloads)**: monospaced, with programming ligatures and the icons that shell prompts and file trees use. Every port's install guide says where to set it in that app.
+
+1. Download [FiraCode.zip](https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip) from the Nerd Fonts release.
+2. Unzip it and install the fonts:
+   - **Windows**: select the `.ttf` files, right-click, and choose **Install for all users**.
+   - **macOS**: `brew install --cask font-fira-code-nerd-font`, or double-click each `.ttf` and choose **Install Font**.
+   - **Linux**: copy the `.ttf` files to `~/.local/share/fonts/` and run `fc-cache -f`.
+3. In each app, pick **FiraCode Nerd Font Mono**. The Mono version keeps every icon one cell wide, so columns always line up. If an app lists only **FiraCode Nerd Font**, that works too.
+
+Free under the SIL Open Font License. See [ADR 0005](docs/adr/0005-recommended-font.md).
 
 ## Install a port
 
