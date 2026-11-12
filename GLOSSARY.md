@@ -50,6 +50,10 @@ _Avoid_: Opaque version, lite version
 The role that means "you are here": focus, selection, cursor, links. One fixed blue, shared in hue with Blue.
 _Avoid_: Highlight, primary color
 
+**Wash**:
+A color role at the variant's wash alpha, laid over a panel to mark something without hiding the text on it: selections, diff lines, find matches.
+_Avoid_: Tint, highlight color
+
 ## Ports
 
 **Port**:

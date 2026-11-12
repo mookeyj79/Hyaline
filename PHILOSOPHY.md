@@ -106,6 +106,7 @@ Measured against the flat fallback, since that is the worst case.
 - **Primary and dim text**: at least 4.5:1 against the panel.
 - **Muted text, borders that carry meaning, icons**: at least 3:1.
 - **Role colors used as text**: at least 4.5:1 in both variants.
+- **On a wash** (a color role at the variant's wash alpha, used for selections and diff lines): primary and dim text at least 4.5:1, muted text and role colors at least 3:1. See [ADR 0006](docs/adr/0006-one-wash-alpha-for-highlights.md).
 
 The light variant is where this bites. Yellow and cyan get darkened until they pass. Pastels on frost are not allowed, no matter how nice they look in a swatch.
 
@@ -160,3 +161,4 @@ Every palette change rebuilds every port. CI fails if any committed output does 
 - **Backdrop.** The repo will ship wallpapers: found images with a license that allows redistribution and a recorded credit. They are the one exception to the palette rule. See [ADR 0003](docs/adr/0003-wallpapers-are-found-images.md) and [issue #1](https://github.com/mookeyj79/Hyaline/issues/1).
 - **Font.** FiraCode Nerd Font, set in every app that allows it. See [ADR 0005](docs/adr/0005-recommended-font.md).
 - **How clear the glass is.** Chrome is clear, content is dense. See [ADR 0004](docs/adr/0004-chrome-and-content-glass-split.md).
+- **See-through highlights.** One wash alpha per variant, applied to any color role. See [ADR 0006](docs/adr/0006-one-wash-alpha-for-highlights.md).

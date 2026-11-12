@@ -17,6 +17,8 @@
         {{role|hexa}}      #rrggbbaa
         {{role|alpha}}     a
         {{role|percent}}   alpha as a whole percent, 0 to 100
+        {{role|wash}}      #rrggbbaa using the variant's wash alpha, for
+                           see-through highlights (selection, diff lines)
         {{ansi.<slot>}}    the role for a terminal ANSI slot (ADR 0001):
                            black, red, green, yellow, blue, magenta, cyan,
                            white, and bright_<each>. Takes the same filters.
@@ -84,6 +86,11 @@ function Read-Palette {
             }
             $roles[$rKey] = @{ hex = $hex.ToLowerInvariant(); alpha = $alpha }
         }
+        if ($v.ContainsKey('wash')) {
+            $wash = [double]$v['wash']
+            if ($wash -le 0 -or $wash -ge 1) { throw "Variant '$vKey' has a wash outside 0 to 1." }
+            foreach ($r in @($roles.Values)) { $r['wash'] = $wash }
+        }
         $v['_roles'] = $roles
         $v['_key'] = $vKey
     }
@@ -127,6 +134,10 @@ function Format-Role {
         'hexa'   { return $hex + ([int][math]::Round($Role.alpha * 255)).ToString('x2') }
         'alpha'  { return $a }
         'percent' { return [string][int][math]::Round($Role.alpha * 100) }
+        'wash'   {
+            if (-not $Role.Contains('wash')) { throw "The palette has no wash for this variant: $Token." }
+            return $hex + ([int][math]::Round($Role.wash * 255)).ToString('x2')
+        }
         default  { throw "Unknown filter '$Filter' in $Token." }
     }
 }

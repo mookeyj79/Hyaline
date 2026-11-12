@@ -1,5 +1,5 @@
 # Hyaline Dark for Starship
-# Generated from https://github.com/mookeyj79/Hyaline (palette 0.2.0). Do not edit by hand.
+# Generated from https://github.com/mookeyj79/Hyaline (palette 0.3.0). Do not edit by hand.
 #
 # Use this file as your whole starship.toml, or copy the "palette" line and
 # the [palettes] table into your own config. See Ports/starship/README.md.
