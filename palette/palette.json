@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "name": "Hyaline",
+    "version": "0.1.0"
+  },
+  "variants": {
+    "dark": {
+      "name": "Hyaline Dark",
+      "mode": "dark",
+      "roles": {
+        "backdrop": "#dfe6ee",
+        "panel": { "hex": "#1c2028", "alpha": 0.8 },
+        "panel_flat": "#434850",
+        "raised": { "hex": "#ffffff", "alpha": 0.1 },
+        "raised_flat": "#565a62",
+        "line": "#6c7076",
+        "text": "#f2f5f9",
+        "text_dim": "#d0d6e0",
+        "text_muted": "#b4bcc9",
+        "accent": "#8ec5ff",
+        "on_accent": "#1c2028",
+        "red": "#ff9a9a",
+        "green": "#8fe0b0",
+        "yellow": "#f5d58a",
+        "blue": "#8ec5ff",
+        "magenta": "#c9b0ff",
+        "cyan": "#8fe3ea",
+        "orange": "#ffb48a"
+      }
+    },
+    "light": {
+      "name": "Hyaline Light",
+      "mode": "light",
+      "roles": {
+        "backdrop": "#dfe6ee",
+        "panel": { "hex": "#ffffff", "alpha": 0.62 },
+        "panel_flat": "#f3f6f9",
+        "raised": { "hex": "#ffffff", "alpha": 0.5 },
+        "raised_flat": "#f9fafc",
+        "line": "#d3dae3",
+        "text": "#1b2130",
+        "text_dim": "#465066",
+        "text_muted": "#667085",
+        "accent": "#1668d9",
+        "on_accent": "#ffffff",
+        "red": "#cc2f47",
+        "green": "#1a8147",
+        "yellow": "#9a6400",
+        "blue": "#1668d9",
+        "magenta": "#7a48d8",
+        "cyan": "#0a7a87",
+        "orange": "#b95008"
+      }
+    }
+  }
+}
