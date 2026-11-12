@@ -67,6 +67,15 @@ The quickest way is [Claude Code](https://claude.com/claude-code): open the repo
    ```
 
    `category` is one of the ids in [`Ports/ports.json`](Ports/ports.json). `platforms` takes `windows`, `macos`, `linux`, and `web`. An optional `monogram` (1 to 3 characters) replaces the initials on the card. If the app was in `planned` in `Ports/ports.json`, remove it from there. `check.ps1` enforces all of this.
+9. **Add a card icon** (optional). Icons are single-color SVGs that take their color from the page ([ADR 0007](docs/adr/0007-port-icons-are-single-color.md)). Use the app's brand mark from Simple Icons if the app allows its mark to be shown, or else a Lucide glyph for what the app is:
+
+   ```sh
+   pwsh build/icon.ps1 -Search "<app name>"
+   pwsh build/icon.ps1 -Port <app_name> -Glyph <name>
+   pwsh build/icon.ps1 -Port <app_name> -Brand <slug> -Mark <url showing the mark may be used>
+   ```
+
+   The script writes `Ports/<app_name>/icon.svg` and prints an `"icon"` credit to paste into `port.json`. Without an icon, the card shows the monogram.
 
 ## Change the palette
 

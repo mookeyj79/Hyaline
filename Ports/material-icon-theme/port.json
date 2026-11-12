@@ -2,5 +2,13 @@
   "name": "Material Icon Theme",
   "category": "editor",
   "tier": 3,
-  "platforms": ["windows", "macos", "linux"]
+  "platforms": ["windows", "macos", "linux"],
+  "icon": {
+    "kind": "glyph",
+    "set": "Lucide 1.72.0",
+    "name": "folder-tree",
+    "author": "Lucide Icons and Contributors",
+    "source": "https://lucide.dev/icons/folder-tree",
+    "license": "ISC"
+  }
 }

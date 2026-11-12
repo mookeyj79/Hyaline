@@ -12,6 +12,7 @@ on:
       - 'Ports/preview/assets/**'
       - 'Ports/ports.json'
       - 'Ports/*/port.json'
+      - 'Ports/*/icon.svg'
       - 'Ports/*/dist/**'
       - 'build/site.ps1'
       - 'wallpapers/**'
