@@ -8,12 +8,14 @@
     2. Contrast   Text and color roles meet the contrast floor in PHILOSOPHY.md,
                   measured against panel_flat. Primary text must also pass on
                   chrome_flat, the only text role chrome carries. On raised_flat,
-                  anything under 3:1 is reported as a warning.
+                  anything under 3:1 is reported as a warning. On a wash (a
+                  color role at the variant's wash alpha over panel_flat),
+                  text and text_dim need 4.5:1, muted and color roles 3:1.
     3. Structure  Every port has a README.md and a template/ folder.
     4. Port list  Every port has a valid port.json (except folders listed as
                   unlisted), and planned ports in Ports/ports.json do not
                   exist yet.
-    5. Raw color  No hex, rgb(), or hsl() values in templates.
+    5. Raw color  No hex, rgb(), or hsl() values in templates or values.json.
                   Add "hyaline-ignore" to a line to skip it (for example a CSS
                   id selector that happens to look like a hex color).
     6. Drift      Committed dist/ matches a fresh build.
@@ -44,6 +46,7 @@ $TextFloor  = 4.5
 $MutedFloor = 3.0
 $RaisedFloor = 3.0   # warning only
 $TextRoles  = @('text', 'text_dim', 'accent', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'orange')
+$WashRoles  = @('accent', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'orange')
 
 $script:Failures = [System.Collections.Generic.List[string]]::new()
 $script:Warnings = [System.Collections.Generic.List[string]]::new()
@@ -74,6 +77,16 @@ function Get-Contrast([string]$A, [string]$B) {
     $lb = Get-Luminance $B
     if ($la -lt $lb) { $la, $lb = $lb, $la }
     return ($la + 0.05) / ($lb + 0.05)
+}
+
+function Get-Blend([string]$Fg, [string]$Bg, [double]$Alpha) {
+    # The solid color of $Fg at $Alpha over $Bg, as #rrggbb.
+    $out = foreach ($i in 1, 3, 5) {
+        $f = [Convert]::ToInt32($Fg.Substring($i, 2), 16)
+        $b = [Convert]::ToInt32($Bg.Substring($i, 2), 16)
+        ([int][math]::Round($f * $Alpha + $b * (1 - $Alpha))).ToString('x2')
+    }
+    return '#' + ($out -join '')
 }
 
 function Test-IsBinary([byte[]]$Bytes) {
@@ -137,6 +150,9 @@ if ($palette) {
         if (-not $v.ContainsKey('mode') -or $v['mode'] -ne $vKey) {
             Add-Failure "Palette: variants.$vKey.mode must be '$vKey'."
         }
+        if (-not $v.ContainsKey('wash') -or -not ($v['wash'] -is [double] -or $v['wash'] -is [long]) -or $v['wash'] -le 0 -or $v['wash'] -ge 1) {
+            Add-Failure "Palette: variants.$vKey.wash must be a number between 0 and 1."
+        }
         if (-not $v.ContainsKey('roles')) { Add-Failure "Palette: variants.$vKey.roles is missing."; continue }
         foreach ($role in $RequiredRoles) {
             if (-not $v.roles.ContainsKey($role)) {
@@ -185,6 +201,18 @@ if ($paletteOk) {
         $onChrome = Get-Contrast (Get-RoleHex $roles['text']) (Get-RoleHex $roles['chrome_flat'])
         if ($onChrome -lt $TextFloor) {
             Add-Failure ('Contrast: {0}.text on chrome_flat is {1:0.00}:1, needs {2}:1.' -f $vKey, $onChrome, $TextFloor)
+        }
+
+        $wash = [double]$palette.variants[$vKey]['wash']
+        foreach ($washRole in $WashRoles) {
+            $washed = Get-Blend (Get-RoleHex $roles[$washRole]) $panel $wash
+            foreach ($role in $TextRoles + 'text_muted') {
+                $floor = if ($role -in 'text', 'text_dim') { $TextFloor } else { $MutedFloor }
+                $onWash = Get-Contrast (Get-RoleHex $roles[$role]) $washed
+                if ($onWash -lt $floor) {
+                    Add-Failure ('Contrast: {0}.{1} on {2} wash is {3:0.00}:1, needs {4}:1.' -f $vKey, $role, $washRole, $onWash, $floor)
+                }
+            }
         }
 
         $onAccent = Get-Contrast (Get-RoleHex $roles['on_accent']) (Get-RoleHex $roles['accent'])
@@ -330,7 +358,10 @@ $funcPattern = '\b(?:rgba?|hsla?)\(\s*[\d.]'
 foreach ($dir in $portDirs) {
     $templateDir = Join-Path $dir.FullName 'template'
     if (-not (Test-Path $templateDir)) { continue }
-    foreach ($file in Get-ChildItem -Path $templateDir -Recurse -File -Force) {
+    $scan = @(Get-ChildItem -Path $templateDir -Recurse -File -Force)
+    $valuesPath = Join-Path $dir.FullName 'values.json'
+    if (Test-Path $valuesPath) { $scan += Get-Item -Path $valuesPath }
+    foreach ($file in $scan) {
         $bytes = [System.IO.File]::ReadAllBytes($file.FullName)
         if ((Test-IsBinary $bytes) -and -not ($bytes.Length -ge 2 -and $bytes[0] -in 0xFF, 0xFE)) { continue }
         $rel = [System.IO.Path]::GetRelativePath($RepoRoot, $file.FullName) -replace '\\', '/'

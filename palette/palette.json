@@ -1,13 +1,14 @@
 {
   "meta": {
     "name": "Hyaline",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "repository": "https://github.com/mookeyj79/Hyaline"
   },
   "variants": {
     "dark": {
       "name": "Hyaline Dark",
       "mode": "dark",
+      "wash": 0.15,
       "roles": {
         "backdrop": "#dfe6ee",
         "chrome": { "hex": "#1c2028", "alpha": 0.7 },
@@ -34,6 +35,7 @@
     "light": {
       "name": "Hyaline Light",
       "mode": "light",
+      "wash": 0.2,
       "roles": {
         "backdrop": "#dfe6ee",
         "chrome": { "hex": "#ffffff", "alpha": 0.3 },

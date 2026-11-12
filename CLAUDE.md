@@ -22,6 +22,7 @@ palette/palette.json        every color, for both variants (source of truth for 
 Ports/ports.json            category names, planned ports, and unlisted folders for the ports page
 Ports/<app_name>/
   port.json                 name, category, tier, platforms (feeds the ports page)
+  values.json               optional per-variant app values that are not colors ({{port.<key>}})
   template/                 files with {{role}} placeholders, no raw colors
   dist/dark/                generated output, committed
   dist/light/               generated output, committed
@@ -76,9 +77,12 @@ Run both before every commit that touches `palette/` or `Ports/`.
 | `{{role\|rgba}}` | `rgba(r, g, b, a)` using the role's alpha |
 | `{{role\|hexa}}` | `#rrggbbaa` using the role's alpha |
 | `{{role\|percent}}` | the role's alpha as a whole percent, `0` to `100` |
+| `{{role\|wash}}` | `#rrggbbaa` using the variant's `wash` alpha, for see-through highlights |
+| `{{role\|clear}}` | `#rrggbb00`, fully transparent, for app settings that can only be switched off with a color |
 | `{{ansi.<slot>}}` | the role for a terminal ANSI slot per ADR 0001 (`black` to `white`, `bright_<slot>`), takes the same filters |
 | `{{meta.name}}`, `{{variant.name}}`, `{{variant.mode}}` | theme name, variant name, `dark` or `light` |
 | `{{meta.repository}}` | the repo URL |
+| `{{port.<key>}}` | a per-variant app value that is not a color, from `Ports/<app_name>/values.json` (`{ "dark": { "<key>": "..." }, "light": { ... } }`) |
 
 Surface roles come in pairs: `chrome`, `panel`, and `raised` are translucent, `chrome_flat`, `panel_flat`, and `raised_flat` are the solid fallbacks. Use the flat ones anywhere the app cannot blur. Chrome (title bars, tabs, sidebars) carries `text` and solid accent fills only; everything else goes on `panel`.
 
@@ -86,7 +90,7 @@ Surface roles come in pairs: `chrome`, `panel`, and `raised` are translucent, `c
 
 If `palette/palette.json`, `build/build.ps1`, or `build/check.ps1` do not exist yet, the repo is new. Tell the user what is missing and offer to create it before starting any port. Build them to match this file:
 
-- **Palette**: `meta` (name, version) plus `variants.dark` and `variants.light`. Each variant has `name`, `mode`, and `roles`. Roles: `backdrop`, `chrome`, `chrome_flat`, `panel`, `panel_flat`, `raised`, `raised_flat`, `line`, `text`, `text_dim`, `text_muted`, `accent`, `on_accent`, `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, `orange`. A role is a hex string, or an object with `hex` and `alpha` for translucent surfaces.
+- **Palette**: `meta` (name, version) plus `variants.dark` and `variants.light`. Each variant has `name`, `mode`, `wash` (one alpha for see-through highlights), and `roles`. Roles: `backdrop`, `chrome`, `chrome_flat`, `panel`, `panel_flat`, `raised`, `raised_flat`, `line`, `text`, `text_dim`, `text_muted`, `accent`, `on_accent`, `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, `orange`. A role is a hex string, or an object with `hex` and `alpha` for translucent surfaces.
 - **Build**: PowerShell 7, no external modules. For each port, render every file in `template/` once per variant into `dist/<variant>/`, keeping file names and structure. Fail on an unknown placeholder.
 - **Check**: fail if `dist/` differs from a fresh build, if any template contains a raw color value, if any `dist/` file contains `{{`, or if text roles fall below the contrast floor in PHILOSOPHY.md against `panel_flat`.
 

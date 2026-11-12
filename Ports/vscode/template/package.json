@@ -1,0 +1,32 @@
+{
+  "name": "hyaline-{{variant.key}}",
+  "displayName": "{{variant.name}}",
+  "description": "{{variant.name}} color theme. Part of {{meta.name}}: one theme for every app.",
+  "version": "{{meta.version}}",
+  "publisher": "hyaline",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "{{meta.repository}}"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "keywords": [
+    "theme",
+    "color-theme",
+    "{{variant.mode}}"
+  ],
+  "contributes": {
+    "themes": [
+      {
+        "label": "{{variant.name}}",
+        "uiTheme": "{{port.ui_theme}}",
+        "path": "./themes/hyaline-{{variant.key}}-color-theme.json"
+      }
+    ]
+  }
+}

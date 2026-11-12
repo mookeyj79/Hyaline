@@ -9,7 +9,6 @@
   },
   "unlisted": ["preview"],
   "planned": [
-    { "folder": "vscode", "name": "VS Code", "category": "editor", "tier": 2, "platforms": ["windows", "macos", "linux"], "monogram": "VS" },
     { "folder": "windows", "name": "Windows", "category": "system", "tier": null, "platforms": ["windows"] }
   ]
 }

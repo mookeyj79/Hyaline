@@ -1,0 +1,32 @@
+{
+  "name": "hyaline-light",
+  "displayName": "Hyaline Light",
+  "description": "Hyaline Light color theme. Part of Hyaline: one theme for every app.",
+  "version": "0.3.0",
+  "publisher": "hyaline",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mookeyj79/Hyaline"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "keywords": [
+    "theme",
+    "color-theme",
+    "light"
+  ],
+  "contributes": {
+    "themes": [
+      {
+        "label": "Hyaline Light",
+        "uiTheme": "vs",
+        "path": "./themes/hyaline-light-color-theme.json"
+      }
+    ]
+  }
+}
