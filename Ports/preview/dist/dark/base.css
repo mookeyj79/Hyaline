@@ -1,0 +1,85 @@
+/* Shared by every page of the preview site: fonts, surfaces, top bar, variant switch.
+   Every color is a role variable from theme.css. Do not add color values here. */
+/* The recommended font, FiraCode Nerd Font Mono, trimmed to the characters
+   these pages use. Full font and license: ../../assets/fonts/ */
+@font-face {
+  font-family: "FiraCode Nerd Font Mono";
+  src: url("../../assets/fonts/FiraCodeNerdFontMono-Regular.subset.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "FiraCode Nerd Font Mono";
+  src: url("../../assets/fonts/FiraCodeNerdFontMono-Medium.subset.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+/* Every color on this page is a role variable from theme.css.
+   theme.css is generated from palette/palette.json. Do not add color values here. */
+:root {
+  --font-display: "Chakra Petch", "Trebuchet MS", sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "FiraCode Nerd Font Mono", "FiraCode Nerd Font", "Fira Code", Consolas, Menlo, monospace;
+  --blur: blur(18px);
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--backdrop);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+}
+/* Backdrop: a wallpaper from wallpapers/ (ADR 0003), over the backdrop role. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--backdrop) url("../../../../wallpapers/white-sands-dunes.jpg") center / cover no-repeat;
+}
+::selection { background: var(--accent); color: var(--on-accent); }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button { font-family: inherit; }
+
+/* Surfaces. Text never sits directly on the backdrop. */
+.panel {
+  background: var(--panel);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.raised { background: var(--raised); }
+
+/* Top bar */
+.topbar {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 8px 16px;
+  background: var(--chrome);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  border-bottom: 1px solid var(--line);
+}
+.brand { font: 600 1rem var(--font-display); letter-spacing: .04em; }
+.brand small { font: 400 .72rem var(--font-mono); color: var(--text); margin-left: 6px; letter-spacing: 0; }
+.topbar-end { display: flex; align-items: center; gap: 14px; }
+.repo { color: var(--text); text-decoration: none; font: 500 .85rem var(--font-body); display: inline-flex; align-items: center; gap: 6px; }
+.repo-icon { font: 400 1.1rem var(--font-mono); }
+/* Underline only the word: the flex gap would break a line drawn across the whole link. */
+.repo:hover .repo-label, .repo:focus-visible .repo-label { text-decoration: underline; text-underline-offset: 3px; }
+.switch { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.switch a {
+  padding: 6px 14px;
+  font: 500 .82rem var(--font-body);
+  color: var(--text);
+  text-decoration: none;
+  background: var(--raised);
+}
+.switch a + a { border-left: 1px solid var(--line); }
+.switch a[aria-current="true"] { background: var(--accent); color: var(--on-accent); }

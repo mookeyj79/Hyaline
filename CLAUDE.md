@@ -19,13 +19,16 @@ GLOSSARY.md                 project terms
 docs/adr/                   recorded decisions and why
 wallpapers/                 found backdrop images, thumbnails, and credits (README.md)
 palette/palette.json        every color, for both variants (source of truth for values)
+Ports/ports.json            category names, planned ports, and unlisted folders for the ports page
 Ports/<app_name>/
+  port.json                 name, category, tier, platforms (feeds the ports page)
   template/                 files with {{role}} placeholders, no raw colors
   dist/dark/                generated output, committed
   dist/light/               generated output, committed
   README.md                 step-by-step install guide, plus tier, role mapping, known gaps, sources
 build/build.ps1             palette + templates = dist
-build/check.ps1             drift, raw-hex, placeholder, and contrast checks
+build/check.ps1             drift, raw-hex, placeholder, port list, and contrast checks
+build/site.ps1              assembles the GitHub Pages site and the port list into _site/
 .claude/skills/new-port/    the new-port skill and the port README template
 ```
 
@@ -37,7 +40,7 @@ build/check.ps1             drift, raw-hex, placeholder, and contrast checks
 4. **Both variants or neither.** If the app supports only one mode, ship that one and say so in the port README.
 5. **Roles keep their meaning.** Red is failure, green is success, yellow is change, and so on, per PHILOSOPHY.md. Do not reassign a role because it looks nicer.
 6. **Do not guess an app's theme format.** Look it up in the app's official docs and link the source in the port README.
-7. **Every port gets its own folder and its own README.** The folder is `Ports/<app_name>/`. The README is a step-by-step install guide.
+7. **Every port gets its own folder and its own README.** The folder is `Ports/<app_name>/`. The README is a step-by-step install guide. A `port.json` lists it on the ports page; never list ports by hand in the root README.
 
 ## When asked for a new theme or port
 
@@ -58,6 +61,7 @@ Studying how Catppuccin, Nord, Dracula, and other themes ported to the same app 
 pwsh build/build.ps1                     # rebuild every port
 pwsh build/build.ps1 -Port <app_name>    # rebuild one port
 pwsh build/check.ps1                     # run all checks (CI runs this too)
+pwsh build/site.ps1                      # assemble the Pages site into _site/
 ```
 
 Run both before every commit that touches `palette/` or `Ports/`.

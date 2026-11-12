@@ -49,7 +49,18 @@ The quickest way is [Claude Code](https://claude.com/claude-code): open the repo
 
 6. **Write the README** from [`port-readme-template.md`](.claude/skills/new-port/port-readme-template.md). Fill in every section, including **Set the font**.
 7. **Add screenshots** of both variants to `Ports/<app_name>/screenshots/`.
-8. **List the port** in the Ports table in [README.md](README.md) with its tier.
+8. **List the port** on the [ports page](https://mookeyj79.github.io/Hyaline/ports/) by adding `Ports/<app_name>/port.json`:
+
+   ```json
+   {
+     "name": "Windows Terminal",
+     "category": "terminal",
+     "tier": 1,
+     "platforms": ["windows"]
+   }
+   ```
+
+   `category` is one of the ids in [`Ports/ports.json`](Ports/ports.json). `platforms` takes `windows`, `macos`, `linux`, and `web`. An optional `monogram` (1 to 3 characters) replaces the initials on the card. If the app was in `planned` in `Ports/ports.json`, remove it from there. `check.ps1` enforces all of this.
 
 ## Change the palette
 

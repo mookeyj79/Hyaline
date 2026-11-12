@@ -12,7 +12,7 @@ Smoke by night, frost by day. One color theme with two variants, ported to every
 | [![Hyaline Dark](Ports/preview/screenshots/dark.jpg)](https://mookeyj79.github.io/Hyaline/Ports/preview/dist/dark/index.html) | [![Hyaline Light](Ports/preview/screenshots/light.jpg)](https://mookeyj79.github.io/Hyaline/Ports/preview/dist/light/index.html) |
 | Smoked, frosted panels with light text | Frosted white panels with dark ink |
 
-**[Open the live preview](https://mookeyj79.github.io/Hyaline/)** to see every role, mock apps, and diagrams in both variants.
+**[Open the live preview](https://mookeyj79.github.io/Hyaline/)** to see every role, mock apps, and diagrams in both variants, or **[browse the ports](https://mookeyj79.github.io/Hyaline/ports/)**.
 
 ## Contents
 
@@ -40,14 +40,7 @@ Smoke by night, frost by day. One color theme with two variants, ported to every
 
 ## Ports
 
-| App | Tier | Status |
-|---|---|---|
-| [Preview page](Ports/preview/) | 1 Full glass | [Live](https://mookeyj79.github.io/Hyaline/) |
-| Windows Terminal | 1 Full glass | Planned |
-| Starship | 2 Flat | Planned |
-| VS Code | 2 Flat | Planned |
-| Typora | TBD | Planned |
-| Windows | TBD | Planned |
+**[Browse every port](https://mookeyj79.github.io/Hyaline/ports/)**: search by app, filter by category, and see each port's tier, platforms, and install guide. The list is generated from the ports in this repo, so it is always current. You can also browse the [`Ports/`](Ports/) folder directly.
 
 Not every app can do glass. Each port says how far it gets:
 
@@ -84,6 +77,7 @@ Glass needs something behind it. [`wallpapers/`](wallpapers/) holds found images
 
 ```
 palette/palette.json          every color, for both variants
+Ports/<app_name>/port.json    name, category, tier, and platforms for the ports page
 Ports/<app_name>/template/    theme files with {{role}} placeholders
 Ports/<app_name>/dist/        generated themes, ready to use
 build/                        turns palette + templates into dist, runs the checks
@@ -118,10 +112,11 @@ Requires [PowerShell 7](https://learn.microsoft.com/powershell/scripting/install
 ```sh
 pwsh build/build.ps1                     # rebuild every port
 pwsh build/build.ps1 -Port <app_name>    # rebuild one port
-pwsh build/check.ps1                     # palette, contrast, structure, raw color, drift, and placeholder checks
+pwsh build/check.ps1                     # palette, contrast, structure, port list, raw color, drift, and placeholder checks
+pwsh build/site.ps1                      # assemble the Pages site (preview and ports page) into _site/
 ```
 
-The preview page is published to GitHub Pages by [`.github/workflows/pages.yml`](.github/workflows/pages.yml) on every push to `main` that changes it.
+The preview page and the ports page are published to GitHub Pages by [`.github/workflows/pages.yml`](.github/workflows/pages.yml) on every push to `main` that changes them.
 
 ## Add a port
 

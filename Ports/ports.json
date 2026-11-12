@@ -1,0 +1,18 @@
+{
+  "categories": {
+    "terminal": "Terminals",
+    "shell": "Shells and prompts",
+    "editor": "Code editors",
+    "writing": "Writing and notes",
+    "system": "Operating systems",
+    "other": "Other"
+  },
+  "unlisted": ["preview"],
+  "planned": [
+    { "folder": "windows-terminal", "name": "Windows Terminal", "category": "terminal", "tier": 1, "platforms": ["windows"] },
+    { "folder": "starship", "name": "Starship", "category": "shell", "tier": 2, "platforms": ["windows", "macos", "linux"] },
+    { "folder": "vscode", "name": "VS Code", "category": "editor", "tier": 2, "platforms": ["windows", "macos", "linux"], "monogram": "VS" },
+    { "folder": "typora", "name": "Typora", "category": "writing", "tier": null, "platforms": ["windows", "macos", "linux"] },
+    { "folder": "windows", "name": "Windows", "category": "system", "tier": null, "platforms": ["windows"] }
+  ]
+}

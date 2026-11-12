@@ -1,6 +1,7 @@
 name: pages
 
-# Publishes the preview page (Ports/preview/dist) to GitHub Pages.
+# Publishes the preview page and the ports page (Ports/preview/dist) to GitHub Pages.
+# The site is assembled by build/site.ps1, which also writes the port list.
 # Turn on once: Settings > Pages > Source: GitHub Actions.
 
 on:
@@ -9,6 +10,10 @@ on:
     paths:
       - 'Ports/preview/dist/**'
       - 'Ports/preview/assets/**'
+      - 'Ports/ports.json'
+      - 'Ports/*/port.json'
+      - 'Ports/*/dist/**'
+      - 'build/site.ps1'
       - 'wallpapers/**'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
@@ -36,27 +41,8 @@ jobs:
         run: ./build/check.ps1
 
       - name: Assemble site
-        run: |
-          name=$(jq -r .meta.name palette/palette.json)
-          # Keep the repo layout so the page's relative wallpaper path works.
-          mkdir -p _site/Ports/preview
-          cp -r Ports/preview/dist Ports/preview/assets _site/Ports/preview/
-          cp -r wallpapers _site/
-          cat > _site/index.html <<HTML
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-          <meta charset="utf-8">
-          <title>$name Preview</title>
-          <meta http-equiv="refresh" content="0; url=Ports/preview/dist/dark/index.html">
-          <script>
-            var light = window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches;
-            location.replace("Ports/preview/dist/" + (light ? "light" : "dark") + "/index.html");
-          </script>
-          </head>
-          <body><a href="Ports/preview/dist/dark/index.html">$name Dark</a> / <a href="Ports/preview/dist/light/index.html">$name Light</a></body>
-          </html>
-          HTML
+        shell: pwsh
+        run: ./build/site.ps1
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
