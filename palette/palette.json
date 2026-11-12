@@ -1,7 +1,7 @@
 {
   "meta": {
     "name": "Hyaline",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "variants": {
     "dark": {
@@ -9,6 +9,8 @@
       "mode": "dark",
       "roles": {
         "backdrop": "#dfe6ee",
+        "chrome": { "hex": "#1c2028", "alpha": 0.7 },
+        "chrome_flat": "#575b63",
         "panel": { "hex": "#1c2028", "alpha": 0.8 },
         "panel_flat": "#434850",
         "raised": { "hex": "#ffffff", "alpha": 0.1 },
@@ -33,7 +35,9 @@
       "mode": "light",
       "roles": {
         "backdrop": "#dfe6ee",
-        "panel": { "hex": "#ffffff", "alpha": 0.62 },
+        "chrome": { "hex": "#ffffff", "alpha": 0.3 },
+        "chrome_flat": "#e9eef3",
+        "panel": { "hex": "#ffffff", "alpha": 0.93 },
         "panel_flat": "#f3f6f9",
         "raised": { "hex": "#ffffff", "alpha": 0.5 },
         "raised_flat": "#f9fafc",

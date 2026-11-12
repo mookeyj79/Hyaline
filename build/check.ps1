@@ -6,8 +6,9 @@
 .DESCRIPTION
     1. Palette    Both variants exist, every required role is present and valid.
     2. Contrast   Text and color roles meet the contrast floor in PHILOSOPHY.md,
-                  measured against panel_flat. On raised_flat, anything under
-                  3:1 is reported as a warning.
+                  measured against panel_flat. Primary text must also pass on
+                  chrome_flat, the only text role chrome carries. On raised_flat,
+                  anything under 3:1 is reported as a warning.
     3. Structure  Every port has a README.md and a template/ folder.
     4. Raw color  No hex, rgb(), or hsl() values in templates.
                   Add "hyaline-ignore" to a line to skip it (for example a CSS
@@ -31,7 +32,7 @@ $BuildScript = Join-Path $PSScriptRoot 'build.ps1'
 $Placeholder = '\{\{\s*[A-Za-z_][A-Za-z0-9_.]*\s*(?:\|\s*[A-Za-z0-9]+\s*)?\}\}'
 
 $RequiredRoles = @(
-    'backdrop', 'panel', 'panel_flat', 'raised', 'raised_flat', 'line',
+    'backdrop', 'chrome', 'chrome_flat', 'panel', 'panel_flat', 'raised', 'raised_flat', 'line',
     'text', 'text_dim', 'text_muted', 'accent', 'on_accent',
     'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'orange'
 )
@@ -176,6 +177,11 @@ if ($paletteOk) {
             if ($onRaised -lt $RaisedFloor) {
                 Add-Warning ('Contrast: {0}.{1} on raised_flat is {2:0.00}:1, under {3}:1.' -f $vKey, $role, $onRaised, $RaisedFloor)
             }
+        }
+
+        $onChrome = Get-Contrast (Get-RoleHex $roles['text']) (Get-RoleHex $roles['chrome_flat'])
+        if ($onChrome -lt $TextFloor) {
+            Add-Failure ('Contrast: {0}.text on chrome_flat is {1:0.00}:1, needs {2}:1.' -f $vKey, $onChrome, $TextFloor)
         }
 
         $onAccent = Get-Contrast (Get-RoleHex $roles['on_accent']) (Get-RoleHex $roles['accent'])

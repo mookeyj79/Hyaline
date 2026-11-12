@@ -17,7 +17,7 @@ The design rules are in PHILOSOPHY.md. They are binding, not background reading:
 PHILOSOPHY.md               design rules (source of truth for decisions)
 GLOSSARY.md                 project terms
 docs/adr/                   recorded decisions and why
-wallpapers/                 found backdrop images with credits (planned, issue #1)
+wallpapers/                 found backdrop images, thumbnails, and credits (README.md)
 palette/palette.json        every color, for both variants (source of truth for values)
 Ports/<app_name>/
   template/                 files with {{role}} placeholders, no raw colors
@@ -72,13 +72,13 @@ Run both before every commit that touches `palette/` or `Ports/`.
 | `{{role\|rgba}}` | `rgba(r, g, b, a)` using the role's alpha |
 | `{{meta.name}}`, `{{variant.name}}`, `{{variant.mode}}` | theme name, variant name, `dark` or `light` |
 
-Surface roles come in pairs: `panel` and `raised` are translucent, `panel_flat` and `raised_flat` are the solid fallbacks. Use the flat ones anywhere the app cannot blur.
+Surface roles come in pairs: `chrome`, `panel`, and `raised` are translucent, `chrome_flat`, `panel_flat`, and `raised_flat` are the solid fallbacks. Use the flat ones anywhere the app cannot blur. Chrome (title bars, tabs, sidebars) carries `text` and solid accent fills only; everything else goes on `panel`.
 
 ## Bootstrap
 
 If `palette/palette.json`, `build/build.ps1`, or `build/check.ps1` do not exist yet, the repo is new. Tell the user what is missing and offer to create it before starting any port. Build them to match this file:
 
-- **Palette**: `meta` (name, version) plus `variants.dark` and `variants.light`. Each variant has `name`, `mode`, and `roles`. Roles: `backdrop`, `panel`, `panel_flat`, `raised`, `raised_flat`, `line`, `text`, `text_dim`, `text_muted`, `accent`, `on_accent`, `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, `orange`. A role is a hex string, or an object with `hex` and `alpha` for translucent surfaces.
+- **Palette**: `meta` (name, version) plus `variants.dark` and `variants.light`. Each variant has `name`, `mode`, and `roles`. Roles: `backdrop`, `chrome`, `chrome_flat`, `panel`, `panel_flat`, `raised`, `raised_flat`, `line`, `text`, `text_dim`, `text_muted`, `accent`, `on_accent`, `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, `orange`. A role is a hex string, or an object with `hex` and `alpha` for translucent surfaces.
 - **Build**: PowerShell 7, no external modules. For each port, render every file in `template/` once per variant into `dist/<variant>/`, keeping file names and structure. Fail on an unknown placeholder.
 - **Check**: fail if `dist/` differs from a fresh build, if any template contains a raw color value, if any `dist/` file contains `{{`, or if text roles fall below the contrast floor in PHILOSOPHY.md against `panel_flat`.
 
