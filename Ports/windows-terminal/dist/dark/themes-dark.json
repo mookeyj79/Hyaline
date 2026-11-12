@@ -5,7 +5,7 @@
       "window": {
         "applicationTheme": "dark",
         "useMica": true,
-        "frame": "#8ec5ff",
+        "frame": "#9cc6e8",
         "unfocusedFrame": "#6c7076"
       },
       "tabRow": {
@@ -22,7 +22,7 @@
       "window": {
         "applicationTheme": "dark",
         "useMica": false,
-        "frame": "#8ec5ff",
+        "frame": "#9cc6e8",
         "unfocusedFrame": "#6c7076"
       },
       "tabRow": {
