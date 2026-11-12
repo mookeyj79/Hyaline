@@ -16,6 +16,10 @@
         {{role|rgba}}      rgba(r, g, b, a)
         {{role|hexa}}      #rrggbbaa
         {{role|alpha}}     a
+        {{role|percent}}   alpha as a whole percent, 0 to 100
+        {{ansi.<slot>}}    the role for a terminal ANSI slot (ADR 0001):
+                           black, red, green, yellow, blue, magenta, cyan,
+                           white, and bright_<each>. Takes the same filters.
         {{meta.name}}      {{meta.version}}
         {{variant.name}}   {{variant.mode}}   {{variant.key}}
 
@@ -86,6 +90,28 @@ function Read-Palette {
     return $p
 }
 
+# Terminal ANSI slots, per ADR 0001. The six hues and their bright versions
+# reuse their namesake role. Black and white map to neutrals by brightness,
+# which differs between dark and light variants.
+$AnsiRoles = @{
+    red = 'red'; green = 'green'; yellow = 'yellow'; blue = 'blue'
+    magenta = 'magenta'; cyan = 'cyan'
+}
+$AnsiNeutrals = @{
+    dark  = @{ black = 'raised_flat'; bright_black = 'text_muted'; white = 'text_dim'; bright_white = 'text' }
+    light = @{ black = 'text';        bright_black = 'text_muted'; white = 'line';     bright_white = 'raised_flat' }
+}
+
+function Get-AnsiRole {
+    param([string]$Slot, [string]$Mode)
+    if ($AnsiNeutrals.ContainsKey($Mode) -and $AnsiNeutrals[$Mode].ContainsKey($Slot)) {
+        return $AnsiNeutrals[$Mode][$Slot]
+    }
+    $hue = $Slot -replace '^bright_', ''
+    if ($AnsiRoles.ContainsKey($hue)) { return $AnsiRoles[$hue] }
+    return $null
+}
+
 function Format-Role {
     param($Role, [string]$Filter, [string]$Token)
     $hex = $Role.hex
@@ -100,6 +126,7 @@ function Format-Role {
         'rgba'   { return "rgba($r, $g, $b, $a)" }
         'hexa'   { return $hex + ([int][math]::Round($Role.alpha * 255)).ToString('x2') }
         'alpha'  { return $a }
+        'percent' { return [string][int][math]::Round($Role.alpha * 100) }
         default  { throw "Unknown filter '$Filter' in $Token." }
     }
 }
@@ -118,6 +145,13 @@ function Resolve-Token {
             $k = $Matches[1]
             if ($k -eq 'key') { $value = $Variant['_key'] }
             elseif ($k -in 'name', 'mode') { $value = [string]$Variant[$k] }
+            break
+        }
+        '^ansi\.(.+)$' {
+            $role = Get-AnsiRole -Slot $Matches[1] -Mode ([string]$Variant['mode'])
+            if ($role -and $Variant['_roles'].ContainsKey($role)) {
+                return Format-Role -Role $Variant['_roles'][$role] -Filter $Filter -Token $token
+            }
             break
         }
         default {

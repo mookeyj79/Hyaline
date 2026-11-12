@@ -1,0 +1,38 @@
+{
+  "themes": [
+    {
+      "name": "{{variant.name}}",
+      "window": {
+        "applicationTheme": "{{variant.mode}}",
+        "useMica": true,
+        "frame": "{{accent}}",
+        "unfocusedFrame": "{{line}}"
+      },
+      "tabRow": {
+        "background": "{{chrome|hexa}}",
+        "unfocusedBackground": "{{chrome|hexa}}"
+      },
+      "tab": {
+        "background": "{{panel_flat}}",
+        "unfocusedBackground": null
+      }
+    },
+    {
+      "name": "{{variant.name}} Flat",
+      "window": {
+        "applicationTheme": "{{variant.mode}}",
+        "useMica": false,
+        "frame": "{{accent}}",
+        "unfocusedFrame": "{{line}}"
+      },
+      "tabRow": {
+        "background": "{{chrome_flat}}",
+        "unfocusedBackground": "{{chrome_flat}}"
+      },
+      "tab": {
+        "background": "{{panel_flat}}",
+        "unfocusedBackground": null
+      }
+    }
+  ]
+}

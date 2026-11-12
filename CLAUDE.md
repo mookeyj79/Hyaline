@@ -74,6 +74,9 @@ Run both before every commit that touches `palette/` or `Ports/`.
 | `{{role\|nohash}}` | `rrggbb` |
 | `{{role\|rgb}}` | `r, g, b` |
 | `{{role\|rgba}}` | `rgba(r, g, b, a)` using the role's alpha |
+| `{{role\|hexa}}` | `#rrggbbaa` using the role's alpha |
+| `{{role\|percent}}` | the role's alpha as a whole percent, `0` to `100` |
+| `{{ansi.<slot>}}` | the role for a terminal ANSI slot per ADR 0001 (`black` to `white`, `bright_<slot>`), takes the same filters |
 | `{{meta.name}}`, `{{variant.name}}`, `{{variant.mode}}` | theme name, variant name, `dark` or `light` |
 | `{{meta.repository}}` | the repo URL |
 

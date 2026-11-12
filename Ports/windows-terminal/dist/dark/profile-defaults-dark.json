@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "defaults": {
+      "colorScheme": "Hyaline Dark",
+      "opacity": 80,
+      "useAcrylic": true,
+      "font": {
+        "face": "FiraCode Nerd Font Mono"
+      }
+    }
+  },
+  "theme": "Hyaline Dark"
+}
