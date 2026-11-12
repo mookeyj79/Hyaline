@@ -1,0 +1,59 @@
+# Hyaline Dark for Starship
+# Generated from https://github.com/mookeyj79/Hyaline (palette 0.2.0). Do not edit by hand.
+#
+# Use this file as your whole starship.toml, or copy the "palette" line and
+# the [palettes] table into your own config. See Ports/starship/README.md.
+
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Pick the palette. Palette tables must come after this line.
+palette = "Hyaline Dark"
+
+# Module styles that need a role other than the Starship default.
+# Everything else keeps its default style, recolored by the palette below.
+
+# Modified, staged, and untracked files are a change, not a failure.
+[git_status]
+style = "bold yellow"
+
+# These modules default to white, which is a background tone in some
+# terminal schemes. Point them at readable text roles instead.
+[os]
+style = "bold text_dim"
+
+[shell]
+style = "bold text_dim"
+
+[memory_usage]
+style = "bold dimmed text_dim"
+
+# The palette. The eight terminal color names and their bright- versions
+# are overridden, so every Starship module that uses them picks up the theme.
+# The role names below them are for your own module styles.
+[palettes."Hyaline Dark"]
+black = "#565a62"
+red = "#ff9a9a"
+green = "#8fe0b0"
+yellow = "#f5d58a"
+blue = "#8ec5ff"
+purple = "#c9b0ff"
+cyan = "#8fe3ea"
+white = "#d0d6e0"
+bright-black = "#b4bcc9"
+bright-red = "#ff9a9a"
+bright-green = "#8fe0b0"
+bright-yellow = "#f5d58a"
+bright-blue = "#8ec5ff"
+bright-purple = "#c9b0ff"
+bright-cyan = "#8fe3ea"
+bright-white = "#f2f5f9"
+text = "#f2f5f9"
+text_dim = "#d0d6e0"
+text_muted = "#b4bcc9"
+accent = "#8ec5ff"
+on_accent = "#1c2028"
+magenta = "#c9b0ff"
+orange = "#ffb48a"
+panel = "#434850"
+raised = "#565a62"
+line = "#6c7076"

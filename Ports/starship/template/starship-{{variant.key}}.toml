@@ -1,0 +1,59 @@
+# {{variant.name}} for Starship
+# Generated from {{meta.repository}} (palette {{meta.version}}). Do not edit by hand.
+#
+# Use this file as your whole starship.toml, or copy the "palette" line and
+# the [palettes] table into your own config. See Ports/starship/README.md.
+
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Pick the palette. Palette tables must come after this line.
+palette = "{{variant.name}}"
+
+# Module styles that need a role other than the Starship default.
+# Everything else keeps its default style, recolored by the palette below.
+
+# Modified, staged, and untracked files are a change, not a failure.
+[git_status]
+style = "bold yellow"
+
+# These modules default to white, which is a background tone in some
+# terminal schemes. Point them at readable text roles instead.
+[os]
+style = "bold text_dim"
+
+[shell]
+style = "bold text_dim"
+
+[memory_usage]
+style = "bold dimmed text_dim"
+
+# The palette. The eight terminal color names and their bright- versions
+# are overridden, so every Starship module that uses them picks up the theme.
+# The role names below them are for your own module styles.
+[palettes."{{variant.name}}"]
+black = "{{ansi.black}}"
+red = "{{ansi.red}}"
+green = "{{ansi.green}}"
+yellow = "{{ansi.yellow}}"
+blue = "{{ansi.blue}}"
+purple = "{{ansi.magenta}}"
+cyan = "{{ansi.cyan}}"
+white = "{{ansi.white}}"
+bright-black = "{{ansi.bright_black}}"
+bright-red = "{{ansi.bright_red}}"
+bright-green = "{{ansi.bright_green}}"
+bright-yellow = "{{ansi.bright_yellow}}"
+bright-blue = "{{ansi.bright_blue}}"
+bright-purple = "{{ansi.bright_magenta}}"
+bright-cyan = "{{ansi.bright_cyan}}"
+bright-white = "{{ansi.bright_white}}"
+text = "{{text}}"
+text_dim = "{{text_dim}}"
+text_muted = "{{text_muted}}"
+accent = "{{accent}}"
+on_accent = "{{on_accent}}"
+magenta = "{{magenta}}"
+orange = "{{orange}}"
+panel = "{{panel_flat}}"
+raised = "{{raised_flat}}"
+line = "{{line}}"

@@ -1,0 +1,6 @@
+{
+  "name": "Starship",
+  "category": "shell",
+  "tier": 2,
+  "platforms": ["windows", "macos", "linux"]
+}
