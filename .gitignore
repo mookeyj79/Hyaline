@@ -1,0 +1,11 @@
+# Assembled GitHub Pages site (build/site.ps1)
+_site/
+
+# Claude Code: personal settings and session worktrees
+.claude/settings.local.json
+.claude/worktrees/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini

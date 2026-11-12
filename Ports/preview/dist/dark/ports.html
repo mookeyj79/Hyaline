@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en" data-variant="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hyaline Ports</title>
+<meta name="description" content="Every app Hyaline is ported to, with its tier and a step-by-step install guide for Hyaline Dark and Hyaline Light.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../dark/theme.css">
+<link rel="stylesheet" href="../light/theme.css">
+<link rel="stylesheet" href="base.css">
+<style>
+/* Every color on this page is a role variable from theme.css. Do not add color values here. */
+main {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.intro { padding: 20px; display: flex; flex-direction: column; gap: 8px; }
+h1 { font: 600 1.9rem/1.15 var(--font-display); margin: 0; text-wrap: balance; }
+.intro p { margin: 0; color: var(--text-dim); max-width: 66ch; }
+.tiers { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 4px 0 0; padding: 0; list-style: none; font-size: .85rem; color: var(--text-dim); }
+.tiers b { font-weight: 500; color: var(--text); }
+
+/* Search and filters */
+.controls { padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+.search { display: flex; align-items: center; gap: 10px; }
+.search label { font: 500 .72rem var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); white-space: nowrap; }
+.search input {
+  flex: 1; min-width: 0;
+  font: .95rem var(--font-body); color: var(--text);
+  background: var(--raised); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px;
+}
+.search input:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
+.search input::placeholder { color: var(--text-muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  font: 500 .82rem var(--font-body); color: var(--text);
+  background: var(--raised); border: 1px solid var(--line); border-radius: 99px;
+  padding: 4px 12px; cursor: pointer;
+}
+.chip span { color: var(--text-dim); margin-left: 4px; font-variant-numeric: tabular-nums; }
+.chip:hover { border-color: var(--accent); }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.chip[aria-pressed="true"] span { color: inherit; }
+.count { margin: 0; font-size: .85rem; color: var(--text-muted); }
+
+/* Port cards */
+.group { display: flex; flex-direction: column; gap: 10px; }
+.group[hidden] { display: none; }
+h2 { font: 500 .78rem var(--font-display); letter-spacing: .12em; text-transform: uppercase; color: var(--text); margin: 0; padding: 4px 12px; align-self: flex-start; border-radius: 6px; background: var(--chrome); -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.card { position: relative; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.card:hover, .card:focus-within { border-color: var(--accent); }
+.head { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.mono {
+  flex: none; width: 44px; height: 44px; border-radius: 10px;
+  display: grid; place-items: center;
+  background: var(--raised); border: 1px solid var(--line);
+  font: 600 1rem var(--font-display); letter-spacing: .02em;
+}
+.title { min-width: 0; }
+.card h3 { font: 600 1.05rem/1.25 var(--font-display); margin: 0; overflow-wrap: anywhere; }
+.card h3 a { color: var(--text); text-decoration: none; }
+/* The title link covers the whole card. The other links sit above it. */
+.card h3 a::after { content: ""; position: absolute; inset: 0; border-radius: 10px; }
+.card h3 a:focus-visible { outline: none; }
+.card h3 a:focus-visible::after { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cat { margin: 0; font-size: .8rem; color: var(--text-muted); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill { font: 500 .72rem var(--font-mono); padding: 1px 9px; border-radius: 99px; border: 1px solid var(--line); color: var(--text-dim); white-space: nowrap; }
+.pill.planned { border-color: currentColor; color: var(--magenta); }
+.plat { margin: 0; font: .75rem var(--font-mono); color: var(--text-dim); }
+.links { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: auto; padding-top: 8px; border-top: 1px solid var(--line); font-size: .85rem; }
+.links a { position: relative; z-index: 1; }
+.card.is-planned .mono { color: var(--text-dim); }
+
+.empty, .note-box { padding: 16px; margin: 0; color: var(--text-dim); }
+.empty[hidden] { display: none; }
+.request { padding: 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.request p { margin: 0; color: var(--text-dim); flex: 1 1 300px; }
+.request p b { color: var(--text); font-weight: 500; }
+.btn { font-weight: 500; font-size: .85rem; padding: 7px 14px; border-radius: 6px; border: 1px solid var(--accent); background: var(--accent); color: var(--on-accent); text-decoration: none; }
+.btn.ghost { background: none; color: var(--accent); }
+code { font: .82rem var(--font-mono); color: var(--orange); }
+footer { padding: 14px 16px; color: var(--text-muted); font-size: .8rem; }
+footer p { margin: 0; }
+footer p + p { margin-top: 4px; }
+
+@media (max-width: 480px) {
+  .search { flex-direction: column; align-items: stretch; gap: 6px; }
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="brand">Hyaline<small>v0.2.0</small></span>
+  <div class="topbar-end">
+    <a class="repo" href="index.html" data-page="index.html"><span class="repo-label">Preview</span></a>
+    <a class="repo" href="https://github.com/mookeyj79/Hyaline"><span class="repo-icon" aria-hidden="true">&#xF09B;</span><span class="repo-label">GitHub</span></a>
+    <nav class="switch" aria-label="Variant">
+      <a href="../dark/ports.html" data-set="dark">Dark</a>
+      <a href="../light/ports.html" data-set="light">Light</a>
+    </nav>
+  </div>
+</div>
+
+<main id="app" data-repository="https://github.com/mookeyj79/Hyaline">
+  <section class="panel intro" aria-labelledby="title">
+    <h1 id="title">Ports</h1>
+    <p>Every app Hyaline is ported to. Each port ships Hyaline Dark and Hyaline Light from the same palette, with a step-by-step install guide. Not every app can do glass, so each port says how far it gets:</p>
+    <ul class="tiers">
+      <li><b>Tier 1, Full glass:</b> palette, translucency, and blur</li>
+      <li><b>Tier 2, Flat:</b> full palette on solid surfaces</li>
+      <li><b>Tier 3, Minimal:</b> background, accent, and status colors</li>
+    </ul>
+  </section>
+
+  <section class="panel controls" aria-label="Filter ports">
+    <div class="search">
+      <label for="q">Search</label>
+      <input id="q" type="search" placeholder="App, category, or platform" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Category"></div>
+    <p class="count" id="count" aria-live="polite"></p>
+  </section>
+
+  <noscript><p class="panel note-box">This list needs JavaScript. Browse the <a href="https://github.com/mookeyj79/Hyaline/tree/main/Ports">Ports folder on GitHub</a> instead.</p></noscript>
+  <p class="panel note-box" id="missing" hidden>No port list found. Build the site with <code>pwsh build/site.ps1</code> and open <code>_site/ports/</code>, or browse the <a href="https://github.com/mookeyj79/Hyaline/tree/main/Ports">Ports folder on GitHub</a>.</p>
+
+  <section class="group" id="available" aria-labelledby="available-title">
+    <h2 id="available-title">Available</h2>
+    <div class="grid"></div>
+  </section>
+
+  <section class="group" id="planned" aria-labelledby="planned-title">
+    <h2 id="planned-title">Planned</h2>
+    <div class="grid"></div>
+  </section>
+
+  <p class="panel empty" id="empty" hidden>No ports match. Try another search, or request the app below.</p>
+
+  <section class="panel request" aria-label="Request a port">
+    <p><b>Missing an app?</b> Ask for it in an issue, or build it yourself: the repo has a guide and a Claude Code skill that does most of the work.</p>
+    <a class="btn" href="https://github.com/mookeyj79/Hyaline/issues/new?title=Port%20request%3A%20">Request a port</a>
+    <a class="btn ghost" href="https://github.com/mookeyj79/Hyaline/blob/main/CONTRIBUTING.md#add-a-port">Add a port</a>
+  </section>
+
+  <footer class="panel">
+    <p>Hyaline 0.2.0. This list is generated from each port's <code>port.json</code>, so it is always current.</p>
+    <p>Every color on this page is generated from <code>palette/palette.json</code>.</p>
+  </footer>
+</main>
+
+<script src="../../../../ports.js"></script>
+<script>
+(function () {
+  const root = document.documentElement;
+  const app = document.getElementById("app");
+  const repo = app.dataset.repository;
+  const data = window.THEME_PORTS;
+
+  const tierNames = { 1: "Full glass", 2: "Flat", 3: "Minimal" };
+  const platformNames = { windows: "Windows", macos: "macOS", linux: "Linux", web: "Web" };
+
+  // --- Variant switch: both theme.css files are loaded, so this repaints in place.
+  function setVariant(mode) {
+    root.dataset.variant = mode;
+    document.querySelectorAll(".switch a").forEach(function (a) {
+      a.setAttribute("aria-current", String(a.dataset.set === mode));
+    });
+    syncLinks();
+  }
+  function syncLinks() {
+    const mode = root.dataset.variant;
+    const query = location.search;
+    document.querySelectorAll("[data-page]").forEach(function (a) {
+      a.href = "../" + mode + "/" + a.dataset.page;
+    });
+    document.querySelectorAll(".switch a").forEach(function (a) {
+      a.href = "../" + a.dataset.set + "/ports.html" + query;
+    });
+  }
+  document.querySelectorAll(".switch a").forEach(function (a) {
+    a.addEventListener("click", function (ev) {
+      ev.preventDefault();
+      setVariant(a.dataset.set);
+    });
+  });
+  setVariant(root.dataset.variant);
+
+  if (!data) {
+    document.getElementById("missing").hidden = false;
+    document.getElementById("available").hidden = true;
+    document.getElementById("planned").hidden = true;
+    document.querySelector(".controls").hidden = true;
+    return;
+  }
+
+  // --- Cards
+  function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function monogram(p) {
+    if (p.monogram) return p.monogram;
+    const words = p.name.split(/[\s-]+/).filter(Boolean);
+    return (words.length > 1 ? words[0][0] + words[1][0] : p.name.slice(0, 2)).toUpperCase();
+  }
+  function categoryName(id) { return data.categories[id] || id; }
+  function platformText(p) { return p.platforms.map(function (x) { return platformNames[x] || x; }).join(" · "); }
+
+  function card(p) {
+    const portUrl = repo + "/tree/main/Ports/" + p.folder;
+    const c = el("article", "panel card" + (p.planned ? " is-planned" : ""));
+
+    const head = el("div", "head");
+    head.appendChild(el("div", "mono", monogram(p))).setAttribute("aria-hidden", "true");
+    const title = el("div", "title");
+    const h3 = el("h3");
+    if (p.planned) { h3.textContent = p.name; }
+    else {
+      const a = el("a", null, p.name);
+      a.href = portUrl + "#readme";
+      h3.appendChild(a);
+    }
+    title.appendChild(h3);
+    title.appendChild(el("p", "cat", categoryName(p.category)));
+    head.appendChild(title);
+    c.appendChild(head);
+
+    const tags = el("div", "tags");
+    if (p.planned) tags.appendChild(el("span", "pill planned", "Planned"));
+    tags.appendChild(el("span", "pill", p.tier ? "Tier " + p.tier + " · " + tierNames[p.tier] : "Tier to be decided"));
+    if (!p.planned && p.variants.length === 1) {
+      tags.appendChild(el("span", "pill", p.variants[0] === "dark" ? "Dark only" : "Light only"));
+    }
+    c.appendChild(tags);
+
+    if (p.platforms.length) c.appendChild(el("p", "plat", platformText(p)));
+
+    if (!p.planned) {
+      const links = el("div", "links");
+      const guide = el("a", null, "Install guide");
+      guide.href = portUrl + "#readme";
+      const files = el("a", null, "Theme files");
+      files.href = portUrl + "/dist";
+      links.appendChild(guide);
+      links.appendChild(files);
+      c.appendChild(links);
+    }
+    return c;
+  }
+
+  const all = data.ports.map(function (p) { return Object.assign({ planned: false }, p); })
+    .concat(data.planned.map(function (p) { return Object.assign({ planned: true, variants: [] }, p); }));
+  all.forEach(function (p) {
+    p.node = card(p);
+    p.haystack = [p.name, p.folder, categoryName(p.category), platformText(p), p.planned ? "planned" : "available"]
+      .join(" ").toLowerCase();
+  });
+  const byName = function (a, b) { return a.name.localeCompare(b.name); };
+  all.sort(byName);
+
+  // --- Filters, kept in the URL so a filtered list can be shared.
+  const params = new URLSearchParams(location.search);
+  const state = { q: params.get("q") || "", c: params.get("c") || "" };
+  const input = document.getElementById("q");
+  input.value = state.q;
+
+  const used = {};
+  all.forEach(function (p) { used[p.category] = (used[p.category] || 0) + 1; });
+  const chipIds = [""].concat(Object.keys(data.categories).filter(function (id) { return used[id]; }));
+  if (state.c && chipIds.indexOf(state.c) < 0) state.c = "";
+  const chips = document.getElementById("chips");
+  chipIds.forEach(function (id) {
+    const b = el("button", "chip", id ? categoryName(id) : "All");
+    b.type = "button";
+    b.dataset.c = id;
+    b.appendChild(el("span", null, String(id ? used[id] : all.length)));
+    b.addEventListener("click", function () { state.c = id; update(); });
+    chips.appendChild(b);
+  });
+  input.addEventListener("input", function () { state.q = input.value; update(); });
+
+  function update() {
+    const words = state.q.toLowerCase().split(/\s+/).filter(Boolean);
+    const groups = { available: [], planned: [] };
+    all.forEach(function (p) {
+      const hit = (!state.c || p.category === state.c) &&
+        words.every(function (w) { return p.haystack.indexOf(w) >= 0; });
+      if (hit) groups[p.planned ? "planned" : "available"].push(p.node);
+    });
+    Object.keys(groups).forEach(function (g) {
+      const section = document.getElementById(g);
+      section.querySelector(".grid").replaceChildren.apply(section.querySelector(".grid"), groups[g]);
+      section.hidden = groups[g].length === 0;
+    });
+    const shown = groups.available.length + groups.planned.length;
+    document.getElementById("empty").hidden = shown > 0;
+    const total = all.length;
+    document.getElementById("count").textContent = shown === total
+      ? data.ports.length + " available, " + data.planned.length + " planned"
+      : "Showing " + shown + " of " + total;
+    chips.querySelectorAll(".chip").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(b.dataset.c === state.c));
+    });
+
+    const next = new URLSearchParams();
+    if (state.q) next.set("q", state.q);
+    if (state.c) next.set("c", state.c);
+    const qs = next.toString();
+    history.replaceState(null, "", location.pathname + (qs ? "?" + qs : "") + location.hash);
+    syncLinks();
+  }
+  update();
+})();
+</script>
+</body>
+</html>

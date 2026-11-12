@@ -10,11 +10,14 @@
                   chrome_flat, the only text role chrome carries. On raised_flat,
                   anything under 3:1 is reported as a warning.
     3. Structure  Every port has a README.md and a template/ folder.
-    4. Raw color  No hex, rgb(), or hsl() values in templates.
+    4. Port list  Every port has a valid port.json (except folders listed as
+                  unlisted), and planned ports in Ports/ports.json do not
+                  exist yet.
+    5. Raw color  No hex, rgb(), or hsl() values in templates.
                   Add "hyaline-ignore" to a line to skip it (for example a CSS
                   id selector that happens to look like a hex color).
-    5. Drift      Committed dist/ matches a fresh build.
-    6. Leftovers  No unresolved {{placeholders}} in dist/.
+    6. Drift      Committed dist/ matches a fresh build.
+    7. Leftovers  No unresolved {{placeholders}} in dist/.
 
 .EXAMPLE
     pwsh build/check.ps1
@@ -215,7 +218,111 @@ foreach ($dir in $portDirs) {
 }
 Write-Section 'Structure' $before
 
-# --- 4. Raw colors in templates ---------------------------------------------
+# --- 4. Port list -------------------------------------------------------------
+# Ports/<app>/port.json describes a port for the ports page.
+# Ports/ports.json holds the category names, the planned ports, and the
+# folders that are not app ports (unlisted), such as the preview page.
+
+$before = $script:Failures.Count
+$Platforms = @('windows', 'macos', 'linux', 'web')
+$categories = @{}
+
+function Test-PortMeta($Meta, [string]$Where, [bool]$Planned) {
+    if ($Meta -isnot [System.Collections.IDictionary]) { Add-Failure "Port list: $Where must be a JSON object."; return }
+    $known = @('name', 'category', 'tier', 'platforms', 'monogram') + $(if ($Planned) { 'folder' })
+    foreach ($k in $Meta.Keys) {
+        if ($k -notin $known) { Add-Failure "Port list: $Where has an unknown field '$k'." }
+    }
+    if (-not ($Meta['name'] -is [string] -and $Meta['name'].Trim())) {
+        Add-Failure "Port list: $Where needs a 'name'."
+    }
+    if (-not ($Meta['category'] -is [string] -and $categories.ContainsKey($Meta['category']))) {
+        Add-Failure "Port list: $Where has category '$($Meta['category'])'. Use one of: $(@($categories.Keys) -join ', ') (from Ports/ports.json)."
+    }
+    $tier = $Meta['tier']
+    $tierOk = ($tier -is [long] -or $tier -is [int]) -and $tier -ge 1 -and $tier -le 3
+    if (-not $tierOk -and -not ($Planned -and $null -eq $tier -and $Meta.Contains('tier'))) {
+        $allowed = if ($Planned) { '1, 2, 3, or null' } else { '1, 2, or 3' }
+        Add-Failure "Port list: $Where needs 'tier': $allowed."
+    }
+    $plat = $Meta['platforms']
+    if (-not ($plat -is [System.Collections.IList] -and $plat.Count -gt 0)) {
+        Add-Failure "Port list: $Where needs 'platforms', a list of: $($Platforms -join ', ')."
+    }
+    else {
+        foreach ($p in $plat) {
+            if ($p -notin $Platforms) { Add-Failure "Port list: $Where has platform '$p'. Use: $($Platforms -join ', ')." }
+        }
+    }
+    if ($Meta.Contains('monogram') -and -not ($Meta['monogram'] -is [string] -and $Meta['monogram'] -match '^\S{1,3}$')) {
+        Add-Failure "Port list: $Where has a 'monogram' that is not 1 to 3 characters."
+    }
+}
+
+$indexPath = Join-Path $PortsRoot 'ports.json'
+$index = $null
+if (-not (Test-Path $indexPath)) {
+    Add-Failure 'Port list: Ports/ports.json does not exist.'
+}
+else {
+    try { $index = Get-Content -Raw -Path $indexPath | ConvertFrom-Json -AsHashtable }
+    catch { Add-Failure "Port list: Ports/ports.json is not valid JSON: $($_.Exception.Message)" }
+}
+if ($index) {
+    if ($index['categories'] -is [System.Collections.IDictionary] -and $index['categories'].Count -gt 0) {
+        $categories = $index['categories']
+    }
+    else {
+        Add-Failure "Port list: Ports/ports.json needs 'categories', an object of id to display name."
+    }
+    if ($index['planned'] -isnot [System.Collections.IList]) {
+        Add-Failure "Port list: Ports/ports.json needs 'planned', a list (it can be empty)."
+    }
+}
+
+$unlisted = @()
+if ($index -and $index.Contains('unlisted')) {
+    if ($index['unlisted'] -is [System.Collections.IList]) { $unlisted = @($index['unlisted']) }
+    else { Add-Failure "Port list: 'unlisted' in Ports/ports.json must be a list of folder names." }
+}
+foreach ($u in $unlisted) {
+    if (-not ($portDirs | Where-Object Name -eq $u)) { Add-Failure "Port list: unlisted folder Ports/$u does not exist." }
+}
+
+foreach ($dir in $portDirs) {
+    if ($dir.Name -in $unlisted) { continue }
+    $metaPath = Join-Path $dir.FullName 'port.json'
+    $where = "Ports/$($dir.Name)/port.json"
+    if (-not (Test-Path $metaPath)) { Add-Failure "Port list: $where does not exist."; continue }
+    try { $meta = Get-Content -Raw -Path $metaPath | ConvertFrom-Json -AsHashtable }
+    catch { Add-Failure "Port list: $where is not valid JSON: $($_.Exception.Message)"; continue }
+    Test-PortMeta $meta $where $false
+}
+
+if ($index -and $index['planned'] -is [System.Collections.IList]) {
+    $seen = @{}
+    $portNames = @($portDirs | ForEach-Object Name)
+    $i = 0
+    foreach ($p in $index['planned']) {
+        $where = "Ports/ports.json planned[$i]"
+        $i++
+        Test-PortMeta $p $where $true
+        if ($p -isnot [System.Collections.IDictionary]) { continue }
+        $folder = $p['folder']
+        if (-not ($folder -is [string] -and $folder -cmatch '^[a-z0-9]+(-[a-z0-9]+)*$')) {
+            Add-Failure "Port list: $where needs 'folder', the future Ports/ folder name (lowercase, hyphenated)."
+            continue
+        }
+        if ($seen.ContainsKey($folder)) { Add-Failure "Port list: '$folder' is planned twice." }
+        $seen[$folder] = $true
+        if ($folder -in $portNames) {
+            Add-Failure "Port list: Ports/$folder exists, so remove it from 'planned' in Ports/ports.json."
+        }
+    }
+}
+Write-Section 'Port list' $before
+
+# --- 5. Raw colors in templates ---------------------------------------------
 
 $before = $script:Failures.Count
 $hexPattern  = '(?<![\w&])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b'
@@ -242,7 +349,7 @@ foreach ($dir in $portDirs) {
 }
 Write-Section 'Raw color' $before
 
-# --- 5. Drift ---------------------------------------------------------------
+# --- 6. Drift ---------------------------------------------------------------
 
 $before = $script:Failures.Count
 if ($paletteOk -and $portDirs.Count -gt 0) {
@@ -284,7 +391,7 @@ if ($paletteOk -and $portDirs.Count -gt 0) {
 }
 Write-Section 'Drift' $before
 
-# --- 6. Unresolved placeholders in dist --------------------------------------
+# --- 7. Unresolved placeholders in dist --------------------------------------
 
 $before = $script:Failures.Count
 foreach ($dir in $portDirs) {
