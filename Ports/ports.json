@@ -24,6 +24,7 @@
     { "folder": "fzf", "name": "fzf", "category": "cli", "tier": null, "platforms": ["windows", "macos", "linux"] },
     { "folder": "k9s", "name": "K9s", "category": "cli", "tier": null, "platforms": ["windows", "macos", "linux"] },
     { "folder": "tmux", "name": "tmux", "category": "cli", "tier": null, "platforms": ["macos", "linux"] },
+    { "folder": "screen", "name": "GNU Screen", "category": "cli", "tier": null, "platforms": ["macos", "linux"] },
     { "folder": "neovim", "name": "Neovim", "category": "editor", "tier": null, "platforms": ["windows", "macos", "linux"] },
     { "folder": "vim", "name": "Vim", "category": "editor", "tier": null, "platforms": ["windows", "macos", "linux"] },
     { "folder": "helix", "name": "Helix", "category": "editor", "tier": null, "platforms": ["windows", "macos", "linux"] },
