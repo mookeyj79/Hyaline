@@ -1,0 +1,18 @@
+#!/bin/sh
+# Runs build/check.ps1 before a commit that touches the palette, ports,
+# build scripts, or Markdown, the same check CI runs on every pull request.
+# Turn it on once per clone:  git config core.hooksPath .githooks
+# Skip it for one commit:     git commit --no-verify
+
+git diff --cached --name-only | grep -qE '^(palette|Ports|build)/|\.md$' || exit 0
+
+if ! command -v pwsh >/dev/null 2>&1; then
+    echo "pre-commit: pwsh not found. Install PowerShell 7 (on Linux: bash build/setup-linux.sh)." >&2
+    exit 1
+fi
+
+# The check reads the working tree, so it also sees unstaged edits.
+pwsh -NoProfile -File build/check.ps1 || {
+    echo "pre-commit: checks failed. Fix them, or run build/build.ps1 if dist/ is stale." >&2
+    exit 1
+}

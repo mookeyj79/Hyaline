@@ -29,9 +29,11 @@ Ports/<app_name>/
   dist/light/               generated output, committed
   README.md                 step-by-step install guide, plus tier, role mapping, known gaps, sources
 build/build.ps1             palette + templates = dist
-build/check.ps1             drift, raw-hex, placeholder, port list, and contrast checks
+build/check.ps1             drift, raw-hex, placeholder, port list, contrast, file format, and em dash checks
 build/site.ps1              assembles the GitHub Pages site and the port list into _site/
 build/icon.ps1              finds and fetches a port's card icon
+build/setup-linux.sh        installs pwsh and chromium on a fresh Linux sandbox
+.githooks/pre-commit        runs check.ps1 before a commit (git config core.hooksPath .githooks)
 .claude/skills/new-port/    the new-port skill and the port README template
 .claude/skills/port-icon/   the port-icon skill
 ```
@@ -55,9 +57,9 @@ Studying how Catppuccin, Nord, Dracula, and other themes ported to the same app 
 ## When asked to change a color
 
 1. Edit `palette/palette.json` only.
-2. Run the build, then the checks.
-3. Summarize which ports changed.
-4. Bump `meta.version`: patch for a tuned value, minor for a new role, major for a role whose meaning changed or was removed.
+2. Bump `meta.version` per "Changing the palette" in PHILOSOPHY.md.
+3. Run the build, then the checks.
+4. Summarize which ports changed, from the build's per-port line (`changed`, `version stamp only`, `unchanged`).
 
 ## Commands
 
@@ -67,11 +69,15 @@ pwsh build/build.ps1 -Port <app_name>    # rebuild one port
 pwsh build/check.ps1                     # run all checks (CI runs this too)
 pwsh build/site.ps1                      # assemble the Pages site into _site/
 pwsh build/icon.ps1 -Search <words>      # find a card icon (see the port-icon skill)
+bash build/setup-linux.sh                # pwsh or chromium missing? run this first
+gh run list --workflow pages.yml -L 1    # after a merge to main, watch this until the deploy is green
 ```
 
 Run both before every commit that touches `palette/` or `Ports/`.
 
 ## Template placeholders
+
+The placeholder table (`{{role|wash}}`, `{{ansi.<slot>}}`, `{{port.<key>}}`, and the rest) is in CONTRIBUTING.md, step 4 of "Add a port". `build/build.ps1` is the source of truth: an unknown placeholder fails the build.
 
 | Placeholder | Output |
 |---|---|
@@ -91,22 +97,12 @@ Run both before every commit that touches `palette/` or `Ports/`.
 
 Surface roles come in pairs: `chrome`, `panel`, and `raised` are translucent, `chrome_flat`, `panel_flat`, and `raised_flat` are the solid fallbacks. Use the flat ones anywhere the app cannot blur. Chrome (title bars, tabs, sidebars) carries `text` and solid accent fills only; everything else goes on `panel`.
 
-## Bootstrap
-
-If `palette/palette.json`, `build/build.ps1`, or `build/check.ps1` do not exist yet, the repo is new. Tell the user what is missing and offer to create it before starting any port. Build them to match this file:
-
-- **Palette**: `meta` (name, version) plus `variants.dark` and `variants.light`. Each variant has `name`, `mode`, `wash` (one alpha for see-through highlights), and `roles`. Roles: `backdrop`, `chrome`, `chrome_flat`, `panel`, `panel_flat`, `raised`, `raised_flat`, `line`, `text`, `text_dim`, `text_muted`, `accent`, `on_accent`, `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, `orange`. A role is a hex string, or an object with `hex` and `alpha` for translucent surfaces.
-- **Build**: PowerShell 7, no external modules. For each port, render every file in `template/` once per variant into `dist/<variant>/`, keeping file names and structure. Fail on an unknown placeholder.
-- **Check**: fail if `dist/` differs from a fresh build, if any template contains a raw color value, if any `dist/` file contains `{{`, or if text roles fall below the contrast floor in PHILOSOPHY.md against `panel_flat`.
-
-Do not pick palette values yourself. Ask the user for them.
-
 ## Working style
 
-- Work on a branch named `port/<app_name>` or `palette/<change>`. Do not commit to `main` directly.
+- Work on a branch named `port/<app_name>`, `palette/<change>`, or `build/<change>` for tooling and docs. Do not commit to `main` directly.
 - Do not install a theme on the user's machine or change system settings unless asked. Building files in the repo is the job.
 - Screenshots cannot be generated here. Leave the placeholder in the port README and ask the user to add them.
-- Writing style for docs: plain and short. No em dashes.
+- Writing style for docs: plain and short. `check.ps1` fails on em dashes.
 
 ## Agent skills
 

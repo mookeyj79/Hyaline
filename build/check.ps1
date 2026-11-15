@@ -22,6 +22,12 @@
                   id selector that happens to look like a hex color).
     6. Drift      Committed dist/ matches a fresh build.
     7. Leftovers  No unresolved {{placeholders}} in dist/.
+    8. Format     Every dist/ file is valid for its format: .json parses,
+                  .svg and .xml are well formed, and .css has balanced
+                  braces, comments, and quotes.
+    9. Prose      No em dashes in the repo's Markdown (outside dist/ and
+                  third-party assets/). Add "hyaline-ignore" to a line to
+                  skip it.
 
 .EXAMPLE
     pwsh build/check.ps1
@@ -519,6 +525,98 @@ foreach ($dir in $portDirs) {
     }
 }
 Write-Section 'Leftovers' $before
+
+# --- 8. Format of generated files ---------------------------------------------
+
+function Test-CssBalance([string]$Text) {
+    # Returns $null when balanced, otherwise a short reason.
+    $depth = 0
+    $i = 0
+    $n = $Text.Length
+    while ($i -lt $n) {
+        $c = $Text[$i]
+        if ($c -eq '/' -and $i + 1 -lt $n -and $Text[$i + 1] -eq '*') {
+            $end = $Text.IndexOf('*/', $i + 2)
+            if ($end -lt 0) { return 'unclosed /* comment' }
+            $i = $end + 2
+            continue
+        }
+        if ($c -eq '"' -or $c -eq "'") {
+            $j = $i + 1
+            while ($j -lt $n -and $Text[$j] -ne $c) {
+                if ($Text[$j] -eq '\') { $j++ }
+                elseif ($Text[$j] -eq "`n") { return "unclosed $c string" }
+                $j++
+            }
+            if ($j -ge $n) { return "unclosed $c string" }
+            $i = $j + 1
+            continue
+        }
+        if ($c -eq '{') { $depth++ }
+        elseif ($c -eq '}') {
+            $depth--
+            if ($depth -lt 0) { return "unexpected '}'" }
+        }
+        $i++
+    }
+    if ($depth -gt 0) { return "$depth unclosed '{'" }
+    return $null
+}
+
+$before = $script:Failures.Count
+foreach ($dir in $portDirs) {
+    $distDir = Join-Path $dir.FullName 'dist'
+    if (-not (Test-Path $distDir)) { continue }
+    foreach ($file in Get-ChildItem -Path $distDir -Recurse -File -Force) {
+        $rel = [System.IO.Path]::GetRelativePath($RepoRoot, $file.FullName) -replace '\\', '/'
+        $ext = $file.Extension.ToLowerInvariant()
+        if ($ext -notin '.json', '.svg', '.xml', '.css') { continue }
+        $text = [System.IO.File]::ReadAllText($file.FullName)
+        switch ($ext) {
+            '.json' {
+                try { $null = $text | ConvertFrom-Json -AsHashtable }
+                catch { Add-Failure "Format: $rel is not valid JSON: $($_.Exception.Message)" }
+            }
+            { $_ -in '.svg', '.xml' } {
+                try { $null = [xml]$text }
+                catch { Add-Failure "Format: $rel is not well-formed XML: $($_.Exception.Message)" }
+            }
+            '.css' {
+                $reason = Test-CssBalance $text
+                if ($reason) { Add-Failure "Format: $rel has broken CSS: $reason." }
+            }
+        }
+    }
+}
+Write-Section 'Format' $before
+
+# --- 9. Prose -----------------------------------------------------------------
+
+$before = $script:Failures.Count
+$EmDash = [string][char]0x2014
+$mdFiles = @()
+Push-Location $RepoRoot
+try { $mdFiles = @(git ls-files -- '*.md' 2>$null) }
+finally { Pop-Location }
+if ($LASTEXITCODE -ne 0 -or $mdFiles.Count -eq 0) {
+    # Not a git checkout: fall back to the file system, skipping local folders.
+    $mdFiles = @(Get-ChildItem -Path $RepoRoot -Recurse -File -Filter '*.md' -Force |
+        ForEach-Object { [System.IO.Path]::GetRelativePath($RepoRoot, $_.FullName) -replace '\\', '/' } |
+        Where-Object { $_ -notmatch '^(\.git|_site|scripts|\.claude/worktrees)/' })
+}
+foreach ($rel in $mdFiles) {
+    if ($rel -match '(^|/)(dist|assets)/') { continue }
+    $path = Join-Path $RepoRoot $rel
+    if (-not (Test-Path $path)) { continue }
+    $lineNo = 0
+    foreach ($line in [System.IO.File]::ReadAllLines($path)) {
+        $lineNo++
+        if ($line.Contains($EmDash) -and $line -notmatch 'hyaline-ignore') {
+            Add-Failure "Prose: ${rel}:$lineNo has an em dash. Use a colon, comma, or period."
+        }
+    }
+}
+Write-Section 'Prose' $before
 
 # --- Summary ----------------------------------------------------------------
 

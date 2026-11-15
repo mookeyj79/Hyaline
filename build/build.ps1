@@ -42,6 +42,11 @@
 .PARAMETER Quiet
     Print nothing on success.
 
+.OUTPUTS
+    One line per port saying what changed in its dist/: "changed" (colors or
+    other content), "version stamp only" (only the palette version moved),
+    "unchanged", or "new". Use it when summarizing a palette change.
+
 .EXAMPLE
     pwsh build/build.ps1
 
@@ -238,6 +243,45 @@ function Read-Template {
     }
 }
 
+function Get-DistSnapshot {
+    # Relative path -> text with line endings normalized ('bin:' + hash for
+    # binary files). Empty when the folder does not exist.
+    param([string]$Root)
+    $snap = @{}
+    if (-not (Test-Path $Root)) { return $snap }
+    foreach ($f in Get-ChildItem -Path $Root -Recurse -File -Force) {
+        $rel = [System.IO.Path]::GetRelativePath($Root, $f.FullName) -replace '\\', '/'
+        $bytes = [System.IO.File]::ReadAllBytes($f.FullName)
+        $snap[$rel] = if ([Array]::IndexOf($bytes, [byte]0) -ge 0) {
+            'bin:' + (Get-FileHash -Path $f.FullName -Algorithm SHA256).Hash
+        }
+        else {
+            [System.Text.Encoding]::UTF8.GetString($bytes) -replace "`r`n", "`n"
+        }
+    }
+    return $snap
+}
+
+function Get-DistChange {
+    # 'new', 'unchanged', 'version stamp only', or 'changed'.
+    param($Before, $After)
+    if ($Before.Count -eq 0) { return 'new' }
+    $keys = @($Before.Keys) + @($After.Keys) | Sort-Object -Unique
+    $stampOnly = $false
+    foreach ($k in $keys) {
+        if (-not $Before.ContainsKey($k) -or -not $After.ContainsKey($k)) { return 'changed' }
+        if ($Before[$k] -ceq $After[$k]) { continue }
+        $semver = '(?<![\d.])\d+\.\d+\.\d+(?!\.?\d)'
+        if (($Before[$k] -creplace $semver, 'X.Y.Z') -ceq ($After[$k] -creplace $semver, 'X.Y.Z')) {
+            $stampOnly = $true
+            continue
+        }
+        return 'changed'
+    }
+    if ($stampOnly) { return 'version stamp only' }
+    return 'unchanged'
+}
+
 function Write-Rendered {
     param([string]$Path, [string]$Text, $Encoding)
     $dir = Split-Path -Parent $Path
@@ -271,6 +315,8 @@ foreach ($dir in $portDirs) {
     $files = @(Get-ChildItem -Path $templateDir -Recurse -File -Force)
     $valuesPath = Join-Path $dir.FullName 'values.json'
     $portValues = if (Test-Path $valuesPath) { Get-Content -Raw -Path $valuesPath | ConvertFrom-Json -AsHashtable } else { $null }
+    $report = -not $Quiet -and -not $Destination
+    $beforeSnap = if ($report) { Get-DistSnapshot -Root $outRoot } else { $null }
 
     foreach ($vKey in @($palette.variants.Keys)) {
         $variant = $palette.variants[$vKey]
@@ -298,7 +344,11 @@ foreach ($dir in $portDirs) {
         }
     }
     $built++
-    if (-not $Quiet) { Write-Host "Built $($dir.Name)" }
+    if ($report) {
+        $change = Get-DistChange -Before $beforeSnap -After (Get-DistSnapshot -Root $outRoot)
+        Write-Host "Built $($dir.Name): $change"
+    }
+    elseif (-not $Quiet) { Write-Host "Built $($dir.Name)" }
 }
 
 if (-not $Quiet) {
