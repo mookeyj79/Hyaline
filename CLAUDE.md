@@ -28,7 +28,8 @@ Ports/<app_name>/
   template/                 files with {{role}} placeholders, no raw colors
   dist/dark/                generated output, committed
   dist/light/               generated output, committed
-  README.md                 step-by-step install guide, plus tier, role mapping, known gaps, sources
+  README.md                 step-by-step install guide for users: tier, known limits, sources
+  MAPPING.md                role mapping, trade-offs, and research notes, for maintainers
 build/lib/                  the rules, as modules the scripts share:
   Palette.psm1              loads and validates the palette; filters, wash, contrast
   Placeholders.psm1         the {{...}} grammar: resolves, lists problems, reads template files
@@ -98,7 +99,8 @@ Surface roles come in pairs: `chrome`, `panel`, and `raised` are translucent, `c
 
 - Work on a branch named `port/<app_name>`, `palette/<change>`, or `build/<change>` for tooling and docs. Do not commit to `main` directly.
 - Do not install a theme on the user's machine or change system settings unless asked. Building files in the repo is the job.
-- Screenshots cannot be generated here. Leave the placeholder in the port README and ask the user to add them.
+- Screenshots cannot be generated here. Ask the user to add them, and add the screenshot table to the port README only once the files exist.
+- READMEs are for their readers: a port README for the person installing it, the root README for a visitor. No measurements, role names, palette versions, ADR links, research notes, or notes to an agent in them.
 - Writing style for docs: plain and short. `check.ps1` fails on em dashes.
 
 ## Agent skills

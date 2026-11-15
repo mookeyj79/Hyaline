@@ -2,13 +2,7 @@
 
 **Tier:** 2 Flat
 **Variants:** Hyaline Dark, Hyaline Light
-**Tested with:** not yet tested on a real machine. Built from the official docs and Starship's source (see Sources).
-
-| Hyaline Dark | Hyaline Light |
-|---|---|
-| ![Hyaline Dark](screenshots/dark.png) | ![Hyaline Light](screenshots/light.png) |
-
-<!-- Screenshots are added by hand. Leave the paths in place. -->
+**Tested with:** Not tested yet
 
 Starship is a prompt, not a window. It draws colored text on your terminal's background, so it has no surface of its own to make glass. The glass comes from the terminal. Pair this port with a Hyaline terminal port, such as [Windows Terminal](../windows-terminal/README.md), on the same variant.
 
@@ -44,7 +38,7 @@ Starship reads one file, `starship.toml`, in the `.config` folder of your home f
 2. Open `Ports/starship/dist/dark/starship-dark.toml` (or the Light file).
 3. Copy the line `palette = "Hyaline Dark"` and paste it near the top of your file, above every `[section]`. If your file already has a `palette = ` line, replace it.
 4. Copy the whole `[palettes."Hyaline Dark"]` table from the end of the Hyaline file and paste it at the end of yours.
-5. Optional: copy the `[git_status]`, `[os]`, `[shell]`, and `[memory_usage]` sections too. [Role mapping](#role-mapping) explains why. If your file already has one of these sections, copy only its `style = ` line.
+5. Optional: copy the `[git_status]`, `[os]`, `[shell]`, and `[memory_usage]` sections too. [Module styles](#module-styles) explains why. If your file already has one of these sections, copy only its `style = ` line.
 6. Save, then open a new terminal tab.
 
 Files to use:
@@ -95,41 +89,25 @@ If you used the Hyaline file as your whole config, you can delete `starship.toml
 - **The prompt is hard to read in Light**: the terminal is still on a dark scheme. Switch the terminal to Hyaline Light too.
 - **Starship ignores `starship.toml`**: the `STARSHIP_CONFIG` environment variable points somewhere else. Edit that file, or remove the variable.
 
----
+## Color names for your own styles
 
-## Reference
+The port also adds these names, for your own module styles (for example `style = "bold accent"`):
 
-### Role mapping
-
-Palette colors, which recolor every module that uses Starship's color names:
-
-| Starship color | Role |
+| Name | What it is |
 |---|---|
-| `red`, `bright-red` | `red` |
-| `green`, `bright-green` | `green` |
-| `yellow`, `bright-yellow` | `yellow` |
-| `blue`, `bright-blue` | `blue` |
-| `purple`, `bright-purple` | `magenta` |
-| `cyan`, `bright-cyan` | `cyan` |
-| `black` | Dark `raised_flat`, Light `text` |
-| `bright-black` | `text_muted` |
-| `white` | Dark `text_dim`, Light `line` |
-| `bright-white` | Dark `text`, Light `raised_flat` |
+| `text` | The main text color |
+| `text_dim` | Softer text, for supporting details |
+| `text_muted` | The faintest text, for comments and metadata |
+| `accent` | The blue used for focus and selection |
+| `on_accent` | Text to put on an `accent` background |
+| `magenta`, `orange` | The Hyaline magenta and orange |
+| `panel` | The terminal background color |
+| `raised` | A slightly lifted background, for labels or segments |
+| `line` | The border and divider color |
 
-These match the terminal ports' ANSI colors exactly, so the prompt looks the same whether Starship or the terminal picks the color.
+## Module styles
 
-Extra palette names, for your own module styles (for example `style = "bold accent"`):
-
-| Palette name | Role |
-|---|---|
-| `text`, `text_dim`, `text_muted` | the same roles |
-| `accent`, `on_accent` | the same roles |
-| `magenta`, `orange` | the same roles |
-| `panel` | `panel_flat` |
-| `raised` | `raised_flat` |
-| `line` | `line` |
-
-Module styles the port changes:
+The port changes the style of four modules. The optional step 5 of [If you already have a starship.toml](#if-you-already-have-a-starshiptoml) copies these.
 
 | Module | Starship default | Hyaline | Why |
 |---|---|---|---|
@@ -138,20 +116,16 @@ Module styles the port changes:
 | `shell` | `white bold` | `bold text_dim` | Same |
 | `memory_usage` | `bold dimmed white` | `bold dimmed text_dim` | Same |
 
-Defaults that already fit and are left alone: `character` (green on success, red on failure), `directory` (cyan, a path), `cmd_duration` (yellow), `jobs` and `sudo` (blue), `git_branch` (purple, so `magenta`).
+Other modules keep Starship's default colors, which already fit: the prompt arrow is green on success and red on failure, the folder path is cyan, and the git branch is purple.
 
-### Known gaps
+## Known limits
 
-- **No glass.** Starship has no background of its own. Glass comes from the terminal port.
+- **No glass.** Starship has no background of its own. The glass comes from your terminal.
 - **Cannot follow the OS light or dark setting.** Switching is a one-line edit.
-- **Language modules keep Starship's default hues.** For example `rust` is red and `python` is yellow, though neither means failure or change. Restyling 100+ modules would make the file hard to merge into existing configs. A few, such as `purescript`, default to `white`, which is faint in Light; set their `style` to `text_dim` if you use them.
-- **No alpha.** Starship takes `#rrggbb` only, so translucent roles use their flat values.
-- **Not tested on a real machine yet.** Screenshots and a tested version are still to come.
+- **Language modules keep Starship's default colors.** For example `rust` is red and `python` is yellow, though neither means failure or change. A few, such as `purescript`, default to `white`, which is faint in Light. Set their `style` to `text_dim` if you use them.
 
-### Sources and credits
+## Sources
 
 - [Starship configuration](https://starship.rs/config/): config file location, `STARSHIP_CONFIG`, `palette` and `palettes`, module default styles
 - [Starship advanced configuration](https://starship.rs/advanced-config/): style strings, color names, the `bright-` prefix, hex colors
-- [Starship source, `src/config.rs`](https://github.com/starship/starship/blob/master/src/config.rs): palette names are checked before built-in color names, and style words are lowercased first, so palette keys must be lowercase
 - [Starship changelog](https://github.com/starship/starship/blob/master/CHANGELOG.md): palettes added in 1.11.0
-- Port studied: [Catppuccin for Starship](https://github.com/catppuccin/starship), MIT. Method only: one palette table per flavor, chosen with the `palette` line. No files or colors reused.

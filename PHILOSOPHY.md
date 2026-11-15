@@ -141,7 +141,8 @@ Each port lives in its own folder: `Ports/<app_name>/`.
 
 - A **template** that references palette roles.
 - **Generated output** for both variants, committed to the repo.
-- A **README** that is a step-by-step install guide. Someone who has never themed the app should be able to follow it start to finish. It also states the tier and known gaps.
+- A **README** that is a step-by-step install guide. Someone who has never themed the app should be able to follow it start to finish. It also states the tier and known limits.
+- A **MAPPING.md** for maintainers: which role each app setting uses, and why.
 - A **screenshot** of each variant.
 
 ## Changing the palette

@@ -43,7 +43,7 @@ Then look at how other themes ported to this app. This is expected, not optional
 
 Take the method, not the colors. Every color still comes from the palette, and every slot still maps to a role per PHILOSOPHY.md. If you reuse more than the basic structure of someone's port, check its license and credit it in the README.
 
-Keep the source URLs, including the ports you studied. They go in the README.
+Keep the source URLs. The official docs go in the README's **Sources**. The ports you studied go in `MAPPING.md` under **Research**.
 
 If the app cannot be themed at all, say so and stop. Do not ship a workaround that patches app files unless the user asks for it.
 
@@ -59,7 +59,7 @@ Tell the user the tier and the known gaps in two or three lines, then carry on. 
 
 ## 5. Map the app's slots to roles
 
-List every color slot the app exposes and assign each one a role. Write this as a table. It goes in the README.
+List every color slot the app exposes and assign each one a role. Copy `port-mapping-template.md` from this skill's folder to `Ports/<app_name>/MAPPING.md` and write the table there. It is for maintainers, not in the README.
 
 - Surfaces: `chrome` or `chrome_flat` for the frame (title bars, tab strips, sidebars, toolbars), `panel` or `panel_flat` for content, `raised` or `raised_flat` for tabs, cards, inputs. Chrome carries `text` and solid accent fills only (ADR 0004). If the app does not separate frame from content, use `panel` for both.
 - Text: `text` for content, `text_dim` for supporting, `text_muted` for comments and metadata
@@ -111,13 +111,16 @@ The README is first and foremost a step-by-step install guide. Write it for some
 - Say what the reader should see when a step worked.
 - Include how to switch variants and how to uninstall.
 - Fill in **Set the font**: where this app sets its font, pointing to FiraCode Nerd Font Mono (ADR 0005). If the app cannot change its font, say so.
-- Keep reference material (role mapping, known gaps, sources) below the guide.
+- **Known limits** says what the reader will notice, in the app's own terms. The reasons (palette, contrast, wash, flat fallbacks) go in `MAPPING.md`.
+- **Sources** lists the official docs, and a credit for any reused files. Nothing else.
+- The README is for the person installing the theme. Keep out role names, placeholders, contrast numbers, palette versions, ADR links, build commands, research notes, TODOs, and notes to an agent. Those go in `MAPPING.md`, the PR, or an issue.
+- No screenshot table until the screenshots exist. When the user adds `screenshots/dark.png` and `light.png`, add a Dark | Light table under the header lines.
 
 ## 9. Finish
 
 - Write `Ports/<app_name>/port.json` so the port shows on the ports page: `name`, `category` (an id from `Ports/ports.json`), `tier` (1 to 3), and `platforms` (`windows`, `macos`, `linux`, `web`). See CONTRIBUTING.md step 8. If the app is in `planned` in `Ports/ports.json`, remove it from there. If no category fits, ask the user before adding one. Do not list the port in the root README; the ports page is the list.
 - Give the card an icon with the `port-icon` skill (`/port-icon <app_name>`). If no icon fits, the monogram stays.
 - Commit on a branch named `port/<app_name>`.
-- Report back in a few lines: tier, what is covered, what is not, and what the user needs to do (install steps live in the README, screenshots are theirs to add).
+- Report back in a few lines: tier, what is covered, what is not, and what the user needs to do (install steps live in the README, screenshots are theirs to add, then the screenshot table goes in).
 
 Do not install the theme on the user's machine unless they ask.

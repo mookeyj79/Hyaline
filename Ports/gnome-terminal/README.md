@@ -2,13 +2,7 @@
 
 **Tier:** 1 Full glass (glass needs Ubuntu or Linux Mint and a blurring desktop; Flat everywhere else)
 **Variants:** Hyaline Dark, Hyaline Light
-**Tested with:** not yet tested in a running GNOME Terminal. The scripts were run with `dconf` and `gsettings` against GNOME Terminal's settings schema, both upstream and Ubuntu's 3.52 build with transparency (see Sources).
-
-| Hyaline Dark | Hyaline Light |
-|---|---|
-| ![Hyaline Dark](screenshots/dark.png) | ![Hyaline Light](screenshots/light.png) |
-
-<!-- Screenshots are added by hand. Leave the paths in place. -->
+**Tested with:** Not tested yet
 
 GNOME Terminal is the default terminal in Linux Mint Cinnamon, Ubuntu, Fedora Workstation, and other GNOME-based systems. It keeps its colors in **profiles**, which live in your settings database (dconf), not in a file. Each variant here is a small script that adds one profile: `Hyaline Dark` or `Hyaline Light`. Your existing profiles are not touched.
 
@@ -89,7 +83,7 @@ GNOME Terminal can make its background see-through but cannot blur. The blur com
    bash Ports/gnome-terminal/dist/dark/install.sh --glass --default
    ```
 
-2. Open a new window. The wallpaper now shows faintly through the background. This is the profile's **Colors** tab with **Use transparent background** ticked.
+2. Open a new window. The wallpaper now shows faintly through the background. The script ticks **Use transparent background** on the profile's **Colors** tab and sets the slider to 20 percent (Dark) or 7 percent (Light).
 3. Open **System Settings** > **Extensions**, go to the **Download** tab, and install **Blur Cinnamon**.
 4. On the **Manage** tab, select **Blur Cinnamon** and click **+** to turn it on.
 5. Open its settings. On the **General setup** tab, turn on blurring for **Application windows**.
@@ -98,7 +92,7 @@ GNOME Terminal can make its background see-through but cannot blur. The blur com
 
 The wallpaper behind the terminal is now blurred. If the blur makes the desktop slow, switch the extension from Gaussian to **Dual Kawase** blur, which is lighter on the GPU.
 
-On other desktops, the transparency works the same, but the blur needs that desktop's compositor or an extension that blurs behind windows. Without a blur, text still passes Hyaline's contrast floor, since the tint is the same as the panel's, but a busy wallpaper stays sharp behind it. Use flat in that case.
+On other desktops, the transparency works the same, but the blur needs that desktop's compositor or an extension that blurs behind windows. Without a blur, text stays readable, but a busy wallpaper stays sharp behind it. Use flat in that case.
 
 ## Uninstall
 
@@ -125,46 +119,16 @@ You can also remove a profile by hand: **Edit** > **Preferences**, select it, cl
 - **`--glass` made no difference**: your GNOME Terminal build has no transparency option. Upstream GNOME and Debian builds do not have it; Ubuntu and Linux Mint add it back. Use flat.
 - **The background is see-through but not blurred**: the desktop is not blurring it. See [Turn on the glass effect](#turn-on-the-glass-effect).
 
----
+## Known limits
 
-## Reference
-
-### Role mapping
-
-| Profile key | Preferences name | Role |
-|---|---|---|
-| `background-color` | Background | Flat: `panel_flat`. Glass: `panel` |
-| `use-transparent-background` | Use transparent background | Flat: off. Glass: on |
-| `background-transparency-percent` | the transparency slider | Glass: 100 minus `panel` opacity (Dark 20, Light 7) |
-| `use-theme-transparency` | Use transparency from system theme | off, so the palette sets the amount |
-| `foreground-color` | Text | `text` |
-| `bold-color-same-as-fg` | Bold color same as text | on, so bold uses `text` |
-| `cursor-background-color` | Cursor background | `accent` |
-| `cursor-foreground-color` | Cursor foreground | `on_accent` |
-| `highlight-background-color` | Highlight background | `accent` |
-| `highlight-foreground-color` | Highlight foreground | `on_accent` |
-| `palette` 0, black | Palette | Dark `raised_flat`, Light `text` |
-| `palette` 1 to 6 | Palette | `red`, `green`, `yellow`, `blue`, `magenta`, `cyan` |
-| `palette` 7, white | Palette | Dark `text_dim`, Light `line` |
-| `palette` 8, bright black | Palette | `text_muted` |
-| `palette` 9 to 14 | Palette | same roles as 1 to 6 |
-| `palette` 15, bright white | Palette | Dark `text`, Light `raised_flat` |
-| `bold-is-bright` | Show bold text in bright colors | off, since bright colors reuse the normal roles |
-| `use-theme-colors` | Use colors from system theme | off |
-| `font`, `use-system-font` | Custom font | FiraCode Nerd Font Mono 12 |
-
-### Known gaps
-
-- **Glass is partial.** Transparency only exists in builds that patch it back in such as Ubuntu and Linux Mint, and the blur comes from the desktop, not the terminal. Upstream GNOME and Debian 13 builds get flat only.
-- **Window frame and tab bar** are drawn by the GTK theme, not the profile. They follow the Cinnamon or GNOME theme you use, and the **Theme variant** setting picks its light or dark version.
+- **Glass needs Ubuntu or Linux Mint.** Only their GNOME Terminal has **Use transparent background**. On upstream GNOME and Debian 13 you get the flat look. The blur always comes from the desktop, not from the terminal.
+- **The window frame and tab bar** follow your GTK theme, not the profile. Use **Theme variant** in **Preferences** > **General** to pick its light or dark version.
 - **No automatic light and dark switching.** A profile has one set of colors, so switching variants means switching profiles.
 - **Default profile on a brand new account.** If GNOME Terminal has never been opened, its profile list is still empty, and installing first leaves Hyaline as the only listed profile. Open GNOME Terminal once before installing to avoid this.
 
-### Sources and credits
+## Sources
 
-- [GNOME Terminal settings schema](https://gitlab.gnome.org/GNOME/gnome-terminal/-/blob/master/src/org.gnome.Terminal.gschema.xml): every profile key, its type, and the profiles list path.
-- [GNOME Terminal help: Manage profiles](https://help.gnome.org/users/gnome-terminal/stable/pref-profiles.html): Preferences, **Set as default**, **Delete...**, and **Terminal** > **Change Profile**.
-- [GNOME Terminal help: Change font and style](https://help.gnome.org/users/gnome-terminal/stable/app-fonts.html): the **Custom font** steps.
-- `debian/patches/0001-Restore-transparency.patch` in [Ubuntu's `gnome-terminal` 3.52.0-1ubuntu2 source package](http://archive.ubuntu.com/ubuntu/pool/main/g/gnome-terminal/gnome-terminal_3.52.0-1ubuntu2.debian.tar.xz): the transparency keys and how the percent turns into opacity.
-- [Blur Cinnamon](https://cinnamon-spices.linuxmint.com/extensions/view/104): blur behind application windows on Cinnamon.
-- [Catppuccin for GNOME Terminal](https://github.com/catppuccin/gnome-terminal) (MIT): studied for the method of one fixed profile UUID per variant, added to `org.gnome.Terminal.ProfilesList`. No files or code were reused.
+- [GNOME Terminal help: Manage profiles](https://help.gnome.org/users/gnome-terminal/stable/pref-profiles.html)
+- [GNOME Terminal help: Change font and style](https://help.gnome.org/users/gnome-terminal/stable/app-fonts.html)
+- [GNOME Terminal settings schema](https://gitlab.gnome.org/GNOME/gnome-terminal/-/blob/master/src/org.gnome.Terminal.gschema.xml)
+- [Blur Cinnamon](https://cinnamon-spices.linuxmint.com/extensions/view/104)

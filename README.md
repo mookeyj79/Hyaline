@@ -12,7 +12,7 @@ Smoke by night, frost by day. One color theme with two variants, ported to every
 | [![Hyaline Dark](Ports/preview/screenshots/dark.jpg)](https://mookeyj79.github.io/Hyaline/Ports/preview/dist/dark/index.html) | [![Hyaline Light](Ports/preview/screenshots/light.jpg)](https://mookeyj79.github.io/Hyaline/Ports/preview/dist/light/index.html) |
 | Smoked, frosted panels with light text | Frosted white panels with dark ink |
 
-**[Open the live preview](https://mookeyj79.github.io/Hyaline/)** to see every role, mock apps, and diagrams in both variants, or **[browse the ports](https://mookeyj79.github.io/Hyaline/ports/)**.
+**[Open the live preview](https://mookeyj79.github.io/Hyaline/)** to see every color, mock apps, and diagrams in both variants, or **[browse the ports](https://mookeyj79.github.io/Hyaline/ports/)**.
 
 ## Contents
 
@@ -21,7 +21,6 @@ Smoke by night, frost by day. One color theme with two variants, ported to every
 - [Font](#font)
 - [Wallpapers](#wallpapers)
 - [How it works](#how-it-works)
-- [Build](#build)
 - [Add a port](#add-a-port)
 - [Contributing](#contributing)
 - [License](#license)
@@ -31,12 +30,12 @@ Smoke by night, frost by day. One color theme with two variants, ported to every
 - **Two variants that always ship together.** Switching between them should feel like the sun went down, not like you opened a different app.
 - **Colors with one job each.** Red is failure, green is success, yellow is change, blue is in progress, in every app. See [PHILOSOPHY.md](PHILOSOPHY.md).
 - **Glass where the app allows it.** Clear chrome (title bars, tabs, sidebars) over a wallpaper, with content on a denser panel so it stays readable.
-- **Readable first.** Every text color meets a contrast floor, and CI checks it on every change.
+- **Readable first.** Every text color stays easy to read, in both variants.
 - **One font everywhere:** FiraCode Nerd Font, with icons for prompts and file trees.
 
-| Diagrams | Every role, with contrast | Font |
+| Diagrams | Every color | Font |
 |---|---|---|
-| [![Mermaid diagrams in Hyaline Dark](Ports/preview/screenshots/mermaid.jpg)](https://mookeyj79.github.io/Hyaline/) | [![Role swatches in Hyaline Light](Ports/preview/screenshots/roles.jpg)](https://mookeyj79.github.io/Hyaline/Ports/preview/dist/light/index.html) | [![FiraCode Nerd Font specimen](Ports/preview/screenshots/font.jpg)](https://mookeyj79.github.io/Hyaline/) |
+| [![Mermaid diagrams in Hyaline Dark](Ports/preview/screenshots/mermaid.jpg)](https://mookeyj79.github.io/Hyaline/) | [![Color swatches in Hyaline Light](Ports/preview/screenshots/roles.jpg)](https://mookeyj79.github.io/Hyaline/Ports/preview/dist/light/index.html) | [![FiraCode Nerd Font specimen](Ports/preview/screenshots/font.jpg)](https://mookeyj79.github.io/Hyaline/) |
 
 ## Ports
 
@@ -65,34 +64,22 @@ Hyaline recommends **[FiraCode Nerd Font](https://www.nerdfonts.com/font-downloa
    - **Linux**: copy the `.ttf` files to `~/.local/share/fonts/` and run `fc-cache -f`.
 3. In each app, pick **FiraCode Nerd Font Mono**. The Mono version keeps every icon one cell wide, so columns always line up. If an app lists only **FiraCode Nerd Font**, that works too.
 
-Free under the SIL Open Font License. See [ADR 0005](docs/adr/0005-recommended-font.md).
+Free under the SIL Open Font License.
 
 ## Wallpapers
 
 [![White Sands dunes](wallpapers/thumbs/white-sands-dunes.jpg)](wallpapers/white-sands-dunes.jpg)
 
-Glass needs something behind it. [`wallpapers/`](wallpapers/) holds found images that are light, calm, and free to redistribute. Each one is credited and checked for contrast behind both variants. The first is White Sands dunes by Matt Le (CC0). See [`wallpapers/README.md`](wallpapers/README.md).
+Glass needs something behind it. [`wallpapers/`](wallpapers/) has desktop wallpapers that go well behind both variants, free to use. See [`wallpapers/README.md`](wallpapers/README.md).
 
 ## How it works
 
-```
-palette/palette.json          every color, for both variants
-Ports/<app_name>/port.json    name, category, tier, and platforms for the ports page
-Ports/<app_name>/template/    theme files with {{role}} placeholders
-Ports/<app_name>/dist/        generated themes, ready to use
-build/                        turns palette + templates into dist, runs the checks
-wallpapers/                   backdrop images, with credits
-docs/adr/                     recorded decisions and why
-PHILOSOPHY.md                 the design rules
-```
-
-- **The palette is the only place colors live.** Templates name a role (`panel`, `text`, `accent`, `red`), never a hex value. Change a color once and every port updates.
+- **One palette for every app.** Each port says what a color is for (background, text, error), never a specific color. Change a color once and every port updates.
 - **Generated files are committed.** You can grab a theme from `dist/` without building anything.
-- **CI catches drift.** `check.ps1` runs on every pull request and every push to `main`, and fails if a committed theme does not match the palette.
 
 ### Glass
 
-Where an app can blur, the window splits in two. The **chrome** (title bars, tabs, sidebars) is clear glass and carries only primary text. The **content** sits on a denser panel so every color stays readable over a wallpaper. See [ADR 0004](docs/adr/0004-chrome-and-content-glass-split.md).
+Where an app can blur, the window splits in two. The **chrome** (title bars, tabs, sidebars) is clear glass and carries only primary text. The **content** sits on a denser panel so every color stays readable over a wallpaper.
 
 ### Design rules
 
@@ -105,28 +92,15 @@ Where an app can blur, the window splits in two. The **chrome** (title bars, tab
 5. Readable first.
 6. Two variants, one theme.
 
-## Build
-
-Requires [PowerShell 7](https://learn.microsoft.com/powershell/scripting/install/installing-powershell).
-
-```sh
-pwsh build/build.ps1                     # rebuild every port
-pwsh build/build.ps1 -Port <app_name>    # rebuild one port
-pwsh build/check.ps1                     # palette, contrast, structure, port list, raw color, drift, and placeholder checks
-pwsh build/site.ps1                      # assemble the Pages site (preview and ports page) into _site/
-```
-
-The preview page and the ports page are published to GitHub Pages by [`.github/workflows/pages.yml`](.github/workflows/pages.yml) on every push to `main` that changes them.
-
 ## Add a port
 
 This repo is set up for [Claude Code](https://claude.com/claude-code). Open it there and ask:
 
 > Can you make a theme for Typora?
 
-or run `/new-port typora`. The `new-port` skill looks up the app's theme format, picks a tier, maps the app's settings to palette roles, builds both variants, runs the checks, and writes the port's install guide.
+or run `/new-port typora`. The `new-port` skill looks up the app's theme format, picks a tier, maps the app's settings to Hyaline's colors, builds both variants, runs the checks, and writes the port's install guide.
 
-Doing it by hand works too: see [CONTRIBUTING.md](CONTRIBUTING.md).
+Doing it by hand works too: see [CONTRIBUTING.md](CONTRIBUTING.md), which also covers the repo layout and the build.
 
 ## Contributing
 
