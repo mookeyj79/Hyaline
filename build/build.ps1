@@ -7,37 +7,12 @@
     For each folder in Ports/ that has a template/ folder, every file in
     template/ is rendered once per palette variant into dist/<variant>/.
     File names and folder structure are kept. Placeholders are allowed in
-    file contents and in file names.
-
-    Placeholders:
-        {{role}}           #rrggbb
-        {{role|nohash}}    rrggbb
-        {{role|rgb}}       r, g, b
-        {{role|rgba}}      rgba(r, g, b, a)
-        {{role|hexa}}      #rrggbbaa
-        {{role|alpha}}     a
-        {{role|percent}}   alpha as a whole percent, 0 to 100
-        {{role|wash}}      #rrggbbaa using the variant's wash alpha, for
-                           see-through highlights (selection, diff lines)
-        {{role|washflat}}  #rrggbb, the wash laid over panel_flat, for apps
-                           that take solid colors only
-        {{role|clear}}     #rrggbb00, fully transparent, for app settings
-                           that must be switched off with a color
-        {{ansi.<slot>}}    the role for a terminal ANSI slot (ADR 0001):
-                           black, red, green, yellow, blue, magenta, cyan,
-                           white, and bright_<each>. Takes the same filters.
-        {{meta.name}}      {{meta.version}}
-        {{variant.name}}   {{variant.mode}}   {{variant.key}}
-        {{port.<key>}}     a per-variant app value (not a color) from
-                           Ports/<port>/values.json:
-                           { "dark": { "<key>": "..." }, "light": { ... } }
+    file contents and in file names. The placeholders are listed in
+    CONTRIBUTING.md ("Add a port", step 4) and defined in
+    build/lib/Placeholders.psm1.
 
 .PARAMETER Port
     Build only this port (the folder name under Ports/).
-
-.PARAMETER Destination
-    Write output to <Destination>/<port>/<variant>/ instead of
-    Ports/<port>/dist/<variant>/. Used by check.ps1 to detect drift.
 
 .PARAMETER Quiet
     Print nothing on success.
@@ -56,248 +31,24 @@
 [CmdletBinding()]
 param(
     [string]$Port,
-    [string]$Destination,
     [switch]$Quiet
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$RepoRoot    = Split-Path -Parent $PSScriptRoot
-$PalettePath = Join-Path $RepoRoot 'palette' 'palette.json'
-$PortsRoot   = Join-Path $RepoRoot 'Ports'
-$Placeholder = '\{\{\s*([A-Za-z_][A-Za-z0-9_.]*)\s*(?:\|\s*([A-Za-z0-9]+)\s*)?\}\}'
-$Invariant   = [cultureinfo]::InvariantCulture
+Import-Module (Join-Path $PSScriptRoot 'lib' 'Palette.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'lib' 'Build.psm1') -Force
 
-function Read-Palette {
-    if (-not (Test-Path $PalettePath)) { throw "Palette not found: $PalettePath" }
-    $p = Get-Content -Raw -Path $PalettePath | ConvertFrom-Json -AsHashtable
-    foreach ($key in 'meta', 'variants') {
-        if (-not $p.ContainsKey($key)) { throw "palette.json is missing '$key'." }
-    }
-    foreach ($vKey in @($p.variants.Keys)) {
-        $v = $p.variants[$vKey]
-        $roles = @{}
-        foreach ($rKey in @($v.roles.Keys)) {
-            $raw = $v.roles[$rKey]
-            if ($raw -is [string]) {
-                $hex = $raw; $alpha = 1.0
-            }
-            elseif ($raw -is [System.Collections.IDictionary]) {
-                $hex = [string]$raw['hex']
-                $alpha = if ($raw.Contains('alpha')) { [double]$raw['alpha'] } else { 1.0 }
-            }
-            else {
-                throw "Role '$rKey' in variant '$vKey' must be a hex string or { hex, alpha }."
-            }
-            if ($hex -notmatch '^#[0-9a-fA-F]{6}$') {
-                throw "Role '$rKey' in variant '$vKey' has an invalid hex value: '$hex'."
-            }
-            if ($alpha -lt 0 -or $alpha -gt 1) {
-                throw "Role '$rKey' in variant '$vKey' has an alpha outside 0 to 1."
-            }
-            $roles[$rKey] = @{ hex = $hex.ToLowerInvariant(); alpha = $alpha }
-        }
-        if ($v.ContainsKey('wash')) {
-            $wash = [double]$v['wash']
-            if ($wash -le 0 -or $wash -ge 1) { throw "Variant '$vKey' has a wash outside 0 to 1." }
-            foreach ($r in @($roles.Values)) { $r['wash'] = $wash }
-            if ($roles.ContainsKey('panel_flat')) {
-                foreach ($r in @($roles.Values)) { $r['wash_bg'] = $roles['panel_flat'].hex }
-            }
-        }
-        $v['_roles'] = $roles
-        $v['_key'] = $vKey
-    }
-    return $p
+$RepoRoot  = Split-Path -Parent $PSScriptRoot
+$PortsRoot = Join-Path $RepoRoot 'Ports'
+
+$palette = Read-Palette -Path (Join-Path $RepoRoot 'palette' 'palette.json')
+if ($palette.Errors.Count -gt 0) {
+    throw "palette/palette.json has problems. Run build/check.ps1 for the full list.`n" + ($palette.Errors -join "`n")
 }
 
-# Terminal ANSI slots, per ADR 0001. The six hues and their bright versions
-# reuse their namesake role. Black and white map to neutrals by brightness,
-# which differs between dark and light variants.
-$AnsiRoles = @{
-    red = 'red'; green = 'green'; yellow = 'yellow'; blue = 'blue'
-    magenta = 'magenta'; cyan = 'cyan'
-}
-$AnsiNeutrals = @{
-    dark  = @{ black = 'raised_flat'; bright_black = 'text_muted'; white = 'text_dim'; bright_white = 'text' }
-    light = @{ black = 'text';        bright_black = 'text_muted'; white = 'line';     bright_white = 'raised_flat' }
-}
-
-function Get-AnsiRole {
-    param([string]$Slot, [string]$Mode)
-    if ($AnsiNeutrals.ContainsKey($Mode) -and $AnsiNeutrals[$Mode].ContainsKey($Slot)) {
-        return $AnsiNeutrals[$Mode][$Slot]
-    }
-    $hue = $Slot -replace '^bright_', ''
-    if ($AnsiRoles.ContainsKey($hue)) { return $AnsiRoles[$hue] }
-    return $null
-}
-
-function Format-Role {
-    param($Role, [string]$Filter, [string]$Token)
-    $hex = $Role.hex
-    $r = [Convert]::ToInt32($hex.Substring(1, 2), 16)
-    $g = [Convert]::ToInt32($hex.Substring(3, 2), 16)
-    $b = [Convert]::ToInt32($hex.Substring(5, 2), 16)
-    $a = ([double]$Role.alpha).ToString('0.###', $Invariant)
-    switch ($Filter) {
-        ''       { return $hex }
-        'nohash' { return $hex.Substring(1) }
-        'rgb'    { return "$r, $g, $b" }
-        'rgba'   { return "rgba($r, $g, $b, $a)" }
-        'hexa'   { return $hex + ([int][math]::Round($Role.alpha * 255)).ToString('x2') }
-        'alpha'  { return $a }
-        'percent' { return [string][int][math]::Round($Role.alpha * 100) }
-        'clear'  { return $hex + '00' }
-        'wash'   {
-            if (-not $Role.Contains('wash')) { throw "The palette has no wash for this variant: $Token." }
-            return $hex + ([int][math]::Round($Role.wash * 255)).ToString('x2')
-        }
-        'washflat' {
-            if (-not $Role.Contains('wash') -or -not $Role.Contains('wash_bg')) { throw "The palette has no wash or panel_flat for this variant: $Token." }
-            $out = foreach ($i in 1, 3, 5) {
-                $f = [Convert]::ToInt32($hex.Substring($i, 2), 16)
-                $b = [Convert]::ToInt32($Role.wash_bg.Substring($i, 2), 16)
-                ([int][math]::Round($f * $Role.wash + $b * (1 - $Role.wash))).ToString('x2')
-            }
-            return '#' + ($out -join '')
-        }
-        default  { throw "Unknown filter '$Filter' in $Token." }
-    }
-}
-
-function Resolve-Token {
-    param([string]$Name, [string]$Filter, $Palette, $Variant, [string]$Source, $PortValues)
-    $token = '{{' + $Name + $(if ($Filter) { "|$Filter" }) + '}}'
-    $value = $null
-    switch -Regex ($Name) {
-        '^meta\.(.+)$' {
-            $k = $Matches[1]
-            if ($Palette.meta.ContainsKey($k)) { $value = [string]$Palette.meta[$k] }
-            break
-        }
-        '^variant\.(.+)$' {
-            $k = $Matches[1]
-            if ($k -eq 'key') { $value = $Variant['_key'] }
-            elseif ($k -in 'name', 'mode') { $value = [string]$Variant[$k] }
-            break
-        }
-        '^port\.(.+)$' {
-            $k = $Matches[1]
-            $set = if ($PortValues) { $PortValues[$Variant['_key']] } else { $null }
-            if ($set -is [System.Collections.IDictionary] -and $set.Contains($k)) { $value = [string]$set[$k] }
-            break
-        }
-        '^ansi\.(.+)$' {
-            $role = Get-AnsiRole -Slot $Matches[1] -Mode ([string]$Variant['mode'])
-            if ($role -and $Variant['_roles'].ContainsKey($role)) {
-                return Format-Role -Role $Variant['_roles'][$role] -Filter $Filter -Token $token
-            }
-            break
-        }
-        default {
-            if ($Variant['_roles'].ContainsKey($Name)) {
-                return Format-Role -Role $Variant['_roles'][$Name] -Filter $Filter -Token $token
-            }
-        }
-    }
-    if ($null -eq $value) { throw "Unknown placeholder $token in $Source." }
-    if ($Filter) { throw "Filters only apply to color roles: $token in $Source." }
-    return $value
-}
-
-function Expand-Text {
-    param([string]$Text, $Palette, $Variant, [string]$Source, $PortValues)
-    return $Text -creplace $Placeholder, {
-        Resolve-Token -Name $_.Groups[1].Value -Filter $_.Groups[2].Value `
-            -Palette $Palette -Variant $Variant -Source $Source -PortValues $PortValues
-    }
-}
-
-function Read-Template {
-    # Returns the text and its encoding, or marks the file as binary.
-    param([string]$Path)
-    $bytes = [System.IO.File]::ReadAllBytes($Path)
-    $enc = $null
-    if ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) {
-        $enc = [System.Text.UTF8Encoding]::new($true)
-    }
-    elseif ($bytes.Length -ge 2 -and $bytes[0] -eq 0xFF -and $bytes[1] -eq 0xFE) {
-        $enc = [System.Text.UnicodeEncoding]::new($false, $true)
-    }
-    elseif ($bytes.Length -ge 2 -and $bytes[0] -eq 0xFE -and $bytes[1] -eq 0xFF) {
-        $enc = [System.Text.UnicodeEncoding]::new($true, $true)
-    }
-    elseif ([Array]::IndexOf($bytes, [byte]0) -ge 0) {
-        return @{ Binary = $true; Bytes = $bytes }
-    }
-    else {
-        $enc = [System.Text.UTF8Encoding]::new($false)
-    }
-    $skip = $enc.GetPreamble().Length
-    return @{
-        Binary   = $false
-        Encoding = $enc
-        Text     = $enc.GetString($bytes, $skip, $bytes.Length - $skip)
-    }
-}
-
-function Get-DistSnapshot {
-    # Relative path -> text with line endings normalized ('bin:' + hash for
-    # binary files). Empty when the folder does not exist.
-    param([string]$Root)
-    $snap = @{}
-    if (-not (Test-Path $Root)) { return $snap }
-    foreach ($f in Get-ChildItem -Path $Root -Recurse -File -Force) {
-        $rel = [System.IO.Path]::GetRelativePath($Root, $f.FullName) -replace '\\', '/'
-        $bytes = [System.IO.File]::ReadAllBytes($f.FullName)
-        $snap[$rel] = if ([Array]::IndexOf($bytes, [byte]0) -ge 0) {
-            'bin:' + (Get-FileHash -Path $f.FullName -Algorithm SHA256).Hash
-        }
-        else {
-            [System.Text.Encoding]::UTF8.GetString($bytes) -replace "`r`n", "`n"
-        }
-    }
-    return $snap
-}
-
-function Get-DistChange {
-    # 'new', 'unchanged', 'version stamp only', or 'changed'.
-    param($Before, $After)
-    if ($Before.Count -eq 0) { return 'new' }
-    $keys = @($Before.Keys) + @($After.Keys) | Sort-Object -Unique
-    $stampOnly = $false
-    foreach ($k in $keys) {
-        if (-not $Before.ContainsKey($k) -or -not $After.ContainsKey($k)) { return 'changed' }
-        if ($Before[$k] -ceq $After[$k]) { continue }
-        $semver = '(?<![\d.])\d+\.\d+\.\d+(?!\.?\d)'
-        if (($Before[$k] -creplace $semver, 'X.Y.Z') -ceq ($After[$k] -creplace $semver, 'X.Y.Z')) {
-            $stampOnly = $true
-            continue
-        }
-        return 'changed'
-    }
-    if ($stampOnly) { return 'version stamp only' }
-    return 'unchanged'
-}
-
-function Write-Rendered {
-    param([string]$Path, [string]$Text, $Encoding)
-    $dir = Split-Path -Parent $Path
-    if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
-    $bytes = [byte[]](@($Encoding.GetPreamble()) + @($Encoding.GetBytes($Text)))
-    [System.IO.File]::WriteAllBytes($Path, $bytes)
-}
-
-# --- Main -------------------------------------------------------------------
-
-$palette = Read-Palette
-
-$portDirs = @()
-if (Test-Path $PortsRoot) {
-    $portDirs = @(Get-ChildItem -Path $PortsRoot -Directory | Sort-Object Name)
-}
+$portDirs = if (Test-Path $PortsRoot) { @(Get-ChildItem -Path $PortsRoot -Directory | Sort-Object Name) } else { @() }
 if ($Port) {
     $portDirs = @($portDirs | Where-Object { $_.Name -eq $Port })
     if ($portDirs.Count -eq 0) { throw "Port not found: Ports/$Port" }
@@ -306,58 +57,19 @@ if ($Port) {
 $built = 0
 $fileCount = 0
 foreach ($dir in $portDirs) {
-    $templateDir = Join-Path $dir.FullName 'template'
-    if (-not (Test-Path $templateDir)) {
+    if (-not (Test-Path (Join-Path $dir.FullName 'template'))) {
         if (-not $Quiet) { Write-Warning "Skipping $($dir.Name): no template/ folder." }
         continue
     }
-    $outRoot = if ($Destination) { Join-Path $Destination $dir.Name } else { Join-Path $dir.FullName 'dist' }
-    $files = @(Get-ChildItem -Path $templateDir -Recurse -File -Force)
-    $valuesPath = Join-Path $dir.FullName 'values.json'
-    $portValues = if (Test-Path $valuesPath) { Get-Content -Raw -Path $valuesPath | ConvertFrom-Json -AsHashtable } else { $null }
-    $report = -not $Quiet -and -not $Destination
-    $beforeSnap = if ($report) { Get-DistSnapshot -Root $outRoot } else { $null }
-
-    foreach ($vKey in @($palette.variants.Keys)) {
-        $variant = $palette.variants[$vKey]
-        $outDir = Join-Path $outRoot $vKey
-        if (Test-Path $outDir) { Remove-Item -Path $outDir -Recurse -Force }
-        New-Item -ItemType Directory -Path $outDir -Force | Out-Null
-
-        foreach ($file in $files) {
-            $rel = [System.IO.Path]::GetRelativePath($templateDir, $file.FullName)
-            $source = "Ports/$($dir.Name)/template/$($rel -replace '\\', '/')"
-            $relOut = Expand-Text -Text $rel -Palette $palette -Variant $variant -Source "$source (file name)" -PortValues $portValues
-            $target = Join-Path $outDir $relOut
-
-            $tpl = Read-Template -Path $file.FullName
-            if ($tpl.Binary) {
-                $targetDir = Split-Path -Parent $target
-                if (-not (Test-Path $targetDir)) { New-Item -ItemType Directory -Path $targetDir -Force | Out-Null }
-                [System.IO.File]::WriteAllBytes($target, $tpl.Bytes)
-            }
-            else {
-                $text = Expand-Text -Text $tpl.Text -Palette $palette -Variant $variant -Source $source -PortValues $portValues
-                Write-Rendered -Path $target -Text $text -Encoding $tpl.Encoding
-            }
-            $fileCount++
-        }
-    }
+    $result = Update-Port -Palette $palette -PortDir $dir.FullName
     $built++
-    if ($report) {
-        $change = Get-DistChange -Before $beforeSnap -After (Get-DistSnapshot -Root $outRoot)
-        Write-Host "Built $($dir.Name): $change"
-    }
-    elseif (-not $Quiet) { Write-Host "Built $($dir.Name)" }
+    $fileCount += $result.Written
+    if (-not $Quiet) { Write-Host "Built $($dir.Name): $($result.Status)" }
 }
 
 if (-not $Quiet) {
-    $name = $palette.meta['name']
-    $version = $palette.meta['version']
-    if ($built -eq 0) {
-        Write-Host "$name ${version}: no ports to build yet."
-    }
-    else {
-        Write-Host "$name ${version}: $built port(s), $fileCount file(s) written."
-    }
+    $name = $palette.Meta['name']
+    $version = $palette.Meta['version']
+    if ($built -eq 0) { Write-Host "$name ${version}: no ports to build yet." }
+    else { Write-Host "$name ${version}: $built port(s), $fileCount file(s) written." }
 }

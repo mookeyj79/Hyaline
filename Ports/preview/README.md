@@ -32,7 +32,8 @@ Both files are the same page. The only difference is which variant it opens in, 
 
 - `template/theme.css` holds every role as a CSS variable, scoped to `:root[data-variant="<mode>"]`. The build renders it once per variant.
 - `template/base.css` holds what both pages share: fonts, surfaces, the top bar, and the variant switch.
-- `template/ports.html` reads the port list from `ports.js`, which `build/site.ps1` generates from every `Ports/<app>/port.json` and `Ports/ports.json`. Variants on each card come from which `dist/` folders exist.
+- `template/ports.html` reads the port list from `ports.js`, which `build/site.ps1` generates from every `Ports/<app>/port.json` and `Ports/ports.json`. Variants on each card come from which `dist/` folders exist. Tier and platform names come with the list too.
+- `site.json` tells `build/site.ps1` what to publish: the folders to copy, and the site entry pages (`/` and `/ports/`) that open a page in the visitor's variant.
 - `template/index.html` loads both `../dark/theme.css` and `../light/theme.css`, so the switch repaints instantly without a reload. Without JavaScript, the switch links to the other variant's page.
 - Mono text uses the recommended font, FiraCode Nerd Font Mono, from `assets/fonts/`. Those files are trimmed to the characters the page uses (Latin, ligatures, and the icons shown), so they total about 90 KB instead of 5 MB.
 - The page itself holds no color values. The role values and contrast ratios in the Roles section are read from the CSS variables at runtime.

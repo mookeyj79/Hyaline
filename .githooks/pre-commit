@@ -11,6 +11,14 @@ if ! command -v pwsh >/dev/null 2>&1; then
     exit 1
 fi
 
+# Module tests first, only when the build itself changed.
+if git diff --cached --name-only | grep -q '^build/'; then
+    pwsh -NoProfile -File build/test.ps1 || {
+        echo "pre-commit: build module tests failed." >&2
+        exit 1
+    }
+fi
+
 # The check reads the working tree, so it also sees unstaged edits.
 pwsh -NoProfile -File build/check.ps1 || {
     echo "pre-commit: checks failed. Fix them, or run build/build.ps1 if dist/ is stale." >&2

@@ -24,16 +24,24 @@ Ports/<app_name>/
   port.json                 name, category, tier, platforms, icon credit (feeds the ports page)
   icon.svg                  optional single-color card icon (ADR 0007)
   values.json               optional per-variant app values that are not colors ({{port.<key>}})
+  site.json                 what the Pages site publishes from this port (only the preview has one)
   template/                 files with {{role}} placeholders, no raw colors
   dist/dark/                generated output, committed
   dist/light/               generated output, committed
   README.md                 step-by-step install guide, plus tier, role mapping, known gaps, sources
+build/lib/                  the rules, as modules the scripts share:
+  Palette.psm1              loads and validates the palette; filters, wash, contrast
+  Placeholders.psm1         the {{...}} grammar: resolves, lists problems, reads template files
+  Build.psm1                renders a port into dist/ and compares a build with dist/
+  Catalog.psm1              finds ports, validates port.json, ports.json, icons, site.json
 build/build.ps1             palette + templates = dist
-build/check.ps1             drift, raw-hex, placeholder, port list, contrast, file format, and em dash checks
+build/check.ps1             runs the rules: palette, contrast, structure, port list, raw color,
+                            placeholders, drift, leftovers, file format, em dashes
+build/test.ps1              tests the build/lib modules on small fixtures
 build/site.ps1              assembles the GitHub Pages site and the port list into _site/
 build/icon.ps1              finds and fetches a port's card icon
 build/setup-linux.sh        installs pwsh and chromium on a fresh Linux sandbox
-.githooks/pre-commit        runs check.ps1 before a commit (git config core.hooksPath .githooks)
+.githooks/pre-commit        runs test.ps1 and check.ps1 before a commit (git config core.hooksPath .githooks)
 .claude/skills/new-port/    the new-port skill and the port README template
 .claude/skills/port-icon/   the port-icon skill
 ```
@@ -67,33 +75,18 @@ Studying how Catppuccin, Nord, Dracula, and other themes ported to the same app 
 pwsh build/build.ps1                     # rebuild every port
 pwsh build/build.ps1 -Port <app_name>    # rebuild one port
 pwsh build/check.ps1                     # run all checks (CI runs this too)
+pwsh build/test.ps1                      # test the build modules (CI runs this too)
 pwsh build/site.ps1                      # assemble the Pages site into _site/
 pwsh build/icon.ps1 -Search <words>      # find a card icon (see the port-icon skill)
 bash build/setup-linux.sh                # pwsh or chromium missing? run this first
 gh run list --workflow pages.yml -L 1    # after a merge to main, watch this until the deploy is green
 ```
 
-Run both before every commit that touches `palette/` or `Ports/`.
+Run build and check before every commit that touches `palette/` or `Ports/`. Run the tests too when `build/` changes.
 
 ## Template placeholders
 
-The placeholder table (`{{role|wash}}`, `{{ansi.<slot>}}`, `{{port.<key>}}`, and the rest) is in CONTRIBUTING.md, step 4 of "Add a port". `build/build.ps1` is the source of truth: an unknown placeholder fails the build.
-
-| Placeholder | Output |
-|---|---|
-| `{{role}}` | `#rrggbb` |
-| `{{role\|nohash}}` | `rrggbb` |
-| `{{role\|rgb}}` | `r, g, b` |
-| `{{role\|rgba}}` | `rgba(r, g, b, a)` using the role's alpha |
-| `{{role\|hexa}}` | `#rrggbbaa` using the role's alpha |
-| `{{role\|percent}}` | the role's alpha as a whole percent, `0` to `100` |
-| `{{role\|wash}}` | `#rrggbbaa` using the variant's `wash` alpha, for see-through highlights |
-| `{{role\|washflat}}` | `#rrggbb`, the wash laid over `panel_flat`, for apps that take solid colors only |
-| `{{role\|clear}}` | `#rrggbb00`, fully transparent, for app settings that can only be switched off with a color |
-| `{{ansi.<slot>}}` | the role for a terminal ANSI slot per ADR 0001 (`black` to `white`, `bright_<slot>`), takes the same filters |
-| `{{meta.name}}`, `{{variant.name}}`, `{{variant.mode}}` | theme name, variant name, `dark` or `light` |
-| `{{meta.repository}}` | the repo URL |
-| `{{port.<key>}}` | a per-variant app value that is not a color, from `Ports/<app_name>/values.json` (`{ "dark": { "<key>": "..." }, "light": { ... } }`) |
+The placeholder table (`{{role|wash}}`, `{{ansi.<slot>}}`, `{{port.<key>}}`, and the rest) is in CONTRIBUTING.md, step 4 of "Add a port". `build/lib/Placeholders.psm1` is the source of truth, and `check.ps1` fails if that table misses a filter.
 
 Surface roles come in pairs: `chrome`, `panel`, and `raised` are translucent, `chrome_flat`, `panel_flat`, and `raised_flat` are the solid fallbacks. Use the flat ones anywhere the app cannot blur. Chrome (title bars, tabs, sidebars) carries `text` and solid accent fills only; everything else goes on `panel`.
 

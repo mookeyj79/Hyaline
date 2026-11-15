@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - name: Test the build modules
+        shell: pwsh
+        run: ./build/test.ps1
       - name: Run checks
         shell: pwsh
         run: ./build/check.ps1
