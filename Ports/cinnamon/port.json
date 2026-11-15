@@ -1,0 +1,15 @@
+{
+  "name": "Cinnamon",
+  "category": "system",
+  "tier": 2,
+  "platforms": ["linux"],
+  "icon": {
+    "kind": "brand",
+    "set": "Simple Icons 16.37.0",
+    "name": "cinnamon",
+    "author": "Simple Icons contributors",
+    "source": "https://simpleicons.org/?q=cinnamon",
+    "license": "CC0-1.0",
+    "mark": "https://github.com/linuxmint/cinnamon/blob/master/files/usr/share/icons/hicolor/scalable/apps/cinnamon.svg"
+  }
+}
