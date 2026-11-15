@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="120" viewBox="0 0 400 120">
+  <rect x="1" y="1" width="398" height="118" rx="14" fill="{{red|washflat}}" stroke="{{red}}" stroke-width="2"/>
+  <g fill="none" stroke="{{red}}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M182 44h36M194 44v-6h12v6M186 44l3 40h22l3-40M196 54v20M204 54v20"/>
+  </g>
+</svg>
