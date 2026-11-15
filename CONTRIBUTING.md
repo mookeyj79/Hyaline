@@ -82,7 +82,7 @@ The quickest way is [Claude Code](https://claude.com/claude-code): open the repo
 
 1. Edit `palette/palette.json` only.
 2. Bump `meta.version`: patch for a tuned value, minor for a new role, major for a role whose meaning changed or was removed.
-3. Run the build and the checks. Every port rebuilds.
+3. Run the build and the checks. Every port rebuilds, and the build prints one line per port: `changed`, `version stamp only`, or `unchanged`.
 4. Retake the preview screenshots (below), since they show the palette.
 5. For a new role or a changed meaning, add an ADR in [`docs/adr/`](docs/adr/) explaining why.
 
@@ -104,13 +104,14 @@ Repeat for `light`. Save them as `dark.jpg` and `light.jpg`. The section thumbna
 
 ## Branches and pull requests
 
-- Branch names: `port/<app_name>` for ports, `palette/<change>` for palette changes. Never commit to `main` directly.
-- Run `pwsh build/build.ps1` and `pwsh build/check.ps1` before every commit that touches `palette/` or `Ports/`. CI runs the same checks on every pull request.
+- Branch names: `port/<app_name>` for ports, `palette/<change>` for palette changes, `build/<change>` for tooling and docs. Never commit to `main` directly.
+- Run `pwsh build/build.ps1` and `pwsh build/check.ps1` before every commit that touches `palette/` or `Ports/`. CI runs the same checks on every pull request. To run them automatically before each commit, turn on the repo's hook once per clone: `git config core.hooksPath .githooks`.
+- On Linux without PowerShell or Chromium, run `bash build/setup-linux.sh` first.
 - Show both variants in the pull request: screenshots, or the generated files for apps that cannot be screenshotted.
 
 ## Writing style
 
-Plain and short. Numbered steps, one action each. Real paths and real menu names. No em dashes.
+Plain and short. Numbered steps, one action each. Real paths and real menu names. Use a colon, comma, or period where an em dash would go; `check.ps1` fails on em dashes.
 
 ## License
 

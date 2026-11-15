@@ -92,9 +92,9 @@ pwsh build/build.ps1 -Port <app_name>
 pwsh build/check.ps1
 ```
 
-Then verify by hand:
+The checks cover drift, raw colors, contrast, and whether JSON, SVG, XML, and CSS output is valid. Then verify by hand:
 
-- The generated files are valid for their format (JSON parses, CSS has no syntax errors, XML is well formed).
+- Formats the check does not parse (TOML, INI, HTML, app-specific files) load in a parser or match a known-good file.
 - Both `dist/dark/` and `dist/light/` exist, unless the app is single mode.
 - Light variant: yellow and cyan text is still readable on the panel.
 
