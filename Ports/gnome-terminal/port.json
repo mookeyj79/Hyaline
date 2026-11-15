@@ -1,7 +1,7 @@
 {
   "name": "GNOME Terminal",
   "category": "terminal",
-  "tier": 2,
+  "tier": 1,
   "platforms": ["linux"],
   "icon": {
     "kind": "brand",
