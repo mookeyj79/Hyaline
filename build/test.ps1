@@ -18,7 +18,7 @@ param()
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-foreach ($m in 'Palette', 'Placeholders', 'Build', 'Catalog') {
+foreach ($m in 'Palette', 'Placeholders', 'Build', 'Catalog', 'Wallpaper') {
     Import-Module (Join-Path $PSScriptRoot 'lib' "$m.psm1") -Force
 }
 
@@ -288,6 +288,86 @@ Test 'Catalog: icons and site.json' {
     Assert-Equal $null $c.Ports[0].Icon 'invalid icon dropped'
     $site = $c.StructureErrors -join "`n"
     Assert-True ($site -like "*copies 'nothere'*" -and $site -like "*opens 'missing.html'*") "site.json errors: $site"
+}
+
+# --- Wallpaper ----------------------------------------------------------------
+
+function New-Pixels([int]$Count, [byte[]]$Rgb) {
+    $b = [byte[]]::new($Count * 3)
+    for ($i = 0; $i -lt $b.Length; $i++) { $b[$i] = $Rgb[$i % 3] }
+    return , $b
+}
+
+Test 'Wallpaper: licenses' {
+    foreach ($ok in 'CC0', 'CC0 1.0', 'Public domain', 'CC BY 4.0', 'CC BY-SA 3.0') { Assert-True (Test-WallpaperLicense $ok) "$ok should pass" }
+    foreach ($no in 'CC BY-NC 4.0', 'CC BY-ND 2.0', 'CC BY-NC-SA 4.0', 'GFDL', '', 'Copyrighted') { Assert-True (-not (Test-WallpaperLicense $no)) "'$no' should fail" }
+}
+
+Test 'Wallpaper: fit of flat, colorful, and busy images' {
+    $f = Measure-WallpaperFit -Pixels (New-Pixels 16 @(240, 240, 240)) -Width 4 -Height 4
+    Assert-Equal 0 $f.Problems.Count "light gray: $($f.Problems -join '; ')"
+    Assert-Equal 0.0 $f.Detail 'flat detail'
+    Assert-Equal 0.0 $f.Saturation 'gray saturation'
+    $dark = Measure-WallpaperFit -Pixels (New-Pixels 16 @(40, 40, 40)) -Width 4 -Height 4
+    Assert-True ($dark.Problems -join ' ' -like '*lightness*') 'dark image is too dark'
+    $red = Measure-WallpaperFit -Pixels (New-Pixels 16 @(250, 120, 120)) -Width 4 -Height 4
+    Assert-True ($red.Problems -join ' ' -like '*saturation*') 'colorful image is too saturated'
+    $check = [byte[]]::new(48)
+    for ($p = 0; $p -lt 16; $p++) { $v = if ((($p % 4) + [math]::Floor($p / 4)) % 2) { 255 } else { 160 }; foreach ($c in 0, 1, 2) { $check[3 * $p + $c] = $v } }
+    $busy = Measure-WallpaperFit -Pixels $check -Width 4 -Height 4
+    Assert-True ($busy.Problems -join ' ' -like '*detail*') "checkerboard is too busy: $($busy.Detail)"
+    Assert-Throws { Measure-WallpaperFit -Pixels ([byte[]]::new(5)) -Width 2 -Height 1 } '*expected 6 bytes*'
+}
+
+Test 'Wallpaper: contrast over a plain backdrop matches the flat surfaces' {
+    $p = Get-TestPalette (New-PaletteData)
+    $v = $p.Variants['dark']
+    # Over a backdrop equal to the tint, the glass is the tint itself.
+    $bg = ConvertFrom-Hex $v.Roles['chrome'].Hex
+    $rows = Measure-WallpaperContrast -Palette $p -Pixels (New-Pixels 4 ([byte[]]$bg))
+    $chrome = $rows | Where-Object { $_.Variant -eq 'dark' -and $_.Surface -eq 'chrome' }
+    $want = Get-Contrast $v.Roles['text'].Hex $v.Roles['chrome'].Hex
+    Assert-True ([math]::Abs($chrome.Worst - $want) -lt 0.01) "chrome: expected $want, got $($chrome.Worst)"
+    Assert-Equal 26 @($rows).Count 'rows: 2 variants x (chrome, tab, 10 text roles, muted)'
+    $failed = @($rows | Where-Object { $_.Variant -eq 'dark' -and -not $_.Pass })
+    Assert-Equal 0 $failed.Count 'dark roles all pass on their own tint'
+}
+
+Test 'Wallpaper: the worst spot decides' {
+    $p = Get-TestPalette (New-PaletteData)
+    # Light text on a light spot under thin dark glass fails, even if most spots are dark.
+    $px = New-Pixels 10 @(16, 16, 16)
+    foreach ($i in 0, 1, 2) { $px[$i] = 250 }
+    $rows = Measure-WallpaperContrast -Palette $p -Pixels $px
+    $chrome = $rows | Where-Object { $_.Variant -eq 'dark' -and $_.Surface -eq 'chrome' }
+    Assert-True (-not $chrome.Pass) "dark chrome over a white spot should fail, got $($chrome.Worst)"
+}
+
+Test 'Wallpaper: folder needs thumbnails and credits' {
+    $dir = Join-Path $Tmp ('wp-' + [guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Path (Join-Path $dir 'thumbs') -Force | Out-Null
+    Set-Content (Join-Path $dir 'good.jpg') 'x'; Set-Content (Join-Path $dir 'thumbs' 'good.jpg') 'x'
+    Set-Content (Join-Path $dir 'bare.jpg') 'x'
+    Set-Content (Join-Path $dir 'thumbs' 'orphan.jpg') 'x'
+    Set-Content (Join-Path $dir 'README.md') @"
+# Wallpapers
+
+## Good
+
+| File | [``good.jpg``](good.jpg) |
+| Author | A |
+| Source | [S](https://example.invalid) |
+| License | CC0 |
+
+## Gone
+
+| File | [``gone.jpg``](gone.jpg) |
+"@
+    $all = (Test-WallpaperFolder -Path $dir) -join "`n"
+    foreach ($want in 'bare.jpg has no thumbs/bare.jpg', 'bare.jpg has no section', 'thumbs/orphan.jpg has no wallpaper', 'credits gone.jpg') {
+        Assert-True ($all -like "*$want*") "expected '$want' in:`n$all"
+    }
+    Assert-True ($all -notlike '*good.jpg*') "good.jpg should pass:`n$all"
 }
 
 # --- Summary ------------------------------------------------------------------

@@ -123,6 +123,7 @@ function Read-Palette {
 }
 
 function Get-VariantKeys { return $VariantKeys }
+function Get-ContrastFloors { return @{ Text = $TextFloor; Muted = $MutedFloor; TextRoles = $TextRoles } }
 function Get-ColorFilters { return @($Filters.Keys | Where-Object { $_ }) }
 
 function ConvertFrom-Hex([string]$Hex) {
@@ -239,5 +240,5 @@ function Test-PaletteContrast {
     return @{ Failures = $failures; Warnings = $warnings }
 }
 
-Export-ModuleMember -Function Read-Palette, Get-VariantKeys, Get-ColorFilters, Get-Blend, Get-Contrast,
+Export-ModuleMember -Function Read-Palette, Get-VariantKeys, Get-ContrastFloors, Get-ColorFilters, ConvertFrom-Hex, Get-Blend, Get-Contrast,
     Get-WashColor, Get-AnsiRole, Format-RoleColor, Test-PaletteContrast

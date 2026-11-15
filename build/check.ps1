@@ -29,12 +29,16 @@
     9. Format        Every dist/ file is valid for its format: .json parses,
                      .svg and .xml are well formed, and .css has balanced
                      braces, comments, and quotes.
-   10. Prose         No em dashes in the repo's Markdown (outside dist/ and
+   10. Wallpapers   Every image in wallpapers/ has a thumbnail and a section in
+                     wallpapers/README.md with its author, source, and license.
+                     Contrast over a wallpaper needs an image library, so it is
+                     checked by build/wallpaper.ps1 -Check, not here.
+   11. Prose         No em dashes in the repo's Markdown (outside dist/ and
                      third-party assets/). Add "hyaline-ignore" to a line to
                      skip it.
 
     The rules live in build/lib/: Palette.psm1, Placeholders.psm1,
-    Build.psm1, and Catalog.psm1. This script runs them and reports.
+    Build.psm1, Catalog.psm1, and Wallpaper.psm1. This script runs them and reports.
 
 .EXAMPLE
     pwsh build/check.ps1
@@ -45,7 +49,7 @@ param()
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-foreach ($m in 'Palette', 'Placeholders', 'Build', 'Catalog') {
+foreach ($m in 'Palette', 'Placeholders', 'Build', 'Catalog', 'Wallpaper') {
     Import-Module (Join-Path $PSScriptRoot 'lib' "$m.psm1") -Force
 }
 
@@ -265,7 +269,13 @@ Invoke-Section 'Format' {
     }
 }
 
-# --- 10. Prose ------------------------------------------------------------------
+# --- 10. Wallpapers -------------------------------------------------------------
+
+Invoke-Section 'Wallpapers' {
+    foreach ($e in Test-WallpaperFolder -Path (Join-Path $RepoRoot 'wallpapers')) { Add-Failure "Wallpapers: $e" }
+}
+
+# --- 11. Prose ------------------------------------------------------------------
 
 Invoke-Section 'Prose' {
     $emDash = [string][char]0x2014
