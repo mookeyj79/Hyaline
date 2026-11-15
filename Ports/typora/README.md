@@ -2,15 +2,9 @@
 
 **Tier:** 2 Flat
 **Variants:** Hyaline Dark, Hyaline Light
-**Tested with:** not yet tested on a real machine. Built from Typora's official docs and its built-in Night theme (see Sources).
+**Tested with:** Not tested yet
 
-| Hyaline Dark | Hyaline Light |
-|---|---|
-| ![Hyaline Dark](screenshots/dark.png) | ![Hyaline Light](screenshots/light.png) |
-
-<!-- Screenshots are added by hand. Leave the paths in place. -->
-
-The port is two Typora themes, one CSS file per variant. They show up in Typora's **Themes** menu as **Hyaline Dark** and **Hyaline Light**. Typora cannot make its window see-through, so the port uses the solid (flat) Hyaline colors.
+The port is two Typora themes, one CSS file per variant. They show up in Typora's **Themes** menu as **Hyaline Dark** and **Hyaline Light**. Typora cannot make its window see-through, so the themes use solid colors.
 
 ## Before you start
 
@@ -87,92 +81,20 @@ Linux has no OS mode for Typora to follow; switch with the **Themes** menu.
 - **Typora did not switch with the OS**: check the light and dark mode themes in **Appearance**. This works on Windows and macOS only.
 - **A diagram keeps its own colors**: colors set inside the diagram code (Mermaid `style` or `classDef`) win over the theme. That is expected.
 
----
+## Known limits
 
-## Reference
+- **No glass.** Typora's window is solid. A theme cannot make it see-through or blurred.
+- **Code blocks and inline code sit on the page color.** They get a thin border instead of a lighter background, so colored code stays easy to read.
+- **Some of Typora's own windows keep their look.** Parts of the preferences window, the export dialog, and a few icons only partly follow the theme.
+- **A Typora update can leave a part unstyled.** Typora says its theme variables may change in future versions. If something looks off after an update, a fix may be needed here.
+- **Some diagrams keep their default colors.** Mermaid flowcharts, sequence diagrams, and Gantt charts follow the theme. Other Mermaid diagram types (pie, class, state, and so on) and diagrams written in the `flow` or `sequence` code blocks do not.
+- **Following the OS light or dark mode** works on Windows and macOS only.
 
-### Role mapping
+## Sources
 
-Typora variables:
-
-| Typora variable | Role |
-|---|---|
-| `--bg-color` | `panel_flat` |
-| `--text-color` | `text` |
-| `--md-char-color` (Markdown syntax marks) | `text_dim` |
-| `--meta-content-color` (link and image addresses) | `cyan` |
-| `--side-bar-bg-color` | `chrome_flat` |
-| `--control-text-color`, `--control-text-hover-color` | `text` |
-| `--window-border` | `line` |
-| `--item-hover-bg-color` / `--item-hover-text-color` | `raised_flat` / `text` |
-| `--active-file-bg-color` / `--active-file-text-color` | `accent` / `on_accent` |
-| `--primary-color`, `--primary-btn-border-color` | `accent` |
-| `--primary-btn-text-color` | `on_accent` |
-| `--select-text-bg-color`, `--search-select-bg-color` | `accent` |
-| `--rawblock-edit-panel-bd` | `raised_flat` |
-| `--monospace` | FiraCode Nerd Font Mono |
-
-Surfaces:
-
-| Part of Typora | Role |
-|---|---|
-| Writing area, code blocks, inputs | `panel_flat` |
-| Sidebar (files, outline), title bar, footer | `chrome_flat`, with `text` only |
-| Menus, context menu, quick open, search bar, dialogs, tooltips | `raised_flat`, with `line` border |
-| Borders, rules, table lines, scrollbars | `line` |
-| Selected text, open file, active menu item, primary buttons | `accent` with `on_accent` |
-| Modal backdrop | `backdrop` |
-
-Writing:
-
-| Element | Role |
-|---|---|
-| Body text, headings, bold | `text` |
-| Blockquotes, `h6`, Markdown syntax marks, front matter | `text_dim` |
-| Comments, line numbers, faded text in focus mode | `text_muted` |
-| Links, footnote marks, table of contents, cursor | `accent` |
-| Inline code | `orange` |
-| Highlight (`==mark==`), search hits | `yellow` fill, `panel_flat` text |
-| Current search hit | `accent` fill, `on_accent` text |
-| Checked task box | `accent` fill, `on_accent` tick |
-| Diagram errors | `red` |
-
-Code blocks follow the syntax table in PHILOSOPHY.md:
-
-| CodeMirror token | Role |
-|---|---|
-| `property`, `attribute`, `def`, `builtin`, `header` | `blue` |
-| `string`, `string-2`, `positive` | `green` |
-| `number` | `orange` |
-| `keyword`, `atom` | `magenta` |
-| `type`, `variable-3`, `link` | `cyan` |
-| `tag`, `meta`, `qualifier` | `yellow` |
-| `error`, `negative` | `red` |
-| `operator`, `bracket`, `punctuation`, `quote`, `hr` | `text_dim` |
-| `comment` | `text_muted` |
-| `variable`, `variable-2` | `text` |
-
-Source code mode (the whole file as Markdown): headings `blue`, link text `accent`, URLs `cyan`, inline and fenced code `orange`, syntax marks and quotes `text_dim`.
-
-Mermaid diagrams: nodes and boxes `panel_flat` with `text_dim` outlines, lines and arrows `text_dim`, labels `text`, notes outlined in `yellow`. Gantt bars: planned `magenta`, running `blue`, done `green`, critical `red`, with `panel_flat` labels.
-
-### Known gaps
-
-- **No glass.** Typora's window is opaque, and themes cannot make it see-through or blurred.
-- **Colored text stays on the panel.** In Hyaline Dark, `raised_flat` is too light for colored text to pass the contrast floor, so code blocks and inline code use the panel with a border instead of a lifted background.
-- **Some of Typora's own UI keeps its look.** Parts of the preferences window, the export dialog, and a few icons are styled by Typora and only partly follow the theme.
-- **Typora's class names are not a stable API.** Typora says its CSS variables "may change in future". A Typora update can leave a part unstyled until the port catches up.
-- **Diagrams.** Flowcharts, sequence diagrams, and Gantt charts are covered. Other Mermaid diagram types (pie, class, state, and so on) and flowchart/sequence diagrams drawn with `flow` or `sequence` keep their default colors.
-- **The OS mode switch** works on Windows and macOS only.
-- **Not tested on a real machine yet.** Screenshots and a tested version are still to come.
-
-### Sources and credits
-
-- [Typora: About Themes](https://support.typora.io/About-Themes/): Open Theme Folder, file naming, how menu names are built, separate themes for light and dark mode
-- [Typora: Write a Custom Theme](https://theme.typora.io/doc/Write-Custom-Theme/): CSS variables, `#write`, `.md-fences`, `.cm-s-inner`, `.cm-s-typora-default`, debug tools
-- [Typora: Add Custom CSS](https://support.typora.io/Add-Custom-CSS/): `base.user.css` and load order
-- [Typora: Custom Font](https://support.typora.io/Custom-Font/): `--monospace`, `body` font, `#typora-source`, font size setting
-- [Typora: Dark Mode](https://support.typora.io/Dark-Mode/) and [Typora on Windows](https://support.typora.io/Typora-on-Windows/): following the OS mode on Windows and macOS
-- [Typora 0.9.98 release notes](https://support.typora.io/What's-New-0.9.98/): themes per light and dark mode
-- Theme studied: Typora's built-in [Night theme](https://github.com/typora/typora-default-themes) (no license stated), for which UI selectors a dark theme must cover. Selector names only; no rules or colors reused.
-- Ports studied: [Catppuccin for Typora](https://github.com/vari-sh/Catppuccin-Typora) (community port) and [Dracula for Typora](https://github.com/Teyler7/dracula-typora-theme). Method only: one CSS file per variant, installed through Open Theme Folder. No files or colors reused.
+- [Typora: About Themes](https://support.typora.io/About-Themes/)
+- [Typora: Write a Custom Theme](https://theme.typora.io/doc/Write-Custom-Theme/)
+- [Typora: Add Custom CSS](https://support.typora.io/Add-Custom-CSS/)
+- [Typora: Custom Font](https://support.typora.io/Custom-Font/)
+- [Typora: Dark Mode](https://support.typora.io/Dark-Mode/) and [Typora on Windows](https://support.typora.io/Typora-on-Windows/)
+- [Typora 0.9.98 release notes](https://support.typora.io/What's-New-0.9.98/)

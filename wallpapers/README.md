@@ -1,8 +1,6 @@
 # Wallpapers
 
-Found images that sit behind Hyaline's glass as the backdrop. They are the one exception to "no color values outside the palette": they are image assets, not colors. See [ADR 0003](../docs/adr/0003-wallpapers-are-found-images.md).
-
-Every wallpaper here is free to redistribute, credited below, and light and calm enough that text stays readable on the glass in both variants.
+Desktop wallpapers that go well behind Hyaline, in both Dark and Light. Download one and set it as your desktop background.
 
 ## White Sands dunes
 

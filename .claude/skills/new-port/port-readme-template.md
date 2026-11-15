@@ -2,13 +2,7 @@
 
 **Tier:** <1 Full glass | 2 Flat | 3 Minimal>
 **Variants:** Hyaline Dark, Hyaline Light
-**Tested with:** <App> <version> on <OS>
-
-| Hyaline Dark | Hyaline Light |
-|---|---|
-| ![Hyaline Dark](screenshots/dark.png) | ![Hyaline Light](screenshots/light.png) |
-
-<!-- Screenshots are added by hand. Leave the paths in place. -->
+**Tested with:** <App> <version> on <OS>, or "Not tested yet"
 
 ## Before you start
 
@@ -57,21 +51,11 @@ Hyaline uses [FiraCode Nerd Font](https://www.nerdfonts.com/font-downloads). If 
 
 - **<Symptom>**: <fix>
 
----
+## Known limits
 
-## Reference
+- <What the reader will notice that the theme cannot change, in the app's own terms. No role names, no contrast numbers, no palette reasons.>
 
-### Role mapping
+## Sources
 
-| App setting | Role |
-|---|---|
-| <slot> | <role> |
-
-### Known gaps
-
-- <Anything the app does not let a theme change, or that only roughly matches.>
-
-### Sources and credits
-
-- <Official docs used for the format and install steps>
-- <Other themes' ports studied for this one, with a credit line if anything was reused>
+- <The app's official docs for the theme format and install steps>
+- <A credit line for any files reused from another project, with its license>

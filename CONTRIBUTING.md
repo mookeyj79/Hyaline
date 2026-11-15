@@ -22,6 +22,33 @@ Thanks for helping. Hyaline only works if every port looks like it belongs to th
 
 Studying how Catppuccin, Nord, Dracula, and other themes ported to the same app is expected. Borrow their method, never their colors, and credit them if you reuse more than the basic structure.
 
+## Layout and build
+
+```
+palette/palette.json          every color, for both variants
+Ports/<app_name>/README.md    install guide, for the person installing the theme
+Ports/<app_name>/MAPPING.md   role mapping and research, for maintainers
+Ports/<app_name>/port.json    name, category, tier, and platforms for the ports page
+Ports/<app_name>/template/    theme files with {{role}} placeholders
+Ports/<app_name>/dist/        generated themes, ready to use
+build/                        turns palette + templates into dist, runs the checks
+wallpapers/                   backdrop images, with credits
+docs/adr/                     recorded decisions and why
+PHILOSOPHY.md                 the design rules
+```
+
+Requires [PowerShell 7](https://learn.microsoft.com/powershell/scripting/install/installing-powershell).
+
+```sh
+pwsh build/build.ps1                     # rebuild every port
+pwsh build/build.ps1 -Port <app_name>    # rebuild one port
+pwsh build/check.ps1                     # every check CI runs
+pwsh build/test.ps1                      # test the build modules
+pwsh build/site.ps1                      # assemble the Pages site (preview and ports page) into _site/
+```
+
+The preview page and the ports page are published to GitHub Pages by [`.github/workflows/pages.yml`](.github/workflows/pages.yml) on every push to `main` that changes them.
+
 ## Add a port
 
 The quickest way is [Claude Code](https://claude.com/claude-code): open the repo and run `/new-port <app_name>`. The steps it follows are in [`.claude/skills/new-port/SKILL.md`](.claude/skills/new-port/SKILL.md), and they work by hand too:
@@ -57,8 +84,8 @@ The quickest way is [Claude Code](https://claude.com/claude-code): open the repo
    pwsh build/check.ps1
    ```
 
-6. **Write the README** from [`port-readme-template.md`](.claude/skills/new-port/port-readme-template.md). Fill in every section, including **Set the font**.
-7. **Add screenshots** of both variants to `Ports/<app_name>/screenshots/`.
+6. **Write the README** from [`port-readme-template.md`](.claude/skills/new-port/port-readme-template.md). Fill in every section, including **Set the font**. It is for the person installing the theme: put the role mapping, trade-offs, and research in `MAPPING.md` from [`port-mapping-template.md`](.claude/skills/new-port/port-mapping-template.md).
+7. **Add screenshots** of both variants to `Ports/<app_name>/screenshots/`, then add the Dark | Light table to the README.
 8. **List the port** on the [ports page](https://mookeyj79.github.io/Hyaline/ports/) by adding `Ports/<app_name>/port.json`:
 
    ```json

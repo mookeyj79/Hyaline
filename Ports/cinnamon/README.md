@@ -2,15 +2,9 @@
 
 **Tier:** 2 Flat
 **Variants:** Hyaline Dark, Hyaline Light
-**Tested with:** not yet tested on a real machine. Built against the Cinnamon 6.8 theme selectors (see Sources).
+**Tested with:** Not tested yet
 
-| Hyaline Dark | Hyaline Light |
-|---|---|
-| ![Hyaline Dark](screenshots/dark.png) | ![Hyaline Light](screenshots/light.png) |
-
-<!-- Screenshots are added by hand. Leave the paths in place. -->
-
-The port is a Cinnamon **Desktop** theme: the panel bar, start menu, applet menus, calendar, notifications, on-screen displays, Alt+Tab, dialogs, the lock screen, workspace overview, and desklets. It does not change app windows, title bars, icons, or the mouse pointer. Those are set separately in Cinnamon (see Known gaps).
+The port is a Cinnamon **Desktop** theme: the panel bar, start menu, applet menus, calendar, notifications, on-screen displays, Alt+Tab, dialogs, the lock screen, workspace overview, and desklets. It does not change app windows, title bars, icons, or the mouse pointer. Those are set separately in Cinnamon (see [Known limits](#known-limits)).
 
 ## Before you start
 
@@ -80,8 +74,6 @@ Cinnamon cannot switch the Desktop theme with the time of day or the light and d
 3. Open `~/.themes` in your file manager (**Ctrl+H** shows it).
 4. Delete the `Hyaline Dark` and `Hyaline Light` folders.
 
-If either folder also holds other Hyaline ports (such as a GTK theme), delete only the `cinnamon` folder inside it.
-
 ## Troubleshooting
 
 - **Hyaline is not in the Desktop list**: the folder is one level too deep or too shallow. The file must be at `~/.themes/Hyaline Dark/cinnamon/cinnamon.css`. Close and reopen **Themes** after fixing it.
@@ -90,71 +82,18 @@ If either folder also holds other Hyaline ports (such as a GTK theme), delete on
 - **App windows and title bars did not change**: expected. This port themes the desktop only. Windows use the **Applications** and window border themes.
 - **An applet from Cinnamon Spices looks off**: some third-party applets bring their own styles or use class names that Cinnamon's own theme does not define. Hyaline covers the classes that ship with Cinnamon.
 
----
+## Known limits
 
-## Reference
-
-### Role mapping
-
-Surfaces:
-
-| Part of Cinnamon | Role |
-|---|---|
-| Panel bar (top, bottom, left, right) | `chrome_flat`, `text` only, `line` edge |
-| Hover on the panel bar (applets, window list, launchers) | `raised` (translucent, over `chrome_flat`) |
-| Menus, applet popups, calendar, notifications, dialogs, OSDs, Alt+Tab, tooltips, window previews | `panel_flat` with a `line` border |
-| Buttons, entries, submenus, menu sidebar, keys of the on-screen keyboard | `raised_flat` with a `line` border |
-| Lock screen cards, desklets, sound player overlay | `panel` (translucent) with a `line` border |
-| Lock screen and workspace overview background | `backdrop` |
-| Dimmed screen behind dialogs and Alt+Tab previews | `chrome` (translucent) |
-| Window snap preview | `raised` (translucent) with an `accent` border |
-| Separators, borders, scroll bars, slider tracks | `line` |
-
-States:
-
-| State | Role |
-|---|---|
-| Hover and keyboard selection in menus, lists, calendar | `accent` wash (`accent\|washflat`) |
-| Pressed, checked, default button, today, current workspace, selected window caption | `accent` fill, `on_accent` text |
-| Focused window in the window list, active workspace frame, focus ring | `accent` border |
-| Shut down button, destructive dialog button, close button in the overview | `red` fill, `on_accent` text |
-| Window asks for attention | `yellow` bar |
-| Progress in the window list | `blue` |
-| Unread notification count | `accent` fill, `on_accent` text |
-| Disabled items and buttons | `text_muted` |
-| Volume over 100 percent | `yellow` |
-
-Text:
-
-| Text | Role |
-|---|---|
-| Labels, titles, menu items | `text` |
-| Descriptions, secondary labels, weekend days, day headings | `text_dim` |
-| Hints, days from other months, past events, placeholders | `text_muted` |
-| Links, all-day events | `accent` |
-| Errors, critical battery, imminent event | `red` |
-| Caps Lock warning, event starting soon, end-session warning | `yellow` |
-| Event happening now | `green` |
-
-Symbolic icon states (`warning-color`, `error-color`, `success-color`) use `yellow`, `red`, and `green`.
-
-Images in `cinnamon/assets/` (check boxes, radio buttons, switches, calendar arrows, workspace add and close buttons, the trash area, and the hot corner ripple) are drawn for this port and colored from the same roles.
-
-### Known gaps
-
-- **No blur.** Cinnamon can draw translucent surfaces but cannot blur what is behind them, so menus and the panel bar use the flat colors. The lock screen and desklets keep the translucent `panel`, which is dense enough to read over a wallpaper without blur.
-- **Desktop only.** App windows, title bars, icons, and the mouse pointer are separate theme types in Cinnamon. GTK apps are covered by the planned GTK port.
-- **No preview picture** in the theme chooser. Cinnamon looks for `cinnamon/thumbnail.png`, which would be a fixed image outside the palette.
-- **Hover on the Light panel bar is faint.** The `raised` glass barely lightens Light `chrome_flat`. Hover in menus uses the accent wash and is clearly visible in both variants.
-- **No shadows.** Popups use a `line` border instead of a drop shadow, like the other Hyaline ports.
-- **Third-party applets and desklets** that add their own class names are not styled.
+- **No blur.** Cinnamon can make the lock screen cards and desklets see-through, but it cannot blur what is behind them. The panel bar and menus are solid.
+- **Desktop only.** App windows, title bars, icons, and the mouse pointer are not changed. Cinnamon sets them with the **Applications**, **Icons**, and **Mouse Pointer** themes.
+- **No preview picture** in the theme chooser. Hyaline shows a generic picture next to **Desktop**.
+- **Hover on the Light panel bar is faint.** Pointing at an applet on the Light panel bar barely changes its shade. Hover in menus is clearly visible in both variants.
+- **No shadows.** Menus and popups have a thin border instead of a drop shadow.
+- **Third-party applets and desklets** that bring their own styles may look out of place.
 - **No automatic Dark and Light switching.** Cinnamon has no setting to change the Desktop theme with the light or dark mode.
 
-### Sources and credits
+## Sources
 
-- Cinnamon's default theme, the reference for every class name this port styles: [linuxmint/cinnamon `data/theme/cinnamon-sass`](https://github.com/linuxmint/cinnamon/tree/master/data/theme/cinnamon-sass) at tag 6.8.0. No declarations were copied; the stylesheet is written for this port.
-- How Cinnamon finds and loads a Desktop theme (`~/.local/share/themes`, `~/.themes`, then system folders, each with `cinnamon/cinnamon.css`): [`js/ui/themeManager.js`](https://github.com/linuxmint/cinnamon/blob/master/js/ui/themeManager.js).
-- Why the theme must style everything: Cinnamon only falls back to its default stylesheet for a few core widgets when a theme has no rule for them ([`src/st/st-theme.c`](https://github.com/linuxmint/cinnamon/blob/master/src/st/st-theme.c)).
-- The Themes settings page (Advanced settings, the Desktop chooser, the Dark mode option, and `thumbnail.png`): [`cs_themes.py`](https://github.com/linuxmint/cinnamon/blob/master/files/usr/share/cinnamon/cinnamon-settings/modules/cs_themes.py).
-- Installing themes in `~/.themes`: [Cinnamon Spices, Themes](https://cinnamon-spices.linuxmint.com/themes).
-- Studied: the `cinnamon/` folder of [Catppuccin GTK Theme by Fausto-Korpsvart](https://github.com/Fausto-Korpsvart/Catppuccin-GTK-Theme) (GPL-3.0, archived), for which parts of Cinnamon a full theme covers and how it ships SVG assets next to the stylesheet. No files, colors, or declarations were reused.
+- [Cinnamon Spices: Themes](https://cinnamon-spices.linuxmint.com/themes): installing themes in `~/.themes`
+- [Cinnamon theme manager](https://github.com/linuxmint/cinnamon/blob/master/js/ui/themeManager.js): where Cinnamon looks for Desktop themes
+- [Cinnamon Themes settings page](https://github.com/linuxmint/cinnamon/blob/master/files/usr/share/cinnamon/cinnamon-settings/modules/cs_themes.py): Advanced settings and the Desktop chooser
