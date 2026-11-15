@@ -38,14 +38,17 @@ The quickest way is [Claude Code](https://claude.com/claude-code): open the repo
    | `{{role\|rgb}}` | `r, g, b` |
    | `{{role\|rgba}}` | `rgba(r, g, b, a)` using the role's alpha |
    | `{{role\|hexa}}` | `#rrggbbaa` using the role's alpha |
+   | `{{role\|alpha}}` | the role's alpha, `0` to `1` |
    | `{{role\|percent}}` | the role's alpha as a whole percent, `0` to `100` |
-   | `{{role\|wash}}` | `#rrggbbaa` using the variant's `wash` alpha, for see-through highlights |
-   | `{{role\|washflat}}` | `#rrggbb`, the wash laid over `panel_flat`, for apps that take solid colors only |
+   | `{{role\|wash}}` | `#rrggbbaa` using the variant's `wash` alpha, for see-through highlights. Wash roles only: `accent` and the seven colors |
+   | `{{role\|washflat}}` | `#rrggbb`, the wash laid over `panel_flat`, for apps that take solid colors only. Wash roles only |
    | `{{role\|clear}}` | `#rrggbb00`, fully transparent, for app settings that can only be switched off with a color |
    | `{{ansi.<slot>}}` | the role for a terminal ANSI slot per ADR 0001 (`black` to `white`, `bright_<slot>`), takes the same filters |
-   | `{{meta.name}}`, `{{variant.name}}`, `{{variant.mode}}` | theme name, variant name, `dark` or `light` |
-   | `{{meta.repository}}` | the repo URL |
+   | `{{meta.name}}`, `{{meta.version}}`, `{{meta.repository}}` | theme name, palette version, repo URL |
+   | `{{variant.name}}`, `{{variant.mode}}`, `{{variant.key}}` | variant name, `dark` or `light`, the variant's key in the palette |
    | `{{port.<key>}}` | a per-variant app value that is not a color, from `Ports/<app_name>/values.json` (`{ "dark": { "<key>": "..." }, "light": { ... } }`) |
+
+   `build/lib/Placeholders.psm1` defines them. `build/check.ps1` reports every placeholder that does not resolve, and fails if this table misses a filter.
 
 5. **Build and check**:
 
@@ -106,6 +109,7 @@ Repeat for `light`. Save them as `dark.jpg` and `light.jpg`. The section thumbna
 
 - Branch names: `port/<app_name>` for ports, `palette/<change>` for palette changes, `build/<change>` for tooling and docs. Never commit to `main` directly.
 - Run `pwsh build/build.ps1` and `pwsh build/check.ps1` before every commit that touches `palette/` or `Ports/`. CI runs the same checks on every pull request. To run them automatically before each commit, turn on the repo's hook once per clone: `git config core.hooksPath .githooks`.
+- Changing the build itself: the rules live in `build/lib/` (palette, placeholders, building, port catalog), and the scripts in `build/` only run them. Run `pwsh build/test.ps1` too, and add a test there for a new rule.
 - On Linux without PowerShell or Chromium, run `bash build/setup-linux.sh` first.
 - Show both variants in the pull request: screenshots, or the generated files for apps that cannot be screenshotted.
 

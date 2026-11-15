@@ -73,11 +73,12 @@ $LucideBase         = "https://cdn.jsdelivr.net/npm/lucide-static@$LucideVersion
 $RepoRoot  = Split-Path -Parent $PSScriptRoot
 $CacheDir  = Join-Path ([System.IO.Path]::GetTempPath()) 'hyaline-icons'
 
-# Elements and attributes an icon may keep. check.ps1 enforces the same list.
-$Shapes    = @('path', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'rect', 'g')
-$ShapeAttrs = @('d', 'cx', 'cy', 'r', 'rx', 'ry', 'x', 'y', 'x1', 'y1', 'x2', 'y2', 'points', 'width', 'height',
-    'transform', 'fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'fill-rule', 'clip-rule')
-$RootAttrs = @('fill', 'stroke', 'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'fill-rule', 'clip-rule')
+# Elements and attributes an icon may keep: the same rules check.ps1 enforces.
+Import-Module (Join-Path $PSScriptRoot 'lib' 'Catalog.psm1') -Force
+$IconRules  = Get-IconRules
+$Shapes     = $IconRules.Shapes
+$ShapeAttrs = $IconRules.ShapeAttrs
+$RootAttrs  = $IconRules.RootAttrs
 
 function Get-Cached([string]$Url, [string]$Name) {
     if (-not (Test-Path $CacheDir)) { New-Item -ItemType Directory -Path $CacheDir | Out-Null }

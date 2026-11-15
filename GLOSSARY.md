@@ -52,6 +52,7 @@ _Avoid_: Highlight, primary color
 
 **Wash**:
 A color role at the variant's wash alpha, laid over a panel to mark something without hiding the text on it: selections, diff lines, find matches.
+Only accent and the seven colors (red to orange) can be a wash. Those are the ones checked for contrast on a wash, so the build refuses `|wash` and `|washflat` on any other role.
 _Avoid_: Tint, highlight color
 
 ## Ports

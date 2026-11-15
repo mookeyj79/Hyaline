@@ -4,12 +4,14 @@
     Assembles the GitHub Pages site into _site/.
 
 .DESCRIPTION
-    Copies the preview port's dist/ and assets/, each port's icon.svg, and
-    the wallpapers, keeping the repo layout so relative paths work. Then
-    writes:
+    The site mirrors the repo layout, so the relative paths in the published
+    pages work the same on the site and in a checkout. It contains:
 
-        _site/index.html    opens the preview in the visitor's OS variant
-        _site/ports/        opens the ports page the same way
+        what each port's site.json lists under "copy" (the preview port's
+        dist/ and assets/), at its repo path
+        each port's icon.svg, and the wallpapers
+        one entry page per site.json "entries" item (/, /ports/), which
+        opens that page in the visitor's OS variant
         _site/ports.js      the port list, from Ports/*/port.json and Ports/ports.json
 
     The list is generated, never written by hand, so it cannot go stale.
@@ -17,7 +19,8 @@
     GitHub Pages lets browsers cache files for 10 minutes. So a deploy shows
     up on a normal reload, the copied pages load ports.js and their CSS with
     ?v=<content hash>, which changes whenever the file does.
-    Run build/check.ps1 first: it validates the port metadata.
+
+    Stops if the port list or a site.json has errors; build/check.ps1 lists them.
 
 .PARAMETER Out
     Output folder. Defaults to _site/ at the repo root.
@@ -34,94 +37,54 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+Import-Module (Join-Path $PSScriptRoot 'lib' 'Palette.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'lib' 'Catalog.psm1') -Force
+
 $RepoRoot  = Split-Path -Parent $PSScriptRoot
 $PortsRoot = Join-Path $RepoRoot 'Ports'
 if (-not $Out) { $Out = Join-Path $RepoRoot '_site' }
+$Utf8 = [System.Text.UTF8Encoding]::new($false)
 
-$palette = Get-Content -Raw -Path (Join-Path $RepoRoot 'palette' 'palette.json') | ConvertFrom-Json -AsHashtable
-$name = [string]$palette.meta['name']
-$index = Get-Content -Raw -Path (Join-Path $PortsRoot 'ports.json') | ConvertFrom-Json -AsHashtable
+$palette = Read-Palette -Path (Join-Path $RepoRoot 'palette' 'palette.json')
+if ($palette.Errors.Count -gt 0) { throw 'palette/palette.json has problems. Run build/check.ps1.' }
+$name = [string]$palette.Meta['name']
+$variants = @(Get-VariantKeys)
 
-# --- Copy the preview port and wallpapers ------------------------------------
+$catalog = Get-PortCatalog -PortsRoot $PortsRoot -VariantKeys $variants
+$problems = @($catalog.Errors) + @($catalog.StructureErrors)
+if ($problems.Count -gt 0) { throw "The port list has problems. Run build/check.ps1.`n" + ($problems -join "`n") }
+$sites = @($catalog.Ports | Where-Object Site)
+if ($sites.Count -ne 1) { throw "Exactly one port needs a site.json; found $($sites.Count)." }
+$site = $sites[0]
+
+# --- Copy the published port, icons, and wallpapers ---------------------------
 
 if (Test-Path $Out) { Remove-Item -Path $Out -Recurse -Force }
-$previewOut = Join-Path $Out 'Ports' 'preview'
-New-Item -ItemType Directory -Path $previewOut -Force | Out-Null
-foreach ($part in 'dist', 'assets') {
-    Copy-Item -Path (Join-Path $PortsRoot 'preview' $part) -Destination $previewOut -Recurse
-}
+$siteOut = Join-Path $Out 'Ports' $site.Name
+New-Item -ItemType Directory -Path $siteOut -Force | Out-Null
+foreach ($part in $site.Site['copy']) { Copy-Item -Path (Join-Path $site.Dir $part) -Destination $siteOut -Recurse }
 Copy-Item -Path (Join-Path $RepoRoot 'wallpapers') -Destination $Out -Recurse
+foreach ($p in $catalog.Ports | Where-Object Icon) {
+    $iconOut = Join-Path $Out 'Ports' $p.Name
+    New-Item -ItemType Directory -Path $iconOut -Force | Out-Null
+    Copy-Item -Path (Join-Path $p.Dir 'icon.svg') -Destination $iconOut
+}
 
 # --- Port list ----------------------------------------------------------------
 
-$ports = [System.Collections.Generic.List[object]]::new()
-$unlisted = if ($index.Contains('unlisted')) { @($index['unlisted']) } else { @() }
-foreach ($dir in Get-ChildItem -Path $PortsRoot -Directory | Sort-Object Name) {
-    if ($dir.Name -in $unlisted) { continue }   # not an app port, e.g. the preview page
-    $metaPath = Join-Path $dir.FullName 'port.json'
-    if (-not (Test-Path $metaPath)) { throw "Ports/$($dir.Name) has no port.json. Run build/check.ps1." }
-    $meta = Get-Content -Raw -Path $metaPath | ConvertFrom-Json -AsHashtable
-    # Variants are read from dist/, so a single-mode port shows as one.
-    $variants = @(foreach ($v in 'dark', 'light') {
-        if (Test-Path (Join-Path $dir.FullName 'dist' $v)) { $v }
-    })
-    # Card icon (ADR 0007). The page falls back to the monogram without one.
-    $icon = $null
-    $iconPath = Join-Path $dir.FullName 'icon.svg'
-    if ((Test-Path $iconPath) -and $meta.ContainsKey('icon')) {
-        $iconOut = Join-Path $Out 'Ports' $dir.Name
-        New-Item -ItemType Directory -Path $iconOut -Force | Out-Null
-        Copy-Item -Path $iconPath -Destination $iconOut
-        $c = $meta['icon']
-        $icon = [ordered]@{
-            path    = "Ports/$($dir.Name)/icon.svg"
-            kind    = $c['kind']
-            set     = $c['set']
-            author  = $c['author']
-            license = $c['license']
-            source  = $c['source']
-        }
-    }
-    $ports.Add([ordered]@{
-        folder    = $dir.Name
-        name      = $meta['name']
-        category  = $meta['category']
-        tier      = $meta['tier']
-        platforms = @($meta['platforms'])
-        monogram  = if ($meta.ContainsKey('monogram')) { $meta['monogram'] } else { $null }
-        icon      = $icon
-        variants  = $variants
-    })
-}
-
-$planned = @(foreach ($p in $index['planned']) {
-    [ordered]@{
-        folder    = $p['folder']
-        name      = $p['name']
-        category  = $p['category']
-        tier      = $p['tier']
-        platforms = @($p['platforms'])
-        monogram  = if ($p.ContainsKey('monogram')) { $p['monogram'] } else { $null }
-    }
-})
-
-$data = [ordered]@{
-    categories = $index['categories']
-    ports      = $ports.ToArray()
-    planned    = $planned
-}
+$data = ConvertTo-PortsData -Catalog $catalog
 $json = ConvertTo-Json -InputObject $data -Depth 6 -Compress
 $js = "// Generated by build/site.ps1 from Ports/*/port.json and Ports/ports.json.`nwindow.THEME_PORTS = $json;`n"
-[System.IO.File]::WriteAllText((Join-Path $Out 'ports.js'), $js, [System.Text.UTF8Encoding]::new($false))
+[System.IO.File]::WriteAllText((Join-Path $Out 'ports.js'), $js, $Utf8)
 
-# --- Cache busting -----------------------------------------------------------
+# --- Cache busting ------------------------------------------------------------
 
 function Get-ShortHash([string]$Path) {
     return (Get-FileHash -Path $Path -Algorithm SHA256).Hash.Substring(0, 10).ToLowerInvariant()
 }
 
 $portsJsHash = Get-ShortHash (Join-Path $Out 'ports.js')
-foreach ($page in Get-ChildItem -Path (Join-Path $previewOut 'dist') -Recurse -File -Filter '*.html') {
+foreach ($page in Get-ChildItem -Path $siteOut -Recurse -File -Filter '*.html') {
     $html = [System.IO.File]::ReadAllText($page.FullName)
     $html = $html -creplace '(src="[^"?]*/ports\.js)"', "`$1?v=$portsJsHash`""
     $html = [regex]::Replace($html, 'href="([^"?:]+\.css)"', {
@@ -130,34 +93,39 @@ foreach ($page in Get-ChildItem -Path (Join-Path $previewOut 'dist') -Recurse -F
         if (Test-Path $target) { 'href="' + $m.Groups[1].Value + '?v=' + (Get-ShortHash $target) + '"' }
         else { $m.Value }
     })
-    [System.IO.File]::WriteAllText($page.FullName, $html, [System.Text.UTF8Encoding]::new($false))
+    [System.IO.File]::WriteAllText($page.FullName, $html, $Utf8)
 }
 
 # --- Entry pages that pick the visitor's variant ------------------------------
 
-function Write-Redirect([string]$Path, [string]$Prefix, [string]$Page, [string]$Title) {
+foreach ($entry in $site.Site['entries']) {
+    $depth = ($entry['path'] -split '/').Count - 1
+    $base = ('../' * $depth) + "Ports/$($site.Name)/dist/"
+    $page = $entry['page']
+    $links = ($variants | ForEach-Object {
+        $label = (Get-Culture).TextInfo.ToTitleCase($_)
+        "<a href=`"$base$_/$page`">$name $label</a>"
+    }) -join ' / '
     $html = @"
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>$Title</title>
-<meta http-equiv="refresh" content="0; url=${Prefix}Ports/preview/dist/dark/$Page">
+<title>$name $($entry['title'])</title>
+<meta http-equiv="refresh" content="0; url=$base$($variants[0])/$page">
 <script>
   var light = window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches;
-  location.replace("${Prefix}Ports/preview/dist/" + (light ? "light" : "dark") + "/$Page" + location.search);
+  location.replace("$base" + (light ? "light" : "dark") + "/$page" + location.search);
 </script>
 </head>
-<body><a href="${Prefix}Ports/preview/dist/dark/$Page">$name Dark</a> / <a href="${Prefix}Ports/preview/dist/light/$Page">$name Light</a></body>
+<body>$links</body>
 </html>
 
 "@
-    $dir = Split-Path -Parent $Path
-    if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
-    [System.IO.File]::WriteAllText($Path, $html, [System.Text.UTF8Encoding]::new($false))
+    $path = Join-Path $Out $entry['path']
+    New-Item -ItemType Directory -Path (Split-Path -Parent $path) -Force | Out-Null
+    [System.IO.File]::WriteAllText($path, $html, $Utf8)
 }
 
-Write-Redirect (Join-Path $Out 'index.html') '' 'index.html' "$name Preview"
-Write-Redirect (Join-Path $Out 'ports' 'index.html') '../' 'ports.html' "$name Ports"
-
-Write-Host "Site written to $Out ($($ports.Count) port(s), $($planned.Count) planned)."
+$listed = @($catalog.Ports | Where-Object Listed).Count
+Write-Host "Site written to $Out ($listed port(s), $(@($catalog.Planned).Count) planned)."

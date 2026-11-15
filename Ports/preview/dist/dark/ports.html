@@ -173,8 +173,9 @@ footer p + p { margin-top: 4px; }
   const repo = app.dataset.repository;
   const data = window.THEME_PORTS;
 
-  const tierNames = { 1: "Full glass", 2: "Flat", 3: "Minimal" };
-  const platformNames = { windows: "Windows", macos: "macOS", linux: "Linux", web: "Web" };
+  // Tier and platform names come with the data, from build/lib/Catalog.psm1.
+  const tierNames = (data && data.tiers) || {};
+  const platformNames = (data && data.platforms) || {};
 
   // --- Variant switch: both theme.css files are loaded, so this repaints in place.
   function setVariant(mode) {
