@@ -1,0 +1,15 @@
+{
+  "name": "GNOME Terminal",
+  "category": "terminal",
+  "tier": 2,
+  "platforms": ["linux"],
+  "icon": {
+    "kind": "brand",
+    "set": "Simple Icons 16.37.0",
+    "name": "gnometerminal",
+    "author": "Simple Icons contributors",
+    "source": "https://simpleicons.org/?q=gnometerminal",
+    "license": "CC0-1.0",
+    "mark": "https://gitlab.gnome.org/GNOME/gnome-terminal/-/blob/master/data/icons/hicolor_apps_scalable_org.gnome.Terminal.svg"
+  }
+}
