@@ -34,16 +34,19 @@ build/lib/                  the rules, as modules the scripts share:
   Placeholders.psm1         the {{...}} grammar: resolves, lists problems, reads template files
   Build.psm1                renders a port into dist/ and compares a build with dist/
   Catalog.psm1              finds ports, validates port.json, ports.json, icons, site.json
+  Wallpaper.psm1            wallpaper rules: fit, contrast behind the glass, license
 build/build.ps1             palette + templates = dist
 build/check.ps1             runs the rules: palette, contrast, structure, port list, raw color,
                             placeholders, drift, leftovers, file format, em dashes
 build/test.ps1              tests the build/lib modules on small fixtures
 build/site.ps1              assembles the GitHub Pages site and the port list into _site/
 build/icon.ps1              finds and fetches a port's card icon
+build/wallpaper.ps1         finds, checks, and adds wallpapers from Wikimedia Commons
 build/setup-linux.sh        installs pwsh and chromium on a fresh Linux sandbox
 .githooks/pre-commit        runs test.ps1 and check.ps1 before a commit (git config core.hooksPath .githooks)
 .claude/skills/new-port/    the new-port skill and the port README template
 .claude/skills/port-icon/   the port-icon skill
+.claude/skills/wallpaper/   the wallpaper skill
 ```
 
 ## Rules that are never broken
@@ -78,6 +81,7 @@ pwsh build/check.ps1                     # run all checks (CI runs this too)
 pwsh build/test.ps1                      # test the build modules (CI runs this too)
 pwsh build/site.ps1                      # assemble the Pages site into _site/
 pwsh build/icon.ps1 -Search <words>      # find a card icon (see the port-icon skill)
+pwsh build/wallpaper.ps1 -Search <words> # find a wallpaper (see the wallpaper skill)
 bash build/setup-linux.sh                # pwsh or chromium missing? run this first
 gh run list --workflow pages.yml -L 1    # after a merge to main, watch this until the deploy is green
 ```

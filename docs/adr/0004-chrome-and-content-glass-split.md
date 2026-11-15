@@ -19,4 +19,4 @@ Dark chrome stops at 0.70 because tab labels sit on `raised`, which lightens dar
 - Ports that can tell chrome from content use `chrome` for the frame. Ports that cannot use `panel` everywhere.
 - Hyaline Light's `panel_flat` stays at the frost tint (`#f3f6f9`) instead of following the new alpha, which would make it near-white. Flat Light ports keep their look. This is the one flat value that is not derived.
 - The check script requires primary `text` to pass on `chrome_flat`.
-- Every new wallpaper is checked against both surfaces, and the result is recorded in `wallpapers/README.md`.
+- Every wallpaper is checked against both surfaces with `build/wallpaper.ps1`. The result is not recorded, since it changes with the palette.

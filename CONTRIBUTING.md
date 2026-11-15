@@ -91,7 +91,21 @@ The quickest way is [Claude Code](https://claude.com/claude-code): open the repo
 
 ## Add a wallpaper
 
-Follow the checklist in [`wallpapers/README.md`](wallpapers/README.md#adding-a-wallpaper). In short: a license that allows redistribution (CC0 or public domain is simplest), the unmodified original, a 640 px thumbnail, full credits, and a contrast check behind both variants.
+Wallpapers come from [Wikimedia Commons](https://commons.wikimedia.org/), where every file has a recorded license and author. `build/wallpaper.ps1` finds, checks, and adds them:
+
+```sh
+pwsh build/wallpaper.ps1 -Search "salt flat"                  # grade Commons candidates from previews
+pwsh build/wallpaper.ps1 -Check "File:Example.jpg"            # measure one at full size
+pwsh build/wallpaper.ps1 -Add "File:Example.jpg" -Name example  # save it, its thumbnail, and its credit
+```
+
+A wallpaper must pass every rule:
+
+- **License**: allows redistribution: CC0, public domain, CC BY, or CC BY-SA. No NonCommercial or NoDerivatives.
+- **Fit**: light, low saturation, and low detail. A landscape JPEG at least 1920 px wide.
+- **Readable**: scaled to 1920 px and blurred 18 px, every role still meets the contrast floor on `panel`, and primary text on `chrome` and on a tab, in both variants.
+
+`-Add` saves the original unmodified as `wallpapers/<name>.jpg`, a 640 px thumbnail in `wallpapers/thumbs/`, and prints the credit section for [`wallpapers/README.md`](wallpapers/README.md). The check is not recorded: rerun `-Check` on every wallpaper after a palette change.
 
 ## Retake the preview screenshots
 
