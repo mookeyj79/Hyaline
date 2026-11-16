@@ -22,15 +22,18 @@ The single source of every role's value, for both variants.
 ## Surfaces
 
 **Backdrop**:
-Whatever sits behind the app: a wallpaper, or the `backdrop` role where there is none. Always light and airy.
+Whatever sits behind the app: a wallpaper, or the `backdrop` role where there is none.
 _Avoid_: Background (ambiguous with panel)
 
 **Wallpaper**:
-A found image shipped as a backdrop. Light, low detail and low saturation, and shared by both variants.
+A found image shipped as a backdrop, marked with the variant it suits.
 _Avoid_: Background image
 
+**Wallpaper pair**:
+Two wallpapers of the same kind of subject in a matching style, one for Dark and one for Light.
+
 **Chrome**:
-The frame around content: title bars, tabs, sidebars, toolbars. The clearest glass, so it carries only primary text and solid accent fills.
+The frame around content, such as title bars, tabs, toolbars, and sidebars that list only names. It is clearer glass than the panel and carries only primary text and solid fills. An area that shows dim, muted or colored text is content, wherever it sits.
 _Avoid_: Frame, toolbar color
 
 **Panel**:
@@ -40,8 +43,12 @@ _Avoid_: Background, window
 **Raised**:
 A surface lifted above a panel: title bars, tabs, cards, inputs.
 
+**Edge**:
+A lit hairline where light catches the glass: on the top of chrome and raised surfaces, and around the window. It carries no meaning.
+_Avoid_: Border, outline
+
 **Flat fallback**:
-The solid color a translucent surface appears as over a neutral backdrop. Used wherever the app cannot blur.
+The solid color of a surface, chosen to look like its glass. Used wherever the app cannot do translucency.
 _Avoid_: Opaque version, lite version
 
 ## Color roles
@@ -49,6 +56,9 @@ _Avoid_: Opaque version, lite version
 **Accent**:
 The role that means "you are here": focus, selection, cursor, links. One fixed blue, shared in hue with Blue.
 _Avoid_: Highlight, primary color
+
+**Contrast floor**:
+The lowest contrast a role may have on a surface, over any backdrop. Solid surfaces are measured as drawn, translucent ones over pure black and pure white.
 
 **Wash**:
 A color role at the variant's wash alpha, laid over a panel to mark something without hiding the text on it: selections, diff lines, find matches.
@@ -69,10 +79,10 @@ _Avoid_: Logo, favicon
 The grade a port declares for how much of the theme the app allows: Full glass, Flat or Minimal.
 
 **Full glass**:
-Tier 1. Complete palette, translucency and blur.
+Tier 1. Complete palette on translucent surfaces that stay readable over any backdrop, with or without blur.
 
 **Flat**:
-Tier 2. Complete palette using flat fallbacks, no blur.
+Tier 2. Complete palette on solid surfaces.
 
 **Minimal**:
 Tier 3. The app only allows background, accent and status colors.
