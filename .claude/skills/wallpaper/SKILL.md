@@ -66,6 +66,7 @@ pwsh build/wallpaper.ps1 -Add "File:<title>.jpg" -Name <short-name> -Variant <da
 
 Paste it into `wallpapers/README.md`:
 
+- Add each image as a single. Make a pair only when the user asks for one.
 - A single image gets its own `##` section, after the last one.
 - A pair is one `##` section, listed before single images, with both thumbnails and a `###` subsection per image: one `dark`, one `light`.
 
