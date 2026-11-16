@@ -498,6 +498,21 @@ Test 'Wallpaper: variant suggested from lightness' {
     }
 }
 
+Test 'Wallpaper: retry delays for a rate-limited download' {
+    $now = [datetimeoffset]::new(2026, 11, 16, 12, 0, 0, [timespan]::Zero)
+    Assert-Equal 5 (Get-WallpaperRetryDelay -Status 429 -Attempt 1) 'first retry, no Retry-After'
+    Assert-Equal 20 (Get-WallpaperRetryDelay -Status 503 -Attempt 3) 'backs off by doubling'
+    Assert-Equal 30 (Get-WallpaperRetryDelay -Status 429 -Attempt 1 -RetryAfter '30') 'Retry-After in seconds'
+    Assert-Equal 45 (Get-WallpaperRetryDelay -Status 429 -Attempt 1 -RetryAfter 'Mon, 16 Nov 2026 12:00:45 GMT' -Now $now) 'Retry-After as a date'
+    Assert-Equal 1 (Get-WallpaperRetryDelay -Status 429 -Attempt 1 -RetryAfter '0') 'never sooner than the gap'
+    Assert-Equal 1 (Get-WallpaperRetryDelay -Status 429 -Attempt 1 -RetryAfter 'Mon, 16 Nov 2026 11:59:00 GMT' -Now $now) 'a date in the past'
+    Assert-Equal 600 (Get-WallpaperRetryDelay -Status 429 -Attempt 1 -RetryAfter '600') 'a long Retry-After is honored, not cut short'
+    Assert-Equal 40 (Get-WallpaperRetryDelay -Status 429 -Attempt 4) 'last retry without Retry-After'
+    Assert-Equal 5 (Get-WallpaperRetryDelay -Status 429 -Attempt 1 -RetryAfter 'soon') 'unreadable Retry-After falls back'
+    Assert-Equal -1 (Get-WallpaperRetryDelay -Status 404 -Attempt 1) '404 is not retried'
+    Assert-Equal -1 (Get-WallpaperRetryDelay -Status 429 -Attempt 5) 'attempts spent'
+}
+
 Test 'Wallpaper: candidates filtered and ranked by variant' {
     $c = { param($Name, $L, $S, $D) [pscustomobject]@{ Name = $Name; Fit = @{ Lightness = $L; Saturation = $S; Detail = $D; Variant = (Get-WallpaperVariant -Lightness $L) } } }
     $all = @(
