@@ -43,9 +43,19 @@ Requires [PowerShell 7](https://learn.microsoft.com/powershell/scripting/install
 pwsh build/build.ps1                     # rebuild every port
 pwsh build/build.ps1 -Port <app_name>    # rebuild one port
 pwsh build/check.ps1                     # every check CI runs
-pwsh build/test.ps1                      # test the build modules
+pwsh build/test.ps1                      # test the build modules and entry scripts
 pwsh build/site.ps1                      # assemble the Pages site (preview and ports page) into _site/
+pwsh build/contrast.ps1                  # print every contrast measurement, passing or not
+pwsh build/roles.ps1                     # which palette roles each port's templates use
 ```
+
+`contrast.ps1` takes the same measurements as `check.ps1`. To try values before they go in the palette, point it at an edited copy with `-Palette <file>`, or change single values with `-Set`, repeated as needed. Narrow the list with `-Variant`, `-Role`, `-Surface`, or `-Failing`:
+
+```sh
+pwsh build/contrast.ps1 -Set dark.roles.panel=#40444b -Set dark.roles.panel.alpha=0.8 -Variant dark -Surface 'panel*'
+```
+
+`roles.ps1` lists, per port, the roles it uses and the surface and edge roles it does not. `-Role <role>` shows which ports use one role, for finding ports that never adopted a new one.
 
 The preview page and the ports page are published to GitHub Pages by [`.github/workflows/pages.yml`](.github/workflows/pages.yml) on every push to `main` that changes them.
 
@@ -114,7 +124,7 @@ The quickest way is [Claude Code](https://claude.com/claude-code): open the repo
 
 1. Edit `palette/palette.json` only.
 2. Bump `meta.version`: patch for a tuned value, minor for a new role, major for a role whose meaning changed or was removed.
-3. Run the build and the checks. Every port rebuilds, and the build prints one line per port: `changed`, `version stamp only`, or `unchanged`.
+3. Run the build and the checks. Every port rebuilds, and the build prints one line per port: `changed`, `version stamp only`, or `unchanged`. For a new role, `pwsh build/roles.ps1 -Role <role>` lists the ports that don't use it yet.
 4. Retake the preview screenshots (below), since they show the palette.
 5. For a new role or a changed meaning, add an ADR in [`docs/adr/`](docs/adr/) explaining why.
 

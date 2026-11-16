@@ -83,6 +83,22 @@ function Find-PlaceholderError {
     return @($seen.Keys)
 }
 
+function Get-PlaceholderRole {
+    # The palette roles $Text draws, in either variant: {{role}} with any
+    # filter, and {{ansi.<slot>}} as the role the slot maps to.
+    param([string]$Text, $Palette)
+    $roles = [System.Collections.Generic.SortedSet[string]]::new()
+    foreach ($m in [regex]::Matches($Text, $Pattern)) {
+        $name = $m.Groups[1].Value
+        foreach ($variant in $Palette.Variants.Values) {
+            $role = if ($name -match '^ansi\.(.+)$') { Get-AnsiRole -Slot $Matches[1] -Variant $variant }
+                    elseif ($variant.Roles.ContainsKey($name)) { $name }
+            if ($role) { [void]$roles.Add($role) }
+        }
+    }
+    return @($roles)
+}
+
 function Find-Placeholder {
     # The first {{placeholder}} in $Text, or $null. For checking generated output.
     param([string]$Text)
@@ -119,4 +135,4 @@ function Read-TemplateFile {
     return @{ Binary = $false; Encoding = $enc; Text = $enc.GetString($bytes, $skip, $bytes.Length - $skip) }
 }
 
-Export-ModuleMember -Function Resolve-Placeholder, Expand-Template, Find-PlaceholderError, Find-Placeholder, Read-TemplateFile
+Export-ModuleMember -Function Resolve-Placeholder, Expand-Template, Find-PlaceholderError, Get-PlaceholderRole, Find-Placeholder, Read-TemplateFile

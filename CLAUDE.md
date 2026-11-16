@@ -72,6 +72,7 @@ Studying how Catppuccin, Nord, Dracula, and other themes ported to the same app 
 2. Bump `meta.version` per "Changing the palette" in PHILOSOPHY.md.
 3. Run the build, then the checks.
 4. Summarize which ports changed, from the build's per-port line (`changed`, `version stamp only`, `unchanged`).
+5. If the change adds a role, run `pwsh build/roles.ps1 -Role <role>` and list the ports that don't use it.
 
 ## Commands
 
@@ -79,7 +80,9 @@ Studying how Catppuccin, Nord, Dracula, and other themes ported to the same app 
 pwsh build/build.ps1                     # rebuild every port
 pwsh build/build.ps1 -Port <app_name>    # rebuild one port
 pwsh build/check.ps1                     # run all checks (CI runs this too)
-pwsh build/test.ps1                      # test the build modules (CI runs this too)
+pwsh build/test.ps1                      # test the build modules and entry scripts (CI runs this too)
+pwsh build/contrast.ps1                  # print every contrast measurement (-Palette <file>, -Set dark.roles.panel=#40444b)
+pwsh build/roles.ps1                     # which roles each port uses (-Role <role> for one role)
 pwsh build/site.ps1                      # assemble the Pages site into _site/
 pwsh build/icon.ps1 -Search <words>      # find a card icon (see the port-icon skill)
 pwsh build/wallpaper.ps1 -Search <words> # find a wallpaper (see the wallpaper skill)

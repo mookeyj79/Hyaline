@@ -1,12 +1,14 @@
 #requires -Version 7.0
 <#
 .SYNOPSIS
-    Tests the build modules in build/lib/ through their interfaces. Exits 1
-    if any test fails.
+    Tests the build modules in build/lib/ through their interfaces, and
+    smoke tests the entry scripts. Exits 1 if any test fails.
 
 .DESCRIPTION
-    Uses small palettes and ports written to a temp folder, never the repo's
-    own files, so a test failure points at the module and not at a port.
+    Module tests use small palettes and ports written to a temp folder, never
+    the repo's own files, so a test failure points at the module and not at a
+    port. The entry script tests run each script once, offline: contrast.ps1
+    and roles.ps1 on the repo, wallpaper.ps1 -Check on a local fixture image.
     Plain PowerShell: no Pester needed.
 
 .EXAMPLE
@@ -295,7 +297,36 @@ Test 'Contrast: line, edge, and the window edge have no floor' {
     Assert-Equal 0 $c.Failures.Count "failures ($($c.Failures -join '; '))"
 }
 
+Test 'Contrast: every measurement is listed, failures among them' {
+    $d = New-PaletteData
+    $c = Test-PaletteContrast (Get-TestPalette $d)
+    Assert-Equal 0 @($c.Measurements | Where-Object { -not $_.Pass }).Count 'failing measurements on a passing palette'
+    $m = @($c.Measurements | Where-Object { $_.Variant -eq 'dark' -and $_.Role -eq 'text' -and $_.Surface -eq 'panel over white' })
+    Assert-Equal 1 $m.Count 'dark text on panel over white measured once'
+    Assert-Equal 4.5 $m[0].Floor 'floor'
+    Assert-True ($m[0].Ratio -ge 4.5) "ratio $($m[0].Ratio)"
+    $d.variants.dark.roles.panel.alpha = 0.5
+    $c = Test-PaletteContrast (Get-TestPalette $d)
+    Assert-Equal $c.Failures.Count @($c.Measurements | Where-Object { -not $_.Pass }).Count 'one failing measurement per failure'
+}
+
+Test 'Palette: read from data as from a file' {
+    $d = New-PaletteData
+    $fromFile = Get-TestPalette $d
+    $fromData = Read-Palette -Data ((ConvertTo-Json -InputObject $d -Depth 8) | ConvertFrom-Json -AsHashtable)
+    Assert-Equal 0 $fromData.Errors.Count 'errors'
+    Assert-Equal $fromFile.Variants['dark'].Roles['panel'].Hex $fromData.Variants['dark'].Roles['panel'].Hex 'panel hex'
+}
+
 # --- Placeholders ---------------------------------------------------------------
+
+Test 'Placeholders: roles a template draws' {
+    $p = Get-TestPalette (New-PaletteData)
+    $text = '{{panel|rgba}} {{text}} {{meta.name}} {{port.font}} {{ansi.black}} {{ansi.bright_red}} {{nope}}'
+    # ansi.black is raised_flat in dark and text in light.
+    Assert-Equal @('panel', 'raised_flat', 'red', 'text') @(Get-PlaceholderRole -Text $text -Palette $p) 'roles'
+    Assert-Equal 0 @(Get-PlaceholderRole -Text 'no placeholders' -Palette $p).Count 'none'
+}
 
 Test 'Placeholders: expand every kind' {
     $p = Get-TestPalette (New-PaletteData)
@@ -633,6 +664,63 @@ Test 'Wallpaper: a port uses a wallpaper only for a variant it is marked for' {
         "values.json: dark uses snow.jpg, which wallpapers/README.md marks light.",
         "values.json: light uses gone.jpg, which wallpapers/README.md does not mark."
     ) @(Test-WallpaperUse -Path $dir -Values $bad -Source 'values.json') 'problems'
+}
+
+# --- Entry scripts --------------------------------------------------------------
+
+# Each runs in its own pwsh, as a person would run it. Returns @{ Exit; Text }.
+function Invoke-Script([string]$Name, [string[]]$Arguments) {
+    $pwsh = (Get-Process -Id $PID).Path
+    $out = & $pwsh -NoProfile -File (Join-Path $PSScriptRoot $Name) @Arguments 2>&1
+    return @{ Exit = $LASTEXITCODE; Text = ($out | ForEach-Object { "$_" }) -join "`n" }
+}
+
+function New-TestImage([string]$Path, [int]$Width, [int]$Height) {
+    # A flat gray binary PPM, which ImageSharp reads like a JPEG.
+    $head = [System.Text.Encoding]::ASCII.GetBytes("P6`n$Width $Height`n255`n")
+    $body = [byte[]]::new($Width * $Height * 3)
+    [Array]::Fill($body, [byte]200)
+    $fs = [System.IO.File]::Create($Path)
+    try { $fs.Write($head, 0, $head.Length); $fs.Write($body, 0, $body.Length) } finally { $fs.Dispose() }
+}
+
+Test 'Entry: wallpaper.ps1 -Check passes a wide image and fails a small one' {
+    # A local file, so nothing goes to Commons. ImageSharp is fetched once
+    # from NuGet if it is not cached yet.
+    $wide = Join-Path $Tmp 'wide.ppm'
+    New-TestImage $wide 1920 1080
+    $r = Invoke-Script 'wallpaper.ps1' @('-Check', $wide)
+    Assert-Equal 0 $r.Exit "exit code, output:`n$($r.Text)"
+    Assert-True ($r.Text -like '*Passes the format gate*') "no pass line in:`n$($r.Text)"
+    Assert-True ($r.Text -notlike '*Fails*') "a fail line in:`n$($r.Text)"
+    $small = Join-Path $Tmp 'small.ppm'
+    New-TestImage $small 200 100
+    $r = Invoke-Script 'wallpaper.ps1' @('-Check', $small)
+    Assert-Equal 1 $r.Exit "exit code, output:`n$($r.Text)"
+    Assert-True ($r.Text -like "*Fails:*- 200 px wide, needs at least 1920.*") "no reason in:`n$($r.Text)"
+}
+
+Test 'Entry: contrast.ps1 lists every measurement of the palette and passes' {
+    $r = Invoke-Script 'contrast.ps1' @()
+    Assert-Equal 0 $r.Exit "exit code, output:`n$($r.Text)"
+    Assert-True ($r.Text -match '(?m)^dark +text +panel_flat +\d+\.\d\d +4\.5 +pass$') "no dark text on panel_flat line in:`n$($r.Text)"
+    Assert-True ($r.Text -match '(\d+) measurements, 0 failing') "no summary in:`n$($r.Text)"
+}
+
+Test 'Entry: contrast.ps1 -Set tries a value and fails it' {
+    $r = Invoke-Script 'contrast.ps1' @('-Set', 'dark.roles.panel.alpha=0.3', '-Variant', 'dark', '-Role', 'text', '-Surface', 'panel over white')
+    Assert-Equal 1 $r.Exit "exit code, output:`n$($r.Text)"
+    Assert-True ($r.Text -match '(?m)^dark +text +panel over white +\d+\.\d\d +4\.5 +FAIL$') "no failing line in:`n$($r.Text)"
+    $r = Invoke-Script 'contrast.ps1' @('-Set', 'dark.roles.nope=#000000')
+    Assert-Equal 2 $r.Exit "unknown path exit code, output:`n$($r.Text)"
+}
+
+Test 'Entry: roles.ps1 reports ports and roles' {
+    $r = Invoke-Script 'roles.ps1' @('-Role', 'text')
+    Assert-Equal 0 $r.Exit "exit code, output:`n$($r.Text)"
+    Assert-True ($r.Text -like "text*used by:*preview*") "no report in:`n$($r.Text)"
+    $r = Invoke-Script 'roles.ps1' @()
+    Assert-True ($r.Text -match '(?m)^preview \(\d+ of \d+ roles\)$') "no preview line in:`n$($r.Text)"
 }
 
 # --- Summary ------------------------------------------------------------------
