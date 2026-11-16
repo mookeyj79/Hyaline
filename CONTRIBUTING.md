@@ -55,7 +55,7 @@ The quickest way is [Claude Code](https://claude.com/claude-code): open the repo
 
 1. **Research** the app's theme format, install path, light and dark support, translucency, and where it sets its font. Use official docs.
 2. **Pick a tier**: 1 Full glass, 2 Flat, or 3 Minimal (see [PHILOSOPHY.md](PHILOSOPHY.md#port-tiers)).
-3. **Map every color slot to a role.** Use `chrome` for the frame (title bars, tabs, sidebars) and `panel` for content. Follow the syntax and terminal mappings in PHILOSOPHY.md.
+3. **Map every color slot to a role.** Use `chrome` for the frame (title bars, tabs, sidebars) and `panel` for content. Draw the edge with `edge` on glass and `edge_flat` on solid surfaces, and the line around a window with `window_edge` or `window_edge_flat`. Follow the syntax and terminal mappings in PHILOSOPHY.md.
 4. **Write the template** in `Ports/<app_name>/template/`, using these placeholders:
 
    | Placeholder | Output |

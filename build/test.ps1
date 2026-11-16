@@ -50,7 +50,7 @@ function New-PaletteData {
     $variant = {
         param($Mode, $Bg, $Fg, $Bright)
         $roles = [ordered]@{}
-        foreach ($r in 'backdrop', 'chrome', 'chrome_flat', 'panel', 'panel_flat', 'raised', 'raised_flat', 'line', 'edge', 'edge_flat') { $roles[$r] = $Bg }
+        foreach ($r in 'backdrop', 'chrome', 'chrome_flat', 'panel', 'panel_flat', 'raised', 'raised_flat', 'line', 'edge', 'edge_flat', 'window_edge', 'window_edge_flat') { $roles[$r] = $Bg }
         # Glass dense enough, and clamped hard enough, to pass over black and white.
         $roles['chrome'] = [ordered]@{ hex = $Bg; alpha = 0.9; clamp = [ordered]@{ blur = 30; contrast = 0.2; brightness = $Bright; saturate = 1.5; alpha = 0.5 } }
         $roles['panel'] = [ordered]@{ hex = $Bg; alpha = 0.9; clamp = [ordered]@{ blur = 30; contrast = 0.2; brightness = $Bright; saturate = 1.5; alpha = 0.6 } }
@@ -96,6 +96,8 @@ Test 'Palette: edge and clamp problems are reported at once' {
     $d = New-PaletteData
     $d.variants.dark.roles.Remove('edge')
     $d.variants.light.roles.Remove('edge_flat')
+    $d.variants.dark.roles.Remove('window_edge')
+    $d.variants.light.roles.Remove('window_edge_flat')
     $d.variants.dark.roles.chrome.Remove('clamp')
     $d.variants.dark.roles.panel.clamp.Remove('brightness')
     $d.variants.light.roles.panel.clamp.alpha = 1.5
@@ -103,7 +105,8 @@ Test 'Palette: edge and clamp problems are reported at once' {
     $d.variants.light.roles.raised.clamp = [ordered]@{ blur = 30; contrast = 0.2; brightness = 2; saturate = 1.5; alpha = 0.5 }
     $p = Get-TestPalette $d
     $all = $p.Errors -join "`n"
-    foreach ($want in "dark is missing role 'edge'", "light is missing role 'edge_flat'", 'dark.chrome needs a clamp block',
+    foreach ($want in "dark is missing role 'edge'", "light is missing role 'edge_flat'",
+        "dark is missing role 'window_edge'", "light is missing role 'window_edge_flat'", 'dark.chrome needs a clamp block',
         'dark.panel clamp.brightness must be a number', 'light.panel clamp.alpha must be between 0 and 1',
         'light.chrome clamp.contrast must be a number', 'light.raised cannot have a clamp') {
         Assert-True ($all -like "*$want*") "expected an error like '$want' in:`n$all"
@@ -284,9 +287,9 @@ Test 'Contrast: washes are measured over the glass too' {
     Assert-Failure $c '*dark.text on yellow wash over panel over white*'
 }
 
-Test 'Contrast: line and edge have no floor' {
+Test 'Contrast: line, edge, and the window edge have no floor' {
     $d = New-PaletteData
-    foreach ($r in 'line', 'edge', 'edge_flat') { $d.variants.dark.roles[$r] = '#101010'; $d.variants.light.roles[$r] = '#f8f8f8' }
+    foreach ($r in 'line', 'edge', 'edge_flat', 'window_edge', 'window_edge_flat') { $d.variants.dark.roles[$r] = '#101010'; $d.variants.light.roles[$r] = '#f8f8f8' }
     $d.variants.dark.roles.edge = [ordered]@{ hex = '#ffffff'; alpha = 0.14 }
     $c = Test-PaletteContrast (Get-TestPalette $d)
     Assert-Equal 0 $c.Failures.Count "failures ($($c.Failures -join '; '))"

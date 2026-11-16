@@ -11,7 +11,7 @@ $VariantKeys = @('dark', 'light')
 
 $RequiredRoles = @(
     'backdrop', 'chrome', 'chrome_flat', 'panel', 'panel_flat', 'raised', 'raised_flat', 'line',
-    'edge', 'edge_flat', 'text', 'text_dim', 'text_muted', 'accent', 'on_accent',
+    'edge', 'edge_flat', 'window_edge', 'window_edge_flat', 'text', 'text_dim', 'text_muted', 'accent', 'on_accent',
     'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'orange'
 )
 
@@ -49,8 +49,8 @@ $AnsiNeutrals = @{
     light = @{ black = 'text';        bright_black = 'text_muted'; white = 'line';     bright_white = 'raised_flat' }
 }
 
-# Contrast floor (PHILOSOPHY.md, ADR 0011). line and edge carry no meaning
-# and have no floor, so they are never measured.
+# Contrast floor (PHILOSOPHY.md, ADR 0011). line, edge, and window_edge
+# carry no meaning and have no floor, so they are never measured.
 $TextFloor   = 4.5
 $MutedFloor  = 3.0
 $TextRoles   = @('text', 'text_dim', 'accent', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'orange')

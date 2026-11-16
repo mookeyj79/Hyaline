@@ -95,6 +95,8 @@ The placeholder table (`{{role|wash}}`, `{{ansi.<slot>}}`, `{{port.<key>}}`, and
 
 Surface roles come in pairs: `chrome`, `panel`, and `raised` are translucent, `chrome_flat`, `panel_flat`, and `raised_flat` are the solid fallbacks. Use the flat ones anywhere the app cannot blur. Chrome (title bars, tabs, sidebars) carries `text` and solid accent fills only; everything else goes on `panel`.
 
+The edge (ADR 0009) follows the same pattern: `edge` is the glass value and `edge_flat` the solid one, for the lit hairline on the top inside of chrome and raised surfaces. The line around a window is its own pair, `window_edge` and `window_edge_flat`, so ports never choose between `edge` and `line` per variant. None of the four marks state: focus and active borders stay `accent`.
+
 ## Working style
 
 - Work on a branch named `port/<app_name>`, `palette/<change>`, or `build/<change>` for tooling and docs. Do not commit to `main` directly.
