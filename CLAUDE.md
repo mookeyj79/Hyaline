@@ -43,7 +43,7 @@ build/test.ps1              tests the build/lib modules on small fixtures
 build/site.ps1              assembles the GitHub Pages site and the port list into _site/
 build/icon.ps1              finds and fetches a port's card icon
 build/wallpaper.ps1         finds, checks, and adds wallpapers from Wikimedia Commons
-build/setup-linux.sh        installs pwsh and chromium on a fresh Linux sandbox
+build/setup-linux.sh        installs pwsh, chromium and node on a fresh Linux sandbox
 .githooks/pre-commit        runs test.ps1 and check.ps1 before a commit (git config core.hooksPath .githooks)
 .claude/skills/new-port/    the new-port skill and the port README template
 .claude/skills/port-icon/   the port-icon skill
@@ -83,7 +83,7 @@ pwsh build/test.ps1                      # test the build modules (CI runs this 
 pwsh build/site.ps1                      # assemble the Pages site into _site/
 pwsh build/icon.ps1 -Search <words>      # find a card icon (see the port-icon skill)
 pwsh build/wallpaper.ps1 -Search <words> # find a wallpaper (see the wallpaper skill)
-bash build/setup-linux.sh                # pwsh or chromium missing? run this first
+bash build/setup-linux.sh                # pwsh, chromium or node missing? run this first
 gh run list --workflow pages.yml -L 1    # after a merge to main that touched a pages.yml trigger path, watch until green
 ```
 
@@ -104,6 +104,7 @@ The edge (ADR 0009) follows the same pattern: `edge` is the glass value and `edg
 - Retake the preview screenshots with headless Chromium, as CONTRIBUTING.md describes, and show them to the user before committing. Screenshots of a port in the real app come from the user: ask, and add the screenshot table to the port README only once the files exist.
 - Judge a candidate surface value against the real glass, not a mock window: sample the built preview (`Ports/preview/dist/<variant>/index.html`) in headless Chromium and show it beside each candidate.
 - Before asking the user to lock a palette candidate, list every check it fails.
+- Run `node --check` on a prototype page's script before rendering it: a syntax error leaves the page blank with no message.
 - READMEs are for their readers: a port README for the person installing it, the root README for a visitor. No measurements, role names, palette versions, ADR links, research notes, or notes to an agent in them.
 - Writing style for docs: plain and short. `check.ps1` fails on em dashes.
 
