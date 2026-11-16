@@ -29,8 +29,8 @@ The preview is not an app theme. It is treated as a port so it gets the same bui
 ## Glass and edge
 
 - Glass (ADR 0008). Where the browser has `backdrop-filter`, chrome and panel use the clamp: blur, contrast, brightness, and saturate from the palette's `clamp` block, under the thin tint. The panel is clamped harder than the chrome. Without `backdrop-filter` (checked with `@supports`), they fall back to the dense `chrome` and `panel` tint alone, which passes over any backdrop. `raised` sits on the glass at its own alpha, with no filter.
-- Edge (ADR 0009). A 1 px inset hairline in `edge` (translucent, since every surface here is glass) on the top inside of the top bar, window title bars, ports page headings, and raised surfaces. Every panel and window has a 1 px outline: `edge` in Dark, `line` in Light.
-- In Light, `edge` is white on white raised surfaces, so `line` carries the lift instead: raised surfaces with a `line` border keep just that, and the borderless ones (tabs, address bars) get a 1 px `line` ring. The per-variant switch is `--outline`, `--lift`, and `--lift-ring` in `base.css`.
+- Edge (ADR 0009). A 1 px inset hairline in `edge` (translucent, since every surface here is glass) on the top inside of the top bar, window title bars, ports page headings, and raised surfaces. Every panel and window has a 1 px outline in `window_edge`.
+- In Light, `edge` is white on white raised surfaces, so `line` carries the lift instead: raised surfaces with a `line` border keep just that, and the borderless ones (tabs, address bars) get a 1 px `line` ring. The per-variant switch is `--lift` and `--lift-ring` in `base.css`.
 - `edge_flat` has no surface to sit on here (the only flat surface is the Mermaid diagram, which has its own border). It is shown in the Roles section.
 
 ## Publish with GitHub Pages
@@ -56,8 +56,9 @@ To turn it on once:
 | Top bar, window title bars, ports page headings | `chrome` (clamped), primary `text` only |
 | Cards, window contents | `panel` (clamped harder) |
 | Tabs, address bars, inputs, tiles, callouts | `raised` |
-| Top inside of chrome and raised, window outline (Dark) | `edge` |
-| Window outline and raised lift (Light) | `line` |
+| Top inside of chrome and raised | `edge` |
+| Panel and window outline | `window_edge` |
+| Raised lift (Light) | `line` |
 | Borders, dividers, meter tracks | `line` |
 | Headings, content | `text` |
 | Body copy, punctuation | `text_dim` |

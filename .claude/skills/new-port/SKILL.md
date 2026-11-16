@@ -62,6 +62,7 @@ Tell the user the tier and the known gaps in two or three lines, then carry on. 
 List every color slot the app exposes and assign each one a role. Copy `port-mapping-template.md` from this skill's folder to `Ports/<app_name>/MAPPING.md` and write the table there. It is for maintainers, not in the README.
 
 - Surfaces: `chrome` or `chrome_flat` for the frame (title bars, tab strips, sidebars, toolbars), `panel` or `panel_flat` for content, `raised` or `raised_flat` for tabs, cards, inputs. Chrome carries `text` and solid accent fills only (ADR 0004). If the app does not separate frame from content, use `panel` for both.
+- The edge (ADR 0009): `edge` on glass, `edge_flat` where the app cannot blur, as a 1 px hairline on the top inside of chrome and raised surfaces. Around the window, use `window_edge` or `window_edge_flat`. These carry no meaning, so a border that marks state (focus, an active window or tab) is `accent`.
 - Text: `text` for content, `text_dim` for supporting, `text_muted` for comments and metadata
 - Focus, selection, cursor, links, primary buttons: `accent`, with `on_accent` for text on top of it
 - State: `red` failure, `green` success, `yellow` change or warning, `blue` info or in progress

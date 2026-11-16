@@ -16,6 +16,7 @@
   --line: {{line}};
   --edge: {{edge|rgba}};
   --edge-flat: {{edge_flat}};
+  --window-edge: {{window_edge|rgba}};
   --text: {{text}};
   --text-dim: {{text_dim}};
   --text-muted: {{text_muted}};

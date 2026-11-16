@@ -25,10 +25,9 @@
   --panel-glass: var(--panel);
   --chrome-filter: none;
   --panel-filter: none;
-  /* The edge (ADR 0009): a lit hairline on the top inside of chrome and raised surfaces,
-     and the outline around each window. */
+  /* The edge (ADR 0009): a lit hairline on the top inside of chrome and raised surfaces.
+     The outline around each window is --window-edge, from the palette. */
   --edge-top: inset 0 1px 0 var(--edge);
-  --outline: var(--edge);
   /* Lift for raised surfaces that have a line border, and for those that have none. */
   --lift: var(--edge-top);
   --lift-ring: var(--edge-top);
@@ -43,10 +42,8 @@
     --panel-filter: var(--panel-clamp);
   }
 }
-/* In Light the edge is white on white: the window outline uses line,
-   and on raised surfaces line carries the lift. */
+/* In Light the edge is white on white: on raised surfaces line carries the lift. */
 :root[data-variant="light"] {
-  --outline: var(--line);
   --lift: none;
   --lift-ring: inset 0 0 0 1px var(--line);
 }
@@ -79,7 +76,7 @@ button { font-family: inherit; }
   background: var(--panel-glass);
   -webkit-backdrop-filter: var(--panel-filter);
   backdrop-filter: var(--panel-filter);
-  border: 1px solid var(--outline);
+  border: 1px solid var(--window-edge);
   border-radius: 10px;
 }
 .raised { background: var(--raised); box-shadow: var(--lift-ring); }

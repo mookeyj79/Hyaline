@@ -34,7 +34,8 @@
    10. Wallpapers   Every image in wallpapers/ has a thumbnail and a section in
                      wallpapers/README.md with its author, source, license, and
                      variant mark. Each pair has one dark and one light image,
-                     and pairs come before single images.
+                     and pairs come before single images. A port's values.json
+                     shows a wallpaper only in a variant it is marked for.
    11. Prose         No em dashes in the repo's Markdown (outside dist/ and
                      third-party assets/). Add "hyaline-ignore" to a line to
                      skip it.
@@ -59,7 +60,6 @@ $RepoRoot  = Split-Path -Parent $PSScriptRoot
 $PortsRoot = Join-Path $RepoRoot 'Ports'
 
 $script:Failures = [System.Collections.Generic.List[string]]::new()
-$script:Warnings = [System.Collections.Generic.List[string]]::new()
 function Add-Failure([string]$Message) { $script:Failures.Add($Message) }
 
 function Invoke-Section([string]$Title, [scriptblock]$Body) {
@@ -87,7 +87,6 @@ if ($paletteOk) {
     Invoke-Section 'Contrast' {
         $c = Test-PaletteContrast -Palette $palette
         foreach ($f in $c.Failures) { Add-Failure "Contrast: $f" }
-        foreach ($w in $c.Warnings) { $script:Warnings.Add("Contrast: $w") }
     }
 }
 else { Skip-Section 'Contrast' 'fix the palette first' }
@@ -274,7 +273,16 @@ Invoke-Section 'Format' {
 # --- 10. Wallpapers -------------------------------------------------------------
 
 Invoke-Section 'Wallpapers' {
-    foreach ($e in Test-WallpaperFolder -Path (Join-Path $RepoRoot 'wallpapers')) { Add-Failure "Wallpapers: $e" }
+    $wallpaperDir = Join-Path $RepoRoot 'wallpapers'
+    foreach ($e in Test-WallpaperFolder -Path $wallpaperDir) { Add-Failure "Wallpapers: $e" }
+    foreach ($port in $catalog.Ports) {
+        $valuesPath = Join-Path $port.Dir 'values.json'
+        if (-not (Test-Path $valuesPath)) { continue }
+        # Invalid JSON is reported by the Placeholders section.
+        try { $values = Get-Content -Raw -Path $valuesPath | ConvertFrom-Json -AsHashtable } catch { continue }
+        if ($values -isnot [System.Collections.IDictionary]) { continue }
+        foreach ($e in Test-WallpaperUse -Path $wallpaperDir -Values $values -Source (Get-RepoPath $valuesPath)) { Add-Failure "Wallpapers: $e" }
+    }
 }
 
 # --- 11. Prose ------------------------------------------------------------------
@@ -310,7 +318,6 @@ Invoke-Section 'Prose' {
 Write-Host ''
 if ($catalog.Ports.Count -eq 0) { Write-Host 'No ports yet. Palette checks only.' }
 
-foreach ($w in $script:Warnings) { Write-Host "warning: $w" -ForegroundColor Yellow }
 foreach ($f in $script:Failures) { Write-Host "FAIL: $f" -ForegroundColor Red }
 
 if ($script:Failures.Count -gt 0) {
@@ -318,5 +325,5 @@ if ($script:Failures.Count -gt 0) {
     Write-Host "$($script:Failures.Count) check(s) failed." -ForegroundColor Red
     exit 1
 }
-Write-Host "All checks passed ($($catalog.Ports.Count) port(s), $($script:Warnings.Count) warning(s))."
+Write-Host "All checks passed ($($catalog.Ports.Count) port(s))."
 exit 0

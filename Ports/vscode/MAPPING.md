@@ -48,7 +48,8 @@ Every color the theme sets.
 | `titleBar.activeBackground`, `titleBar.inactiveBackground` | `chrome_flat` |
 | `titleBar.activeForeground`, `titleBar.inactiveForeground` | `text` |
 | `titleBar.border` | `line` |
-| `window.activeBorder`, `window.inactiveBorder` | `line` |
+| `window.activeBorder` | `accent` |
+| `window.inactiveBorder` | `window_edge_flat` |
 | `commandCenter.background`, `commandCenter.activeBackground` | `raised_flat` |
 | `commandCenter.foreground`, `commandCenter.activeForeground` | `text` |
 | `commandCenter.border`, `commandCenter.inactiveBorder` | `line` |
@@ -398,10 +399,11 @@ Each key below was looked up in the [Theme Color reference](https://code.visuals
 | [`sideBarSectionHeader.border`](https://code.visualstudio.com/api/references/theme-color#side-bar) | the side bar section header border | `edge_flat` |
 | [`panelSectionHeader.border`](https://code.visualstudio.com/api/references/theme-color#panel-colors) | the panel section header border, when views are stacked | `edge_flat` |
 | [`tab.unfocusedActiveBorderTop`](https://code.visualstudio.com/api/references/theme-color) | the top border of the active tab in an inactive group | `edge_flat` |
-| [`window.activeBorder`, `window.inactiveBorder`](https://code.visualstudio.com/api/references/theme-color#window-border) | the border around the window, with the custom title bar | `line` |
+| [`window.inactiveBorder`](https://code.visualstudio.com/api/references/theme-color#window-border) | the border around an inactive window, with the custom title bar | `window_edge_flat` |
 | [`input.border`](https://code.visualstudio.com/api/references/theme-color#input-control), [`dropdown.border`](https://code.visualstudio.com/api/references/theme-color#dropdown-control), `checkbox.border`, [`menu.border`](https://code.visualstudio.com/api/references/theme-color#menu-bar-colors), [`commandCenter.border`](https://code.visualstudio.com/api/references/theme-color#command-center-colors), `commandCenter.inactiveBorder` | the whole outline of a raised surface | `line` |
 
-- **One role per key.** A template sets one role for both variants. The window outline and the raised outlines use `line`, which Light calls for (ADR 0009: Light's window outline is `line`, and on white raised surfaces `line` carries the lift). In Dark, `edge_flat` and `line` are one step apart, so Dark looks the same as with the edge.
+- **The window outline** is `window_edge_flat`, which is the edge in Dark and `line` in Light (ADR 0009). The active window's border is `accent` instead: it marks which window has focus, so it is a state border (ADR 0011).
+- **One role per key.** A template sets one role for both variants. The raised outlines use `line`, which Light calls for (ADR 0009: on white raised surfaces `line` carries the lift). In Dark, `edge_flat` and `line` are one step apart, so Dark looks the same as with the edge.
 - **No top-only key for raised surfaces or the title bar.** Inputs, dropdowns, menus, quick pick, and the command center only take a full outline, and quick pick has no border key of its own. `titleBar.border` sits under the title bar, so it stays `line`. A white full outline in Light would erase the white raised surfaces against the panel.
 - **Light's edge is white.** On the near-white panel, the section header and tab top edges are barely there, by design: the edge is light catching the glass, not a divider.
 
@@ -412,7 +414,7 @@ Each key below was looked up in the [Theme Color reference](https://code.visuals
 - **Changed characters inside a diff line** get a thin `green` or `red` border instead of a stronger tint. Two washes on top of each other would drop text below the contrast floor.
 - **Rainbow brackets are off.** All bracket pair colors are `text_dim`, since brackets are punctuation.
 - **Button hover** does not change color. The palette has one accent, with no hover shade.
-- **Line and range highlights** (`editor.lineHighlightBackground`, `editor.lineHighlightBorder`, `editor.rangeHighlightBackground`, `editor.findRangeHighlightBackground`, `editor.hoverHighlightBackground`, `editorInlayHint.background`) stay `raised` with its alpha. The reference asks for three of them not to be opaque, so decorations show through, and they always sit on the solid editor (`panel_flat`), never over the wallpaper. Laid over `panel_flat`, Dark's `raised` comes out exactly `raised_flat`, and Light's is near white, so they meet the raised floor: role colors 3.71 and up in Dark, 4.95 and up in Light. Code on the current line is short of the panel's 4.5 for role colors in Dark, the same as code under a wash.
+- **Line and range highlights** (`editor.lineHighlightBackground`, `editor.lineHighlightBorder`, `editor.rangeHighlightBackground`, `editor.findRangeHighlightBackground`, `editor.hoverHighlightBackground`, `editorInlayHint.background`) stay `raised` with its alpha. The reference asks for three of them not to be opaque, so decorations show through, and they always sit on the solid editor (`panel_flat`), never over the wallpaper. They are line highlights, held to the floor like a wash (ADR 0011): primary text needs 4.5 on them, and role colors and dim or muted text need 3. Laid over `panel_flat`, Dark's `raised` comes out exactly `raised_flat`: `text` is 6.33, the lowest role color is `magenta` at 3.71, and `text_muted` is 3.62. Light's is near white, with role colors at 4.95 and up.
 - **Shadows** under widgets and menus use VS Code's default shadow. The palette has no shadow color.
 - **Settings not listed above** keep VS Code's default for the base theme (Dark Modern or Light Modern). That covers newer or rarely seen parts, such as the notebook editor, chat, and the welcome page.
 - **Publisher.** `template/package.json` uses `hyaline` as a placeholder publisher ID. Replace it with the real Marketplace publisher ID once one exists, then rebuild.

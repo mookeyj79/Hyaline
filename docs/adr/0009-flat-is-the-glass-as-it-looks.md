@@ -12,6 +12,8 @@ Flat values used to be worked out: the tint laid over a neutral backdrop at the 
 
 Without glass, a theme reads as a standard dark or light mode. What keeps it Hyaline is the **edge**: a lit 1 px hairline where light catches the glass, on the top inside of chrome and raised surfaces, and as an outline around the window. It is a new value in both variants, `#ffffff` at 0.14 on Dark glass and 0.85 on Light glass. In Light, the window outline uses `line`, and on white raised surfaces `line` carries the lift.
 
+In the palette, the flat value is stored as `edge_flat` and the glass value as `edge`, matching `chrome` and `chrome_flat`. The window outline is its own role, `window_edge` and `window_edge_flat`: the edge's values in Dark, `line` in Light.
+
 ## Considered options
 
 - **A deep Dark page** (`#1f2329`), the macOS arrangement. Chosen first, then judged by eye against the real glass and dropped: it looked like a different theme.

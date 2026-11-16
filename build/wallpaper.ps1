@@ -263,8 +263,7 @@ function Get-RuleProblems($Candidate) {
     $p = [System.Collections.Generic.List[string]]::new()
     if (-not (Test-WallpaperLicense $Candidate.License)) { $p.Add("license '$($Candidate.License)' does not clearly allow redistribution.") }
     if ($Candidate.Mime -ne 'image/jpeg') { $p.Add("$($Candidate.Mime), not a JPEG.") }
-    if ($Candidate.Width -lt $MinWidth) { $p.Add("$($Candidate.Width) px wide, needs at least $MinWidth.") }
-    if ($Candidate.Width -le $Candidate.Height) { $p.Add('not landscape.') }
+    foreach ($f in Test-WallpaperFormat -Width $Candidate.Width -Height $Candidate.Height) { $p.Add($f) }
     return , $p
 }
 
@@ -352,10 +351,7 @@ if ($PSCmdlet.ParameterSetName -eq 'Check') {
     Write-Host ''
     $problems = [System.Collections.Generic.List[string]]::new()
     if ($candidate) { foreach ($p in Get-RuleProblems $candidate) { $problems.Add($p) } }
-    else {
-        if ($img.Width -lt $MinWidth) { $problems.Add("$($img.Width) px wide, needs at least $MinWidth.") }
-        if ($img.Width -le $img.Height) { $problems.Add('not landscape.') }
-    }
+    else { foreach ($p in Test-WallpaperFormat -Width $img.Width -Height $img.Height) { $problems.Add($p) } }
     $fit = Measure-Image $img
     $img.Dispose()
     $gates = if ($candidate) { 'the format and license gates' } else { 'the format gate (license is checked for Commons titles)' }

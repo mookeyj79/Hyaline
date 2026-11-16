@@ -373,7 +373,6 @@ pre.md-fences.mock-cm,
     background: {{panel_flat}};
     border: 1px solid {{line}};
     border-radius: 6px;
-    box-shadow: inset 0 1px 0 {{edge_flat}};
     font-size: 0.9em;
 }
 
@@ -407,7 +406,6 @@ pre.md-fences.mock-cm,
 div.code-tooltip {
     background: {{raised_flat}};
     border: 1px solid {{line}};
-    box-shadow: inset 0 1px 0 {{edge_flat}};
 }
 
 .md-hover-tip .md-arrow:after {
@@ -552,7 +550,6 @@ div.code-tooltip {
 
 #typora-sidebar {
     border-right: 1px solid {{line}};
-    box-shadow: inset 0 1px 0 {{edge_flat}};
 }
 
 .sidebar-tabs {
@@ -635,7 +632,6 @@ div.code-tooltip {
 #top-titlebar {
     background: {{chrome_flat}};
     border-bottom: 1px solid {{line}};
-    box-shadow: inset 0 1px 0 {{edge_flat}};
 }
 
 .toolbar-icon.btn:hover,
@@ -655,10 +651,6 @@ footer.ty-footer,
     background: {{chrome_flat}};
     color: {{text}};
     border-color: {{line}};
-}
-
-footer.ty-footer {
-    box-shadow: inset 0 1px 0 {{edge_flat}};
 }
 
 .footer-item:hover,
@@ -688,7 +680,6 @@ footer.ty-footer {
     background: {{raised_flat}};
     color: {{text}};
     border: 1px solid {{line}};
-    box-shadow: inset 0 1px 0 {{edge_flat}};
 }
 
 .popover-title {
@@ -734,7 +725,6 @@ footer.ty-footer {
     background: {{raised_flat}};
     color: {{text}};
     border: 1px solid {{line}};
-    box-shadow: inset 0 1px 0 {{edge_flat}};
 }
 
 .modal-header,
@@ -762,7 +752,6 @@ textarea,
     background: {{panel_flat}};
     border: 1px solid {{line}};
     border-radius: 4px;
-    box-shadow: inset 0 1px 0 {{edge_flat}};
 }
 
 input:not([type="checkbox"]):not([type="radio"]):focus,
@@ -773,7 +762,6 @@ textarea:focus,
 .modal-content input:focus {
     border-color: {{accent}};
     outline: none;
-    box-shadow: inset 0 1px 0 {{edge_flat}};
 }
 
 .input-group-addon,
@@ -793,7 +781,6 @@ textarea:focus,
     color: {{text}};
     background: {{raised_flat}};
     border: 1px solid {{line}};
-    box-shadow: inset 0 1px 0 {{edge_flat}};
 }
 
 .btn-default:hover,
@@ -1019,6 +1006,54 @@ div.mermaidTooltip {
     background: {{raised_flat}};
     color: {{text}};
     border: 1px solid {{line}};
+}
+
+/* --- The edge --------------------------------------------------------- */
+
+/* The lit hairline on chrome, raised surfaces, code blocks, and inputs. */
+pre.md-fences,
+pre.md-fences.mock-cm,
+.md-fences,
+.code-tooltip,
+div.code-tooltip,
+#typora-sidebar,
+#top-titlebar,
+footer.ty-footer,
+.context-menu,
+.dropdown-menu,
+#spell-check-panel,
+#toc-dropmenu,
+#sidebar-files-menu,
+.auto-suggest-container,
+#typora-quick-open,
+.popover,
+.modal-content,
+#md-searchpanel,
+.megamenu-content,
+.megamenu-opened header,
+#md-notification,
+#ty-tooltip,
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea,
+#typora-quick-open input,
+#md-searchpanel input,
+.modal-content input,
+.megamenu-menu-panel input[type='text'],
+.ty-preferences input[type="search"],
+.ty-preferences select,
+input:not([type="checkbox"]):not([type="radio"]):focus,
+select:focus,
+textarea:focus,
+#typora-quick-open input:focus,
+#md-searchpanel input:focus,
+.modal-content input:focus,
+.modal-footer .btn,
+.btn-default,
+.ty-preferences .btn-default,
+.megamenu-menu-panel .btn,
+#recent-file-panel-action-btn,
+div.mermaidTooltip {
     box-shadow: inset 0 1px 0 {{edge_flat}};
 }
 
