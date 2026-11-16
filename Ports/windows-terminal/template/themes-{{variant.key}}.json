@@ -6,7 +6,7 @@
         "applicationTheme": "{{variant.mode}}",
         "useMica": true,
         "frame": "{{accent}}",
-        "unfocusedFrame": "{{line}}"
+        "unfocusedFrame": "{{window_edge_flat}}"
       },
       "tabRow": {
         "background": "{{chrome|hexa}}",
@@ -23,7 +23,7 @@
         "applicationTheme": "{{variant.mode}}",
         "useMica": false,
         "frame": "{{accent}}",
-        "unfocusedFrame": "{{line}}"
+        "unfocusedFrame": "{{window_edge_flat}}"
       },
       "tabRow": {
         "background": "{{chrome_flat}}",

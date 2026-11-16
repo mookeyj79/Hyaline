@@ -6,7 +6,7 @@
         "applicationTheme": "dark",
         "useMica": true,
         "frame": "#8dc7f6",
-        "unfocusedFrame": "#6c7076"
+        "unfocusedFrame": "#6d7077"
       },
       "tabRow": {
         "background": "#1c2028bd",
@@ -23,7 +23,7 @@
         "applicationTheme": "dark",
         "useMica": false,
         "frame": "#8dc7f6",
-        "unfocusedFrame": "#6c7076"
+        "unfocusedFrame": "#6d7077"
       },
       "tabRow": {
         "background": "#575b63",
