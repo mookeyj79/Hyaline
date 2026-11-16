@@ -29,7 +29,7 @@ Smoke by night, frost by day. One color theme with two variants, ported to every
 
 - **Two variants that always ship together.** Switching between them should feel like the sun went down, not like you opened a different app.
 - **Colors with one job each.** Red is failure, green is success, yellow is change, blue is in progress, in every app. See [PHILOSOPHY.md](PHILOSOPHY.md).
-- **Glass where the app allows it.** Clear chrome (title bars, tabs, sidebars) over a wallpaper, with content on a denser panel so it stays readable.
+- **Glass that reads over any wallpaper.** Dark, bright or busy, the glass keeps text readable, with or without blur. Pick a wallpaper because you like it.
 - **Readable first.** Every text color stays easy to read, in both variants.
 - **One font everywhere:** FiraCode Nerd Font, with icons for prompts and file trees.
 
@@ -43,7 +43,7 @@ Smoke by night, frost by day. One color theme with two variants, ported to every
 
 Not every app can do glass. Each port says how far it gets:
 
-- **Tier 1, Full glass**: full palette, translucency, and blur
+- **Tier 1, Full glass**: full palette on translucent surfaces that stay readable over any wallpaper, with or without blur
 - **Tier 2, Flat**: full palette on solid surfaces, no blur
 - **Tier 3, Minimal**: background, accent, and status colors only
 
@@ -79,7 +79,11 @@ Glass needs something behind it. [`wallpapers/`](wallpapers/) has desktop wallpa
 
 ### Glass
 
-Where an app can blur, the window splits in two. The **chrome** (title bars, tabs, sidebars) is clear glass and carries only primary text. The **content** sits on a denser panel so every color stays readable over a wallpaper.
+The glass, not the wallpaper, keeps text readable. Where an app can filter what is behind it, the glass blurs the wallpaper and pulls it into a dark band (Dark) or a light band (Light), the way system glass does. Where an app only has an opacity setting, the tint is dense enough to read over pure black or pure white.
+
+The window has two kinds of glass. The **chrome** (title bars, tabs, sidebars) is the clearer one and carries only primary text. The **content** sits on a denser panel where every color stays readable.
+
+Where an app can't do glass at all, the solid colors are chosen to look like the glass does, with a lit edge along the top of bars and raised surfaces.
 
 ### Design rules
 
