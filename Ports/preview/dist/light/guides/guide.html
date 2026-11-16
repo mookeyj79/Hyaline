@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" data-variant="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- build/site.ps1 makes one page per port from this file: it fills the guide:* slots
+     from the port's port.json and README.md. Opened as is, the page is an empty shell. -->
+<title><!-- guide:title --></title>
+<meta name="description" content="Step-by-step install guide for <!-- guide:title -->, Hyaline Dark and Hyaline Light.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../dark/theme.css">
+<link rel="stylesheet" href="../../light/theme.css">
+<link rel="stylesheet" href="../base.css">
+<style>
+/* Every color on this page is a role variable from theme.css. Do not add color values here. */
+main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.crumbs { padding: 10px 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 16px; font-size: .9rem; }
+.crumbs p { margin: 0; display: flex; flex-wrap: wrap; gap: 6px 16px; }
+
+/* The guide: README.md rendered to HTML. */
+.guide { padding: 8px 28px 28px; overflow-wrap: break-word; }
+.guide h1 { font: 600 1.9rem/1.15 var(--font-display); margin: 20px 0 12px; text-wrap: balance; }
+.guide h2 { font: 600 1.3rem/1.25 var(--font-display); margin: 32px 0 10px; padding-top: 16px; border-top: 1px solid var(--line); }
+.guide h3 { font: 600 1.05rem/1.3 var(--font-display); margin: 22px 0 8px; }
+.guide h2, .guide h3 { scroll-margin-top: 64px; }
+.guide p, .guide ul, .guide ol, .guide table, .guide pre, .guide blockquote { margin: 0 0 12px; }
+.guide ul, .guide ol { padding-left: 1.5em; }
+.guide li + li { margin-top: 4px; }
+.guide li > p { margin: 0 0 6px; }
+.guide li > pre, .guide li > table { margin-top: 8px; }
+.guide strong { font-weight: 500; color: var(--text); }
+.guide code { font: .85em var(--font-mono); color: var(--orange); }
+.guide pre {
+  padding: 12px 14px; overflow-x: auto;
+  background: var(--raised); box-shadow: var(--lift); border: 1px solid var(--line); border-radius: 8px;
+}
+.guide :not(pre) > code { overflow-wrap: anywhere; }
+.guide pre code { color: var(--text); font-size: .85rem; }
+.guide table { display: block; overflow-x: auto; border-collapse: collapse; font-size: .92rem; }
+.guide th, .guide td { padding: 6px 12px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+.guide th { font-weight: 500; background: var(--raised); }
+.guide img { max-width: 100%; height: auto; border-radius: 6px; border: 1px solid var(--line); }
+.guide blockquote { padding: 2px 14px; border-left: 3px solid var(--accent); color: var(--text-dim); }
+.guide hr { border: none; border-top: 1px solid var(--line); margin: 20px 0; }
+footer { padding: 14px 16px; color: var(--text-muted); font-size: .8rem; }
+footer p { margin: 0; }
+
+@media (max-width: 480px) {
+  .guide { padding: 4px 16px 20px; }
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="brand">Hyaline<small>v1.0.0</small></span>
+  <div class="topbar-end">
+    <a class="repo" href="../index.html" data-page="index.html"><span class="repo-label">Preview</span></a>
+    <a class="repo" href="https://github.com/mookeyj79/Hyaline"><span class="repo-icon" aria-hidden="true">&#xF09B;</span><span class="repo-label">GitHub</span></a>
+    <nav class="switch" aria-label="Variant">
+      <a href="../../dark/guides/guide.html" data-set="dark">Dark</a>
+      <a href="../../light/guides/guide.html" data-set="light">Light</a>
+    </nav>
+  </div>
+</div>
+
+<main>
+  <nav class="panel crumbs" aria-label="Guide">
+    <p><a href="../ports.html" data-page="ports.html">All ports</a></p>
+    <p><a href="<!-- guide:files -->">Theme files</a> <a href="<!-- guide:source -->">This guide on GitHub</a></p>
+  </nav>
+
+  <article class="panel guide">
+<!-- guide:body -->
+  </article>
+
+  <footer class="panel">
+    <p>Hyaline 1.0.0. This page is the port's README.md, published with every change to it.</p>
+  </footer>
+</main>
+
+<script>
+(function () {
+  // Both theme.css files are loaded, so the switch repaints in place and keeps the links on the shown variant.
+  const root = document.documentElement;
+  const page = location.pathname.split("/").pop();
+  function setVariant(mode) {
+    root.dataset.variant = mode;
+    document.querySelectorAll(".switch a").forEach(function (a) {
+      a.setAttribute("aria-current", String(a.dataset.set === mode));
+      a.href = "../../" + a.dataset.set + "/guides/" + page + location.hash;
+    });
+    document.querySelectorAll("[data-page]").forEach(function (a) {
+      a.href = "../../" + mode + "/" + a.dataset.page;
+    });
+  }
+  document.querySelectorAll(".switch a").forEach(function (a) {
+    a.addEventListener("click", function (ev) {
+      ev.preventDefault();
+      setVariant(a.dataset.set);
+    });
+  });
+  setVariant(root.dataset.variant);
+})();
+</script>
+</body>
+</html>

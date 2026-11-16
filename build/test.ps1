@@ -475,13 +475,13 @@ Test 'Catalog: icons and site.json' {
     Assert-Equal 'Lucide' $c.Ports[0].Icon['set'] 'icon kept'
 
     Set-Content $svg '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ff0000"><text>x</text></svg>'
-    Set-Content (Join-Path $root 'good' 'site.json') '{ "copy": ["nothere"], "entries": [{ "path": "x/index.html", "page": "missing.html", "title": "X" }] }'
+    Set-Content (Join-Path $root 'good' 'site.json') '{ "copy": ["nothere"], "entries": [{ "path": "x/index.html", "page": "missing.html", "title": "X" }], "guide": "guides/missing.html" }'
     $c = Get-PortCatalog -PortsRoot $root
     $all = $c.Errors -join "`n"
     Assert-True ($all -like '*fill="#ff0000"*' -and $all -like '*<text>*') "icon errors: $all"
     Assert-Equal $null $c.Ports[0].Icon 'invalid icon dropped'
     $site = $c.StructureErrors -join "`n"
-    Assert-True ($site -like "*copies 'nothere'*" -and $site -like "*opens 'missing.html'*") "site.json errors: $site"
+    Assert-True ($site -like "*copies 'nothere'*" -and $site -like "*opens 'missing.html'*" -and $site -like "*guide 'guides/missing.html'*") "site.json errors: $site"
 }
 
 # --- Wallpaper ----------------------------------------------------------------

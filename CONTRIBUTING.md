@@ -44,7 +44,7 @@ pwsh build/build.ps1                     # rebuild every port
 pwsh build/build.ps1 -Port <app_name>    # rebuild one port
 pwsh build/check.ps1                     # every check CI runs
 pwsh build/test.ps1                      # test the build modules and entry scripts
-pwsh build/site.ps1                      # assemble the Pages site (preview and ports page) into _site/
+pwsh build/site.ps1                      # assemble the Pages site (preview, ports page, install guides) into _site/
 pwsh build/contrast.ps1                  # print every contrast measurement, passing or not
 pwsh build/roles.ps1                     # which palette roles each port's templates use
 ```
@@ -57,7 +57,7 @@ pwsh build/contrast.ps1 -Set dark.roles.panel=#40444b -Set dark.roles.panel.alph
 
 `roles.ps1` lists, per port, the roles it uses and the surface and edge roles it does not. `-Role <role>` shows which ports use one role, for finding ports that never adopted a new one.
 
-The preview page and the ports page are published to GitHub Pages by [`.github/workflows/pages.yml`](.github/workflows/pages.yml) on every push to `main` that changes them.
+The preview page, the ports page, and each port's install guide are published to GitHub Pages by [`.github/workflows/pages.yml`](.github/workflows/pages.yml) on every push to `main` that changes them.
 
 ## Add a port
 

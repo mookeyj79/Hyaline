@@ -115,6 +115,7 @@ The README is first and foremost a step-by-step install guide. Write it for some
 - **Known limits** says what the reader will notice, in the app's own terms. The reasons (palette, contrast, wash, flat fallbacks) go in `MAPPING.md`.
 - **Sources** lists the official docs, and a credit for any reused files. Nothing else.
 - The README is for the person installing the theme. Keep out role names, placeholders, contrast numbers, palette versions, ADR links, build commands, research notes, TODOs, and notes to an agent. Those go in `MAPPING.md`, the PR, or an issue.
+- The README is also published as the port's page on the Pages site (`/Ports/<app_name>/`). Link to repo files with relative paths: a link to another port's README opens that port's guide, other files open on GitHub, and `build/site.ps1` stops on a link to a file that does not exist.
 - No screenshot table until the screenshots exist. When the user adds `screenshots/dark.png` and `light.png`, add a Dark | Light table under the header lines.
 
 ## 9. Finish

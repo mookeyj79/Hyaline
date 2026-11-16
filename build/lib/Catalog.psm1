@@ -118,6 +118,8 @@ function Read-SiteSpec([string]$Dir, [string]$Name, $Errors) {
     #   copy:    folders of the port to publish, at their repo paths
     #   entries: site paths that open a page of dist/<variant>/ in the
     #            visitor's variant: [{ "path": "ports/index.html", "page": "ports.html", "title": "Ports" }]
+    #   guide:   optional page of template/, in a folder of its own, that site.ps1 fills
+    #            with each listed port's README.md: "guides/guide.html"
     $path = Join-Path $Dir 'site.json'
     if (-not (Test-Path $path)) { return $null }
     $where = "Ports/$Name/site.json"
@@ -137,6 +139,11 @@ function Read-SiteSpec([string]$Dir, [string]$Name, $Errors) {
             }
             if (-not (Test-Path (Join-Path $Dir 'template' $e['page']))) { $Errors.Add("$where entry '$($e['path'])' opens '$($e['page'])', which is not in template/.") }
         }
+    }
+    if ($spec.Contains('guide')) {
+        $g = $spec['guide']
+        if (-not ($g -is [string] -and $g -match '^[a-z0-9-]+/[a-z0-9-]+\.html$')) { $Errors.Add("$where has a 'guide' that is not '<folder>/<page>.html'.") }
+        elseif (-not (Test-Path (Join-Path $Dir 'template' $g))) { $Errors.Add("$where has guide '$g', which is not in template/.") }
     }
     if ($Errors.Count -ne $before) { return $null }
     return $spec

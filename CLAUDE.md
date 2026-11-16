@@ -24,11 +24,13 @@ Ports/<app_name>/
   port.json                 name, category, tier, platforms, icon credit (feeds the ports page)
   icon.svg                  optional single-color card icon (ADR 0007)
   values.json               optional per-variant app values that are not colors ({{port.<key>}})
-  site.json                 what the Pages site publishes from this port (only the preview has one)
+  site.json                 what the Pages site publishes from this port, and the page install
+                            guides are built from (only the preview has one)
   template/                 files with {{role}} placeholders, no raw colors
   dist/dark/                generated output, committed
   dist/light/               generated output, committed
-  README.md                 step-by-step install guide for users: tier, known limits, sources
+  README.md                 step-by-step install guide for users: tier, known limits, sources;
+                            also published as the port's page on the Pages site
   MAPPING.md                role mapping, trade-offs, and research notes, for maintainers
 build/lib/                  the rules, as modules the scripts share:
   Palette.psm1              loads and validates the palette; filters, wash, contrast
@@ -40,7 +42,7 @@ build/build.ps1             palette + templates = dist
 build/check.ps1             runs the rules: palette, contrast, structure, port list, raw color,
                             placeholders, drift, leftovers, file format, em dashes
 build/test.ps1              tests the build/lib modules on small fixtures
-build/site.ps1              assembles the GitHub Pages site and the port list into _site/
+build/site.ps1              assembles the GitHub Pages site, the port list, and the install guides into _site/
 build/icon.ps1              finds and fetches a port's card icon
 build/wallpaper.ps1         finds, checks, and adds wallpapers from Wikimedia Commons
 build/setup-linux.sh        installs pwsh, chromium and node on a fresh Linux sandbox
