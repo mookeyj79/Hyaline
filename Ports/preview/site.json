@@ -3,5 +3,6 @@
   "entries": [
     { "path": "index.html", "page": "index.html", "title": "Preview" },
     { "path": "ports/index.html", "page": "ports.html", "title": "Ports" }
-  ]
+  ],
+  "guide": "guides/guide.html"
 }

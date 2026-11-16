@@ -255,6 +255,9 @@ footer p + p { margin-top: 4px; }
 
   function card(p) {
     const portUrl = repo + "/tree/main/Ports/" + p.folder;
+    // Install guides are built by build/site.ps1, next to this page; syncLinks keeps them on the shown variant.
+    const guidePage = "guides/" + p.folder + ".html";
+    const guideUrl = "../" + root.dataset.variant + "/" + guidePage;
     const c = el("article", "panel card" + (p.planned ? " is-planned" : ""));
 
     const head = el("div", "head");
@@ -264,7 +267,8 @@ footer p + p { margin-top: 4px; }
     if (p.planned) { h3.textContent = p.name; }
     else {
       const a = el("a", null, p.name);
-      a.href = portUrl + "#readme";
+      a.href = guideUrl;
+      a.dataset.page = guidePage;
       h3.appendChild(a);
     }
     title.appendChild(h3);
@@ -285,7 +289,8 @@ footer p + p { margin-top: 4px; }
     if (!p.planned) {
       const links = el("div", "links");
       const guide = el("a", null, "Install guide");
-      guide.href = portUrl + "#readme";
+      guide.href = guideUrl;
+      guide.dataset.page = guidePage;
       const files = el("a", null, "Theme files");
       files.href = portUrl + "/dist";
       links.appendChild(guide);

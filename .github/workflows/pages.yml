@@ -1,6 +1,7 @@
 name: pages
 
-# Publishes the preview page and the ports page (Ports/preview/dist) to GitHub Pages.
+# Publishes the preview page, the ports page (Ports/preview/dist), and each port's
+# install guide (its README.md) to GitHub Pages.
 # The site is assembled by build/site.ps1, which also writes the port list.
 # Turn on once: Settings > Pages > Source: GitHub Actions.
 
@@ -13,6 +14,8 @@ on:
       - 'Ports/ports.json'
       - 'Ports/*/port.json'
       - 'Ports/*/icon.svg'
+      - 'Ports/*/README.md'
+      - 'Ports/*/screenshots/**'
       - 'Ports/*/dist/**'
       - 'build/site.ps1'
       - 'build/lib/**'

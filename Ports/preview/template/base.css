@@ -110,3 +110,11 @@ button { font-family: inherit; }
 }
 .switch a + a { border-left: 1px solid var(--line); }
 .switch a[aria-current="true"] { background: var(--accent); color: var(--on-accent); }
+
+/* Phones: the version and some padding go, so the switch stays on screen. */
+@media (max-width: 480px) {
+  .topbar { padding: 8px 12px; gap: 8px; }
+  .topbar-end { gap: 10px; }
+  .brand small { display: none; }
+  .switch a { padding: 6px 10px; }
+}
