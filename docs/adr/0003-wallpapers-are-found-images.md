@@ -1,5 +1,7 @@
 # Wallpapers are found images, exempt from the palette rule
 
+Superseded by [ADR 0012](0012-wallpapers-are-chosen-by-taste.md).
+
 Hyaline will ship wallpapers as the backdrop behind its glass. They are found photos or art, not images generated from the palette, because generated gradients cannot match the airy feel the backdrop needs. This makes wallpapers the one exception to "no color values outside the palette": they are image assets in their own folder, not colors in templates, and the raw-color check skips them.
 
 ## Consequences

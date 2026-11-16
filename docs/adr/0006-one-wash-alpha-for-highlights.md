@@ -1,5 +1,7 @@
 # One wash alpha for see-through highlights
 
+Amended by [ADR 0011](0011-the-contrast-floor-holds-over-any-backdrop.md): dim text on a wash needs 3:1, and the wash alphas are 0.18 (Dark) and 0.24 (Light).
+
 Some apps draw a highlight under text they cannot recolor. VS Code is the first: its editor selection, diff lines, and find matches sit under the code, and the selected text keeps its syntax colors. A solid `accent` or `green` there hides the code. The palette had no see-through version of any color role.
 
 So each variant gets one `wash` alpha, and the `{{role|wash}}` filter writes any color role at that alpha. A selection is the `accent` wash, an added line the `green` wash, and so on. One number per variant covers every role and every future port, instead of a new role for each kind of highlight.
