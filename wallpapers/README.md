@@ -1,34 +1,6 @@
 # Wallpapers
 
-Desktop wallpapers that go well behind Hyaline. Each one is marked with the variant it suits: Dark, Light, or Both. Pairs (one image for each variant, in a matching style) come first, then single images. Download one and set it as your desktop background.
-
-## Great Sand Dunes
-
-[![Big Dipper over the dunes](thumbs/big-dipper-dunes.jpg)](big-dipper-dunes.jpg) [![Great Sand Dunes ridge](thumbs/great-sand-dunes-ridge.jpg)](great-sand-dunes-ridge.jpg)
-
-### Big Dipper over the dunes
-
-| | |
-|---|---|
-| File | [`big-dipper-dunes.jpg`](big-dipper-dunes.jpg), 4608 × 3396, unmodified original |
-| Variant | Dark |
-| Subject | The Big Dipper over Great Sand Dunes, Colorado, United States, on a moonless night |
-| Author | Patrick Myers, National Park Service ([Great Sand Dunes National Park and Preserve](https://www.flickr.com/people/94707653@N06)) |
-| Date | 2017-02-16 |
-| Source | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Big_Dipper_Constellation_Over_Dunes_(38836718054).jpg), originally [Flickr](https://www.flickr.com/photos/greatsanddunesnpp/38836718054/) |
-| License | Public domain, as a work of the United States government |
-
-### Great Sand Dunes ridge
-
-| | |
-|---|---|
-| File | [`great-sand-dunes-ridge.jpg`](great-sand-dunes-ridge.jpg), 6240 × 4160, unmodified original |
-| Variant | Light |
-| Subject | A sand ridge at Great Sand Dunes, Colorado, United States, under a blue sky |
-| Author | [Clyde Charles Brown](https://commons.wikimedia.org/wiki/User:Semiautonomous) |
-| Date | 2022-04-20 |
-| Source | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Sand_dune_at_Great_Sand_Dunes_National_Park,_Colorado,_US.jpg) |
-| License | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+Desktop wallpapers that go well behind Hyaline. Each one is marked with the variant it suits: Dark, Light, or Both. Download one and set it as your desktop background.
 
 ## White Sands dunes
 
@@ -57,6 +29,20 @@ Desktop wallpapers that go well behind Hyaline. Each one is marked with the vari
 | Date | 2016-08-27 |
 | Source | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Forest_under_gray_sky_(Unsplash).jpg), originally [Unsplash](https://unsplash.com/photos/_zHYUQmWrzk) |
 | License | [CC0 1.0, public domain dedication](https://creativecommons.org/publicdomain/zero/1.0/). Credit is not required, but we give it anyway. |
+
+## Big Dipper over the dunes
+
+[![Big Dipper over the dunes](thumbs/big-dipper-dunes.jpg)](big-dipper-dunes.jpg)
+
+| | |
+|---|---|
+| File | [`big-dipper-dunes.jpg`](big-dipper-dunes.jpg), 4608 × 3396, unmodified original |
+| Variant | Dark |
+| Subject | The Big Dipper over Great Sand Dunes, Colorado, United States, on a moonless night |
+| Author | Patrick Myers, National Park Service ([Great Sand Dunes National Park and Preserve](https://www.flickr.com/people/94707653@N06)) |
+| Date | 2017-02-16 |
+| Source | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Big_Dipper_Constellation_Over_Dunes_(38836718054).jpg), originally [Flickr](https://www.flickr.com/photos/greatsanddunesnpp/38836718054/) |
+| License | Public domain, as a work of the United States government |
 
 ## Lofoten aurora
 
@@ -224,6 +210,20 @@ Desktop wallpapers that go well behind Hyaline. Each one is marked with the vari
 | Author | BlakeyboiWikiMed |
 | Date | 2024-07-20 |
 | Source | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Lake_Wanaka_with_fog.jpg) |
+| License | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+
+## Great Sand Dunes ridge
+
+[![Great Sand Dunes ridge](thumbs/great-sand-dunes-ridge.jpg)](great-sand-dunes-ridge.jpg)
+
+| | |
+|---|---|
+| File | [`great-sand-dunes-ridge.jpg`](great-sand-dunes-ridge.jpg), 6240 × 4160, unmodified original |
+| Variant | Light |
+| Subject | A sand ridge at Great Sand Dunes, Colorado, United States, under a blue sky |
+| Author | [Clyde Charles Brown](https://commons.wikimedia.org/wiki/User:Semiautonomous) |
+| Date | 2022-04-20 |
+| Source | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Sand_dune_at_Great_Sand_Dunes_National_Park,_Colorado,_US.jpg) |
 | License | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
 
 ## Great Sand Dunes haze
