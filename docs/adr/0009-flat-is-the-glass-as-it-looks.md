@@ -23,4 +23,4 @@ In the palette, the flat value is stored as `edge_flat` and the glass value as `
 
 - There are no derived flat values and no exceptions. A change to a glass alpha does not move a flat value.
 - `edge` is a new role, so it rides the next major palette version.
-- Ports draw the edge where they can: CSS ports fully, VS Code as plain borders. Claude Code and Starship set text colors only, so they show neither the surfaces nor the edge.
+- Ports draw the edge where they can: CSS ports fully, VS Code as plain borders. Claude Code and Starship set text colors only, so they show neither the surfaces nor the edge. GNOME Terminal colors its surfaces but leaves the window frame to the GTK theme, so it shows no edge. Windows Terminal has no inner hairline either, but it can color its window frame, so it draws the window outline.
