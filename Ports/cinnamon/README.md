@@ -56,7 +56,7 @@ Font size comes from **System Settings > Font Selection > Default font**.
 
 ## Check that it worked
 
-The panel bar is a soft gray (Dark) or pale frost (Light). Open the start menu: it is a solid smoke or frost panel with a thin border, the item under the pointer has a faint blue tint, and today's date in the calendar applet sits in a solid blue circle.
+The panel bar is a soft gray (Dark) or pale frost (Light), with a thin lit line along its top. Open the start menu: it is a solid smoke or frost panel with a thin border, the item under the pointer has a faint blue tint, and today's date in the calendar applet sits in a solid blue circle.
 
 ## Switch between Dark and Light
 
@@ -87,7 +87,6 @@ Cinnamon cannot switch the Desktop theme with the time of day or the light and d
 - **No blur.** Cinnamon can make the lock screen cards and desklets see-through, but it cannot blur what is behind them. The panel bar and menus are solid.
 - **Desktop only.** App windows, title bars, icons, and the mouse pointer are not changed. Cinnamon sets them with the **Applications**, **Icons**, and **Mouse Pointer** themes.
 - **No preview picture** in the theme chooser. Hyaline shows a generic picture next to **Desktop**.
-- **Hover on the Light panel bar is faint.** Pointing at an applet on the Light panel bar barely changes its shade. Hover in menus is clearly visible in both variants.
 - **No shadows.** Menus and popups have a thin border instead of a drop shadow.
 - **Third-party applets and desklets** that bring their own styles may look out of place.
 - **No automatic Dark and Light switching.** Cinnamon has no setting to change the Desktop theme with the light or dark mode.
