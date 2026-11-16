@@ -2,6 +2,7 @@
 # Installs the tools this repo needs on a Debian-based Linux box or sandbox:
 #   pwsh      PowerShell 7, for build/*.ps1 (with libicu, which it needs to start)
 #   chromium  headless browser, for the preview screenshots and checking the site
+#   node      Node.js, to syntax-check prototype and site scripts (node --check)
 # Safe to run again: anything already installed is skipped.
 #
 # Usage: bash build/setup-linux.sh
@@ -19,6 +20,7 @@ if ! ldconfig -p 2>/dev/null | grep -q 'libicuuc\.so'; then
   need_apt+=("$icu")
 fi
 command -v chromium >/dev/null 2>&1 || need_apt+=(chromium)
+command -v node >/dev/null 2>&1 || need_apt+=(nodejs)
 
 if [ ${#need_apt[@]} -gt 0 ]; then
   echo "Installing: ${need_apt[*]}"
@@ -45,3 +47,4 @@ fi
 
 echo "pwsh:     $(pwsh -NoProfile -c '$PSVersionTable.PSVersion.ToString()')"
 echo "chromium: $(chromium --version 2>/dev/null || echo missing)"
+echo "node:     $(node --version 2>/dev/null || echo missing)"
