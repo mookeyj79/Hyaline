@@ -305,42 +305,41 @@ Test 'Wallpaper: licenses' {
 
 Test 'Wallpaper: fit of flat, colorful, and busy images' {
     $f = Measure-WallpaperFit -Pixels (New-Pixels 16 @(240, 240, 240)) -Width 4 -Height 4
-    Assert-Equal 0 $f.Problems.Count "light gray: $($f.Problems -join '; ')"
     Assert-Equal 0.0 $f.Detail 'flat detail'
     Assert-Equal 0.0 $f.Saturation 'gray saturation'
-    $dark = Measure-WallpaperFit -Pixels (New-Pixels 16 @(40, 40, 40)) -Width 4 -Height 4
-    Assert-True ($dark.Problems -join ' ' -like '*lightness*') 'dark image is too dark'
+    Assert-Equal 'calm' $f.Grades.Saturation 'gray saturation grade'
+    Assert-Equal 'calm' $f.Grades.Detail 'flat detail grade'
     $red = Measure-WallpaperFit -Pixels (New-Pixels 16 @(250, 120, 120)) -Width 4 -Height 4
-    Assert-True ($red.Problems -join ' ' -like '*saturation*') 'colorful image is too saturated'
+    Assert-Equal 'colorful' $red.Grades.Saturation 'red saturation grade'
     $check = [byte[]]::new(48)
     for ($p = 0; $p -lt 16; $p++) { $v = if ((($p % 4) + [math]::Floor($p / 4)) % 2) { 255 } else { 160 }; foreach ($c in 0, 1, 2) { $check[3 * $p + $c] = $v } }
     $busy = Measure-WallpaperFit -Pixels $check -Width 4 -Height 4
-    Assert-True ($busy.Problems -join ' ' -like '*detail*') "checkerboard is too busy: $($busy.Detail)"
+    Assert-Equal 'busy' $busy.Grades.Detail "checkerboard detail grade ($($busy.Detail))"
     Assert-Throws { Measure-WallpaperFit -Pixels ([byte[]]::new(5)) -Width 2 -Height 1 } '*expected 6 bytes*'
 }
 
-Test 'Wallpaper: contrast over a plain backdrop matches the flat surfaces' {
-    $p = Get-TestPalette (New-PaletteData)
-    $v = $p.Variants['dark']
-    # Over a backdrop equal to the tint, the glass is the tint itself.
-    $bg = ConvertFrom-Hex $v.Roles['chrome'].Hex
-    $rows = Measure-WallpaperContrast -Palette $p -Pixels (New-Pixels 4 ([byte[]]$bg))
-    $chrome = $rows | Where-Object { $_.Variant -eq 'dark' -and $_.Surface -eq 'chrome' }
-    $want = Get-Contrast $v.Roles['text'].Hex $v.Roles['chrome'].Hex
-    Assert-True ([math]::Abs($chrome.Worst - $want) -lt 0.01) "chrome: expected $want, got $($chrome.Worst)"
-    Assert-Equal 26 @($rows).Count 'rows: 2 variants x (chrome, tab, 10 text roles, muted)'
-    $failed = @($rows | Where-Object { $_.Variant -eq 'dark' -and -not $_.Pass })
-    Assert-Equal 0 $failed.Count 'dark roles all pass on their own tint'
+Test 'Wallpaper: variant suggested from lightness' {
+    # Gray 240 is L* 94, 119 is L* 50, 40 is L* 16.
+    Assert-Equal 'light' (Measure-WallpaperFit -Pixels (New-Pixels 16 @(240, 240, 240)) -Width 4 -Height 4).Variant 'light gray'
+    Assert-Equal 'both' (Measure-WallpaperFit -Pixels (New-Pixels 16 @(119, 119, 119)) -Width 4 -Height 4).Variant 'middle gray'
+    Assert-Equal 'dark' (Measure-WallpaperFit -Pixels (New-Pixels 16 @(40, 40, 40)) -Width 4 -Height 4).Variant 'dark gray'
+    foreach ($case in @(60, 'light'), @(59.9, 'both'), @(40.1, 'both'), @(40, 'dark')) {
+        Assert-Equal $case[1] (Get-WallpaperVariant -Lightness $case[0]) "lightness $($case[0])"
+    }
 }
 
-Test 'Wallpaper: the worst spot decides' {
-    $p = Get-TestPalette (New-PaletteData)
-    # Light text on a light spot under thin dark glass fails, even if most spots are dark.
-    $px = New-Pixels 10 @(16, 16, 16)
-    foreach ($i in 0, 1, 2) { $px[$i] = 250 }
-    $rows = Measure-WallpaperContrast -Palette $p -Pixels $px
-    $chrome = $rows | Where-Object { $_.Variant -eq 'dark' -and $_.Surface -eq 'chrome' }
-    Assert-True (-not $chrome.Pass) "dark chrome over a white spot should fail, got $($chrome.Worst)"
+Test 'Wallpaper: candidates filtered and ranked by variant' {
+    $c = { param($Name, $L, $S, $D) [pscustomobject]@{ Name = $Name; Fit = @{ Lightness = $L; Saturation = $S; Detail = $D; Variant = (Get-WallpaperVariant -Lightness $L) } } }
+    $all = @(
+        (& $c 'busy-night' 20 10 3.0)
+        (& $c 'calm-night' 25 5 0.2)
+        (& $c 'dusk' 50 5 0.1)
+        (& $c 'snow' 90 2 0.1)
+    )
+    Assert-Equal @('calm-night', 'busy-night', 'dusk') @((Select-WallpaperCandidate -Candidate $all -Variant dark).Name) 'dark: exact marks first, calmest first, then both'
+    Assert-Equal @('snow', 'dusk') @((Select-WallpaperCandidate -Candidate $all -Variant light).Name) 'light'
+    Assert-Equal @('dusk') @((Select-WallpaperCandidate -Candidate $all -Variant both).Name) 'both'
+    Assert-Equal @('snow', 'dusk', 'calm-night', 'busy-night') @((Select-WallpaperCandidate -Candidate $all).Name) 'no variant: calmest first'
 }
 
 Test 'Wallpaper: folder needs thumbnails and credits' {
@@ -355,6 +354,7 @@ Test 'Wallpaper: folder needs thumbnails and credits' {
 ## Good
 
 | File | [``good.jpg``](good.jpg) |
+| Variant | Light |
 | Author | A |
 | Source | [S](https://example.invalid) |
 | License | CC0 |
@@ -368,6 +368,70 @@ Test 'Wallpaper: folder needs thumbnails and credits' {
         Assert-True ($all -like "*$want*") "expected '$want' in:`n$all"
     }
     Assert-True ($all -notlike '*good.jpg*') "good.jpg should pass:`n$all"
+}
+
+Test 'Wallpaper: folder needs a variant mark, and pairs of one dark and one light' {
+    $dir = Join-Path $Tmp ('wp-' + [guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Path (Join-Path $dir 'thumbs') -Force | Out-Null
+    foreach ($n in 'day', 'night', 'snow-a', 'snow-b', 'fog', 'odd', 'late-a', 'late-b') {
+        Set-Content (Join-Path $dir "$n.jpg") 'x'; Set-Content (Join-Path $dir 'thumbs' "$n.jpg") 'x'
+    }
+    $image = { param($Name, $Mark) @"
+| | |
+|---|---|
+| File | [``$Name.jpg``]($Name.jpg) |
+$(if ($Mark) { "| Variant | $Mark |" })
+| Author | A |
+| Source | [S](https://example.invalid) |
+| License | CC0 |
+"@ }
+    Set-Content (Join-Path $dir 'README.md') @"
+# Wallpapers
+
+## Dunes
+
+### Light
+
+$(& $image 'day' 'Light')
+
+### Dark
+
+$(& $image 'night' 'Dark')
+
+## Snow
+
+### One
+
+$(& $image 'snow-a' 'Light')
+
+### Two
+
+$(& $image 'snow-b' 'light')
+
+## Fog
+
+$(& $image 'fog' 'Both')
+
+## Odd
+
+$(& $image 'odd' '')
+
+## Late
+
+### Light
+
+$(& $image 'late-a' 'Light')
+
+### Dark
+
+$(& $image 'late-b' 'Dark')
+"@
+    $all = (Test-WallpaperFolder -Path $dir) -join "`n"
+    foreach ($want in "the Snow pair needs one dark and one light image", 'the odd.jpg section has no Variant', "the Late pair comes after a single image") {
+        Assert-True ($all -like "*$want*") "expected '$want' in:`n$all"
+    }
+    foreach ($fine in 'Dunes', 'day.jpg', 'night.jpg', 'fog.jpg') { Assert-True ($all -notlike "*$fine*") "$fine should pass:`n$all" }
+    Assert-Equal 3 @(Test-WallpaperFolder -Path $dir).Count "problems:`n$all"
 }
 
 # --- Summary ------------------------------------------------------------------
