@@ -48,10 +48,13 @@ function Assert-Throws([scriptblock]$Body, [string]$Like) {
 # except text and the eight color roles. Tests change it, then write it.
 function New-PaletteData {
     $variant = {
-        param($Mode, $Bg, $Fg)
+        param($Mode, $Bg, $Fg, $Bright)
         $roles = [ordered]@{}
-        foreach ($r in 'backdrop', 'chrome', 'chrome_flat', 'panel', 'panel_flat', 'raised', 'raised_flat', 'line') { $roles[$r] = $Bg }
-        $roles['chrome'] = [ordered]@{ hex = $Bg; alpha = 0.5 }
+        foreach ($r in 'backdrop', 'chrome', 'chrome_flat', 'panel', 'panel_flat', 'raised', 'raised_flat', 'line', 'edge', 'edge_flat') { $roles[$r] = $Bg }
+        # Glass dense enough, and clamped hard enough, to pass over black and white.
+        $roles['chrome'] = [ordered]@{ hex = $Bg; alpha = 0.9; clamp = [ordered]@{ blur = 30; contrast = 0.2; brightness = $Bright; saturate = 1.5; alpha = 0.5 } }
+        $roles['panel'] = [ordered]@{ hex = $Bg; alpha = 0.9; clamp = [ordered]@{ blur = 30; contrast = 0.2; brightness = $Bright; saturate = 1.5; alpha = 0.6 } }
+        $roles['raised'] = [ordered]@{ hex = $Bg; alpha = 0.5 }
         foreach ($r in 'text', 'text_dim', 'text_muted', 'on_accent') { $roles[$r] = $Fg }
         $roles['on_accent'] = $Bg
         foreach ($r in 'accent', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'orange') { $roles[$r] = $Fg }
@@ -59,7 +62,7 @@ function New-PaletteData {
     }
     return [ordered]@{
         meta = [ordered]@{ name = 'Test'; version = '1.2.3'; repository = 'https://example.invalid/repo' }
-        variants = [ordered]@{ dark = (& $variant 'dark' '#101010' '#f0f0f0'); light = (& $variant 'light' '#f8f8f8' '#202020') }
+        variants = [ordered]@{ dark = (& $variant 'dark' '#101010' '#f0f0f0' 0.4); light = (& $variant 'light' '#f8f8f8' '#202020' 2) }
     }
 }
 function Get-TestPalette($Data) {
@@ -74,7 +77,37 @@ Test 'Palette: a valid palette has no errors and both variants' {
     $p = Get-TestPalette (New-PaletteData)
     Assert-Equal 0 $p.Errors.Count 'errors'
     Assert-Equal @('dark', 'light') @($p.Variants.Keys) 'variants'
-    Assert-Equal 0.5 $p.Variants['dark'].Roles['chrome'].Alpha 'chrome alpha'
+    Assert-Equal 0.9 $p.Variants['dark'].Roles['chrome'].Alpha 'chrome alpha'
+}
+
+Test 'Palette: a clamp block sits beside the dense alpha' {
+    $p = Get-TestPalette (New-PaletteData)
+    $clamp = $p.Variants['light'].Roles['panel'].Clamp
+    Assert-Equal 30 $clamp.Blur 'blur'
+    Assert-Equal 0.2 $clamp.Contrast 'contrast'
+    Assert-Equal 2 $clamp.Brightness 'brightness'
+    Assert-Equal 1.5 $clamp.Saturate 'saturate'
+    Assert-Equal 0.6 $clamp.Alpha 'tint alpha'
+    Assert-Equal 0.9 $p.Variants['light'].Roles['panel'].Alpha 'dense alpha'
+    Assert-Equal $null $p.Variants['light'].Roles['raised'].Clamp 'no clamp on raised'
+}
+
+Test 'Palette: edge and clamp problems are reported at once' {
+    $d = New-PaletteData
+    $d.variants.dark.roles.Remove('edge')
+    $d.variants.light.roles.Remove('edge_flat')
+    $d.variants.dark.roles.chrome.Remove('clamp')
+    $d.variants.dark.roles.panel.clamp.Remove('brightness')
+    $d.variants.light.roles.panel.clamp.alpha = 1.5
+    $d.variants.light.roles.chrome.clamp.contrast = 'high'
+    $d.variants.light.roles.raised.clamp = [ordered]@{ blur = 30; contrast = 0.2; brightness = 2; saturate = 1.5; alpha = 0.5 }
+    $p = Get-TestPalette $d
+    $all = $p.Errors -join "`n"
+    foreach ($want in "dark is missing role 'edge'", "light is missing role 'edge_flat'", 'dark.chrome needs a clamp block',
+        'dark.panel clamp.brightness must be a number', 'light.panel clamp.alpha must be between 0 and 1',
+        'light.chrome clamp.contrast must be a number', 'light.raised cannot have a clamp') {
+        Assert-True ($all -like "*$want*") "expected an error like '$want' in:`n$all"
+    }
 }
 
 Test 'Palette: reports every problem at once' {
@@ -122,6 +155,17 @@ Test 'Palette: wash filters only on wash roles, unknown filters throw' {
     Assert-Throws { Format-RoleColor $v 'nope' } "*unknown role 'nope'*"
 }
 
+Test 'Palette: clamp filters write the CSS recipe and its thin tint' {
+    $d = New-PaletteData
+    $d.variants.dark.roles.panel = [ordered]@{ hex = '#1c2028'; alpha = 0.82; clamp = [ordered]@{ blur = 30; contrast = 0.15; brightness = 0.45; saturate = 2.5; alpha = 0.6 } }
+    $v = (Get-TestPalette $d).Variants['dark']
+    Assert-Equal 'blur(30px) contrast(0.15) brightness(0.45) saturate(2.5)' (Format-RoleColor $v 'panel' 'clamp') 'clamp'
+    Assert-Equal 'rgba(28, 32, 40, 0.6)' (Format-RoleColor $v 'panel' 'clamptint') 'clamptint'
+    Assert-Equal 'rgba(28, 32, 40, 0.82)' (Format-RoleColor $v 'panel' 'rgba') 'rgba stays the dense alpha'
+    Assert-Throws { Format-RoleColor $v 'raised' 'clamp' } '*only applies to*chrome*panel*'
+    Assert-Throws { Format-RoleColor $v 'text' 'clamptint' } '*only applies to*chrome*panel*'
+}
+
 Test 'Palette: ANSI slots follow ADR 0001' {
     $p = Get-TestPalette (New-PaletteData)
     Assert-Equal 'raised_flat' (Get-AnsiRole 'black' $p.Variants['dark']) 'dark black'
@@ -131,12 +175,115 @@ Test 'Palette: ANSI slots follow ADR 0001' {
     Assert-Equal $null (Get-AnsiRole 'purple' $p.Variants['dark']) 'unknown slot'
 }
 
+Test 'Palette: glass over a backdrop, dense or clamped' {
+    $d = New-PaletteData
+    $d.variants.dark.roles.panel = [ordered]@{ hex = '#ffffff'; alpha = 0.25; clamp = [ordered]@{ blur = 30; contrast = 0.5; brightness = 2; saturate = 3; alpha = 0.5 } }
+    $v = (Get-TestPalette $d).Variants['dark']
+    # Dense: the tint at its alpha. Clamped: black squeezed to 0.25, doubled to 0.5, then the thin tint.
+    Assert-Equal '#404040' (Get-GlassColor $v 'panel' '#000000') 'dense over black'
+    Assert-Equal '#c0c0c0' (Get-GlassColor $v 'panel' '#000000' -Clamp) 'clamped over black'
+    Assert-Equal '#ffffff' (Get-GlassColor $v 'panel' '#ffffff' -Clamp) 'clamped over white, brightness capped at white'
+}
+
 Test 'Palette: contrast floor' {
-    Assert-Equal 0 (Test-PaletteContrast (Get-TestPalette (New-PaletteData))).Failures.Count 'failures on a good palette'
+    $c = Test-PaletteContrast (Get-TestPalette (New-PaletteData))
+    Assert-Equal 0 $c.Failures.Count "failures on a good palette ($($c.Failures -join '; '))"
+    Assert-Equal 0 $c.Warnings.Count "warnings on a good palette ($($c.Warnings -join '; '))"
     $d = New-PaletteData
     $d.variants.light.roles.yellow = '#f0f0a0'
     $c = Test-PaletteContrast (Get-TestPalette $d)
     Assert-True (($c.Failures -join "`n") -like '*light.yellow on panel_flat*') "expected a yellow failure, got: $($c.Failures -join '; ')"
+}
+
+function Assert-Failure($Contrast, [string]$Like) {
+    $all = $Contrast.Failures -join "`n"
+    Assert-True ($all -like $Like) "expected a failure like '$Like', got:`n$all"
+}
+function Assert-NoFailure($Contrast, [string]$Like) {
+    $hit = @($Contrast.Failures | Where-Object { $_ -like $Like })
+    Assert-True ($hit.Count -eq 0) "expected no failure like '$Like', got:`n$($hit -join "`n")"
+}
+
+Test 'Contrast: dense glass is measured over black and white, the lower counts' {
+    # Thin dark glass passes over black but not over white.
+    $d = New-PaletteData
+    $d.variants.dark.roles.panel.alpha = 0.5
+    $c = Test-PaletteContrast (Get-TestPalette $d)
+    Assert-Failure $c '*dark.text on panel over white*'
+    Assert-NoFailure $c '*dark.text on panel over black*'
+    Assert-NoFailure $c '*on panel clamp*'
+    # Chrome carries primary text only, so only text is measured there.
+    $d = New-PaletteData
+    $d.variants.light.roles.chrome.alpha = 0.3
+    $c = Test-PaletteContrast (Get-TestPalette $d)
+    Assert-Failure $c '*light.text on chrome over black*'
+    Assert-NoFailure $c '*light.red on chrome*'
+}
+
+Test 'Contrast: the clamp is measured with contrast and brightness, blur ignored' {
+    # A clamp that darkens Light's backdrop fails, though the dense alpha passes.
+    $d = New-PaletteData
+    $d.variants.light.roles.panel.clamp.brightness = 0.5
+    $d.variants.light.roles.panel.clamp.alpha = 0.2
+    $c = Test-PaletteContrast (Get-TestPalette $d)
+    Assert-Failure $c '*light.text on panel clamp over black*'
+    Assert-NoFailure $c '*light.text on panel over black*'
+    # A clamp with no squeeze fails over the wrong backdrop; blur cannot save it.
+    foreach ($blur in 0, 200) {
+        $d = New-PaletteData
+        $d.variants.dark.roles.chrome.clamp.contrast = 1
+        $d.variants.dark.roles.chrome.clamp.brightness = 1
+        $d.variants.dark.roles.chrome.clamp.blur = $blur
+        Assert-Failure (Test-PaletteContrast (Get-TestPalette $d)) '*dark.text on chrome clamp over white*'
+    }
+}
+
+Test 'Contrast: translucent raised is measured on the clamped panel' {
+    $d = New-PaletteData
+    $d.variants.dark.roles.raised = [ordered]@{ hex = '#ffffff'; alpha = 0.8 }
+    $c = Test-PaletteContrast (Get-TestPalette $d)
+    Assert-Failure $c '*dark.text on raised over panel clamp over black*'
+}
+
+Test 'Contrast: role colors on raised fail under 3:1, short labels pass from 3:1' {
+    $d = New-PaletteData
+    $d.variants.dark.roles.raised_flat = '#707070'   # #f0f0f0 on it is about 3.9:1
+    $c = Test-PaletteContrast (Get-TestPalette $d)
+    Assert-NoFailure $c '*dark.red on raised_flat*'
+    Assert-Equal 0 $c.Warnings.Count 'no warnings'
+    Assert-Failure $c '*dark.text on raised_flat*needs 4.5*'
+    $d.variants.dark.roles.raised_flat = '#a0a0a0'   # about 1.9:1
+    Assert-Failure (Test-PaletteContrast (Get-TestPalette $d)) '*dark.red on raised_flat*needs 3*'
+}
+
+Test 'Contrast: dim text on a wash needs 3:1, primary text 4.5:1' {
+    $d = New-PaletteData
+    $d.variants.dark.roles.red = '#ffffff'
+    $d.variants.dark.wash = 0.25
+    $d.variants.dark.roles.text_dim = '#a0a0a0'   # about 3.3:1 on the red wash over panel_flat
+    $c = Test-PaletteContrast (Get-TestPalette $d)
+    Assert-NoFailure $c '*dark.text_dim on red wash over panel_flat*'
+    $d.variants.dark.roles.text_dim = '#808080'   # about 2.2:1
+    Assert-Failure (Test-PaletteContrast (Get-TestPalette $d)) '*dark.text_dim on red wash over panel_flat*needs 3:1*'
+    $d.variants.dark.roles.text = '#a0a0a0'
+    Assert-Failure (Test-PaletteContrast (Get-TestPalette $d)) '*dark.text on red wash over panel_flat*needs 4.5:1*'
+}
+
+Test 'Contrast: washes are measured over the glass too' {
+    $d = New-PaletteData
+    $d.variants.dark.roles.panel.alpha = 0.7   # text passes on the glass itself, not under a wash
+    $d.variants.dark.roles.yellow = '#ffff00'
+    $c = Test-PaletteContrast (Get-TestPalette $d)
+    Assert-NoFailure $c '*dark.text on panel over white*'
+    Assert-Failure $c '*dark.text on yellow wash over panel over white*'
+}
+
+Test 'Contrast: line and edge have no floor' {
+    $d = New-PaletteData
+    foreach ($r in 'line', 'edge', 'edge_flat') { $d.variants.dark.roles[$r] = '#101010'; $d.variants.light.roles[$r] = '#f8f8f8' }
+    $d.variants.dark.roles.edge = [ordered]@{ hex = '#ffffff'; alpha = 0.14 }
+    $c = Test-PaletteContrast (Get-TestPalette $d)
+    Assert-Equal 0 $c.Failures.Count "failures ($($c.Failures -join '; '))"
 }
 
 # --- Placeholders ---------------------------------------------------------------
@@ -161,6 +308,13 @@ Test 'Placeholders: every problem is listed, once' {
     Assert-Equal 5 $errs.Count "errors ($($errs -join '; '))"
     Assert-True (($errs -join "`n") -like '*port.only*light*') 'names the variant missing a port value'
     Assert-Equal 0 @(Find-PlaceholderError -Text 'plain {{red|wash}}' -Palette $p -PortValues $null).Count 'a good template'
+}
+
+Test 'Placeholders: the clamp expands for chrome and panel only' {
+    $p = Get-TestPalette (New-PaletteData)
+    $out = Expand-Template -Text 'backdrop-filter: {{panel|clamp}}; background: {{ chrome|clamptint }};' -Palette $p -Variant $p.Variants['light'] -PortValues $null -Source 'test'
+    Assert-Equal 'backdrop-filter: blur(30px) contrast(0.2) brightness(2) saturate(1.5); background: rgba(248, 248, 248, 0.5);' $out 'expanded'
+    Assert-Throws { Expand-Template -Text '{{raised|clamp}}' -Palette $p -Variant $p.Variants['dark'] -PortValues $null -Source 'glass.css' } '*{{raised|clamp}}*only applies to*glass.css*'
 }
 
 Test 'Placeholders: leftovers and encodings' {
@@ -334,7 +488,8 @@ Test 'Wallpaper: contrast over a plain backdrop matches the flat surfaces' {
 }
 
 Test 'Wallpaper: the worst spot decides' {
-    $p = Get-TestPalette (New-PaletteData)
+    $d = New-PaletteData; $d.variants.dark.roles.chrome.alpha = 0.5
+    $p = Get-TestPalette $d
     # Light text on a light spot under thin dark glass fails, even if most spots are dark.
     $px = New-Pixels 10 @(16, 16, 16)
     foreach ($i in 0, 1, 2) { $px[$i] = 250 }

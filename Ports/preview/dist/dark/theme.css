@@ -1,10 +1,10 @@
 /* Hyaline Dark roles for the preview page. Generated from palette/palette.json. */
 :root[data-variant="dark"] {
   color-scheme: dark;
-  --backdrop: #dfe6ee;
-  --chrome: rgba(28, 32, 40, 0.7);
+  --backdrop: #2c323b;
+  --chrome: rgba(28, 32, 40, 0.74);
   --chrome-flat: #575b63;
-  --panel: rgba(28, 32, 40, 0.8);
+  --panel: rgba(28, 32, 40, 0.82);
   --panel-flat: #434850;
   --raised: rgba(255, 255, 255, 0.1);
   --raised-flat: #565a62;
@@ -12,13 +12,13 @@
   --text: #f2f5f9;
   --text-dim: #d0d6e0;
   --text-muted: #b4bcc9;
-  --accent: #9cc6e8;
+  --accent: #8dc7f6;
   --on-accent: #1c2028;
-  --red: #f1afa7;
-  --green: #a3d9c0;
-  --yellow: #ddd99a;
-  --blue: #9cc6e8;
-  --magenta: #dfb1d9;
-  --cyan: #a6d2db;
-  --orange: #e6c196;
+  --red: #f7aca4;
+  --green: #88e1ba;
+  --yellow: #e2da71;
+  --blue: #8dc7f6;
+  --magenta: #eda7e5;
+  --cyan: #84d9e9;
+  --orange: #f4bd79;
 }

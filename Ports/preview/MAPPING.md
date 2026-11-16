@@ -23,7 +23,7 @@ The preview is not an app theme. It is treated as a port so it gets the same bui
 - `template/index.html` loads both `../dark/theme.css` and `../light/theme.css`, so the switch repaints instantly without a reload. Without JavaScript, the switch links to the other variant's page.
 - Mono text uses the recommended font, FiraCode Nerd Font Mono, from `assets/fonts/`. Those files are trimmed to the characters the page uses (Latin, ligatures, and the icons shown), so they total about 90 KB instead of 5 MB.
 - The page itself holds no color values. The role values and contrast ratios in the Roles section are read from the CSS variables at runtime.
-- Text never sits directly on the backdrop. Everything is on a panel, because the backdrop is light in both variants.
+- Text never sits directly on the backdrop. Everything is on a panel, so text reads over any backdrop.
 - The backdrop is `wallpapers/white-sands-dunes.jpg`, loaded by relative path from the repo root. The page is not self-contained: it needs the repo layout (or the Pages site, which keeps it).
 
 ## Publish with GitHub Pages
@@ -85,7 +85,7 @@ Status is never color alone: every status also has a word (passed, failed, runni
 
 ## Gaps and trade-offs
 
-- Dark content glass passes, but only just: at panel alpha 0.8 the tightest role is `red` at 4.57:1 over the wallpaper. Light content is close to solid (0.93). The clear glass is in the chrome.
+- Content glass uses the dense `panel` alpha (Dark 0.82, Light 0.96), which passes over pure black and pure white. The tightest roles are `magenta`, at 4.91:1 in Dark over white and 4.58:1 in Light over black. The clear glass is in the chrome.
 - No panel shadow. PHILOSOPHY.md allows one soft shadow, but the palette has no shadow role. Adding one is a palette change.
 - Display and body fonts load from Google Fonts. Offline, the page falls back to system fonts. The mono font is bundled and works offline.
 - Mermaid loads from jsDelivr (pinned to 11.4.1). Offline, the diagram source is shown as text instead.

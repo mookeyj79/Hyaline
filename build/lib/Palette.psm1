@@ -11,9 +11,14 @@ $VariantKeys = @('dark', 'light')
 
 $RequiredRoles = @(
     'backdrop', 'chrome', 'chrome_flat', 'panel', 'panel_flat', 'raised', 'raised_flat', 'line',
-    'text', 'text_dim', 'text_muted', 'accent', 'on_accent',
+    'edge', 'edge_flat', 'text', 'text_dim', 'text_muted', 'accent', 'on_accent',
     'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'orange'
 )
+
+# Translucent surfaces with a clamp block beside their dense alpha (ADR 0008):
+# the CSS recipe of blur, contrast, brightness, saturate, and a thin tint alpha.
+$ClampRoles = @('chrome', 'panel')
+$ClampKeys = [ordered]@{ blur = 'Blur'; contrast = 'Contrast'; brightness = 'Brightness'; saturate = 'Saturate'; alpha = 'Alpha' }
 
 # Roles that may be used as a wash (ADR 0006). Only these are contrast
 # checked on a wash, so only these take |wash and |washflat.
@@ -32,6 +37,8 @@ $Filters = [ordered]@{
     'wash'     = '#rrggbbaa at the wash alpha'
     'washflat' = 'the wash over panel_flat, #rrggbb'
     'clear'    = '#rrggbb00'
+    'clamp'    = 'the clamp as a CSS backdrop-filter value'
+    'clamptint' = 'the clamp''s thin tint, rgba(r, g, b, a)'
 }
 
 # Terminal ANSI slots (ADR 0001). The six hues and their bright versions
@@ -42,11 +49,36 @@ $AnsiNeutrals = @{
     light = @{ black = 'text';        bright_black = 'text_muted'; white = 'line';     bright_white = 'raised_flat' }
 }
 
-# Contrast floor (PHILOSOPHY.md).
+# Contrast floor (PHILOSOPHY.md, ADR 0011). line and edge carry no meaning
+# and have no floor, so they are never measured.
 $TextFloor   = 4.5
 $MutedFloor  = 3.0
-$RaisedFloor = 3.0   # warning only
 $TextRoles   = @('text', 'text_dim', 'accent', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'orange')
+# Pure black and pure white bound every backdrop under a tint (ADR 0011).
+$Backdrops   = [ordered]@{ black = '#000000'; white = '#ffffff' }
+
+function Test-Number($Value) { return $Value -is [double] -or $Value -is [long] -or $Value -is [int] }
+
+function Read-Clamp {
+    # A role's clamp block as @{ Blur; Contrast; Brightness; Saturate; Alpha },
+    # or $null after adding every problem to $Errors.
+    param($Raw, [string]$Where, $Errors)
+    if ($Raw -isnot [System.Collections.IDictionary]) {
+        $Errors.Add("$Where clamp must be an object: { blur, contrast, brightness, saturate, alpha }.")
+        return $null
+    }
+    $clamp = @{}
+    $ok = $true
+    foreach ($k in $ClampKeys.Keys) {
+        $n = $Raw[$k]
+        if (-not (Test-Number $n)) { $Errors.Add("$Where clamp.$k must be a number."); $ok = $false; continue }
+        if ($k -eq 'alpha' -and ($n -le 0 -or $n -gt 1)) { $Errors.Add("$Where clamp.alpha must be between 0 and 1."); $ok = $false; continue }
+        if ($n -lt 0) { $Errors.Add("$Where clamp.$k must not be negative."); $ok = $false; continue }
+        $clamp[$ClampKeys[$k]] = [double]$n
+    }
+    if ($ok) { return $clamp }
+    return $null
+}
 
 function Read-Palette {
     <#
@@ -55,7 +87,8 @@ function Read-Palette {
     .DESCRIPTION
         Variants is an ordered map of 'dark' and 'light' to
         @{ Key; Name; Mode; Wash; Roles }, where Roles maps a role name to
-        @{ Hex (lowercase #rrggbb); Alpha }. Errors lists every problem found.
+        @{ Hex (lowercase #rrggbb); Alpha; Clamp }. Clamp is $null except on
+        chrome and panel: @{ Blur; Contrast; Brightness; Saturate; Alpha }. Errors lists every problem found.
         When Errors is not empty, Variants may be incomplete: do not build.
     #>
     param([Parameter(Mandatory)][string]$Path)
@@ -82,7 +115,7 @@ function Read-Palette {
         if (-not ($v['name'] -is [string] -and $v['name'].Trim())) { $errors.Add("variants.$vKey.name is missing.") }
         if ($v['mode'] -ne $vKey) { $errors.Add("variants.$vKey.mode must be '$vKey'.") }
         $wash = $v['wash']
-        if (-not ($wash -is [double] -or $wash -is [long] -or $wash -is [int]) -or $wash -le 0 -or $wash -ge 1) {
+        if (-not (Test-Number $wash) -or $wash -le 0 -or $wash -ge 1) {
             $errors.Add("variants.$vKey.wash must be a number between 0 and 1.")
             $wash = $null
         }
@@ -94,23 +127,30 @@ function Read-Palette {
             }
             foreach ($rKey in @($v['roles'].Keys)) {
                 $r = $v['roles'][$rKey]
-                $hex = $null; $alpha = 1.0
+                $hex = $null; $alpha = 1.0; $clamp = $null
                 if ($r -is [string]) { $hex = $r }
                 elseif ($r -is [System.Collections.IDictionary]) {
                     $hex = [string]$r['hex']
                     if ($r.Contains('alpha')) {
                         $alpha = $r['alpha']
-                        if (-not ($alpha -is [double] -or $alpha -is [long] -or $alpha -is [int]) -or $alpha -lt 0 -or $alpha -gt 1) {
+                        if (-not (Test-Number $alpha) -or $alpha -lt 0 -or $alpha -gt 1) {
                             $errors.Add("$vKey.$rKey alpha must be between 0 and 1.")
                             continue
                         }
                     }
+                    if ($r.Contains('clamp')) {
+                        if ($rKey -notin $ClampRoles) { $errors.Add("$vKey.$rKey cannot have a clamp. Only $($ClampRoles -join ' and ') do.") }
+                        else { $clamp = Read-Clamp $r['clamp'] "$vKey.$rKey" $errors }
+                    }
+                }
+                if ($rKey -in $ClampRoles -and -not ($r -is [System.Collections.IDictionary] -and $r.Contains('clamp'))) {
+                    $errors.Add("$vKey.$rKey needs a clamp block: { blur, contrast, brightness, saturate, alpha }.")
                 }
                 if ($null -eq $hex -or $hex -notmatch '^#[0-9a-fA-F]{6}$') {
                     $errors.Add("$vKey.$rKey is not a valid #rrggbb value (or { hex, alpha }).")
                     continue
                 }
-                $roles[$rKey] = @{ Hex = $hex.ToLowerInvariant(); Alpha = [double]$alpha }
+                $roles[$rKey] = @{ Hex = $hex.ToLowerInvariant(); Alpha = [double]$alpha; Clamp = $clamp }
             }
         }
         $result.Variants[$vKey] = @{
@@ -186,6 +226,9 @@ function Format-RoleColor {
         throw "|$Filter only applies to the wash roles ($($WashRoles -join ', ')), not '$Role'"
     }
     $c = $Variant.Roles[$Role]
+    if ($Filter -in 'clamp', 'clamptint' -and -not $c.Clamp) {
+        throw "|$Filter only applies to the clamped surfaces ($($ClampRoles -join ', ')), not '$Role'"
+    }
     $hex = $c.Hex
     $rgb = ConvertFrom-Hex $hex
     $a = $c.Alpha.ToString('0.###', $Invariant)
@@ -200,14 +243,51 @@ function Format-RoleColor {
         'clear'    { return $hex + '00' }
         'wash'     { return $hex + ([int][math]::Round($Variant.Wash * 255)).ToString('x2') }
         'washflat' { return Get-WashColor $Variant $Role }
+        'clamp'    {
+            $n = { param($x) $x.ToString('0.###', $Invariant) }
+            return 'blur({0}px) contrast({1}) brightness({2}) saturate({3})' -f (& $n $c.Clamp.Blur), (& $n $c.Clamp.Contrast), (& $n $c.Clamp.Brightness), (& $n $c.Clamp.Saturate)
+        }
+        'clamptint' { return "rgba($($rgb -join ', '), $($c.Clamp.Alpha.ToString('0.###', $Invariant)))" }
     }
+}
+
+function Get-GlassColor {
+    <#
+    .SYNOPSIS
+        What a translucent role looks like over a solid backdrop, as #rrggbb.
+    .DESCRIPTION
+        Without -Clamp: the tint at the role's dense alpha, as an opacity-only
+        app draws it. With -Clamp: the backdrop squeezed by the clamp's contrast,
+        then its brightness (CSS filter functions, in sRGB, each step capped to
+        0..1), then the tint at the clamp's thin alpha. Blur does not change a
+        solid backdrop, and saturate does not change black or white, so neither
+        is applied (ADR 0011: blur does not count).
+    #>
+    param($Variant, [string]$Role, [string]$Backdrop, [switch]$Clamp)
+    $c = $Variant.Roles[$Role]
+    if (-not $Clamp) { return Get-Blend $c.Hex $Backdrop $c.Alpha }
+    if (-not $c.Clamp) { throw "'$Role' has no clamp" }
+    $k = $c.Clamp
+    $squeezed = foreach ($ch in (ConvertFrom-Hex $Backdrop)) {
+        $x = [math]::Min(1.0, [math]::Max(0.0, ($ch / 255 - 0.5) * $k.Contrast + 0.5))
+        $x = [math]::Min(1.0, [math]::Max(0.0, $x * $k.Brightness))
+        ([int][math]::Round($x * 255)).ToString('x2')
+    }
+    return Get-Blend $c.Hex ('#' + ($squeezed -join '')) $k.Alpha
 }
 
 function Test-PaletteContrast {
     <#
     .SYNOPSIS
-        Measures the contrast floor in PHILOSOPHY.md on a valid palette.
-        Returns @{ Failures; Warnings } as message lists.
+        Measures the contrast floor in PHILOSOPHY.md (ADR 0011) on a valid
+        palette. Returns @{ Failures; Warnings } as message lists.
+    .DESCRIPTION
+        A solid surface is measured as drawn. A translucent surface (chrome,
+        panel) is measured over pure black and pure white, both at its dense
+        alpha and through its clamp; every result must pass, so the lower one
+        counts. Translucent raised is only drawn on clamped glass (ADR 0008:
+        with opacity only, raised is solid), so it is measured over the clamped
+        panel. Washes are measured over every panel surface.
     #>
     param($Palette)
     $failures = [System.Collections.Generic.List[string]]::new()
@@ -215,30 +295,46 @@ function Test-PaletteContrast {
     foreach ($v in $Palette.Variants.Values) {
         $k = $v.Key
         $hex = { param($r) $v.Roles[$r].Hex }
-        $panel = & $hex 'panel_flat'
-        $raised = & $hex 'raised_flat'
-        foreach ($role in $TextRoles + 'text_muted') {
-            $floor = if ($role -eq 'text_muted') { $MutedFloor } else { $TextFloor }
-            $on = Get-Contrast (& $hex $role) $panel
-            if ($on -lt $floor) { $failures.Add(('{0}.{1} on panel_flat is {2:0.00}:1, needs {3}:1.' -f $k, $role, $on, $floor)) }
-            $on = Get-Contrast (& $hex $role) $raised
-            if ($on -lt $RaisedFloor) { $warnings.Add(('{0}.{1} on raised_flat is {2:0.00}:1, under {3}:1.' -f $k, $role, $on, $RaisedFloor)) }
+        $measure = {
+            param([string]$Role, [string]$Surface, [string]$Where, [double]$Floor)
+            $on = Get-Contrast (& $hex $Role) $Surface
+            if ($on -lt $Floor) { $failures.Add(('{0}.{1} on {2} is {3:0.00}:1, needs {4}:1.' -f $k, $Role, $Where, $on, $Floor)) }
         }
-        $on = Get-Contrast (& $hex 'text') (& $hex 'chrome_flat')
-        if ($on -lt $TextFloor) { $failures.Add(('{0}.text on chrome_flat is {1:0.00}:1, needs {2}:1.' -f $k, $on, $TextFloor)) }
+        # Every way each surface can be drawn: name -> #rrggbb.
+        $glass = {
+            param([string]$Role)
+            $out = [ordered]@{ "${Role}_flat" = & $hex "${Role}_flat" }
+            foreach ($b in $Backdrops.Keys) { $out["$Role over $b"] = Get-GlassColor $v $Role $Backdrops[$b] }
+            foreach ($b in $Backdrops.Keys) { $out["$Role clamp over $b"] = Get-GlassColor $v $Role $Backdrops[$b] -Clamp }
+            $out
+        }
+        $panels = & $glass 'panel'
+        $chromes = & $glass 'chrome'
+        $raiseds = [ordered]@{ raised_flat = & $hex 'raised_flat' }
+        foreach ($b in $Backdrops.Keys) {
+            $raiseds["raised over panel clamp over $b"] = Get-Blend (& $hex 'raised') $panels["panel clamp over $b"] $v.Roles['raised'].Alpha
+        }
+
+        foreach ($role in $TextRoles + 'text_muted') {
+            $panelFloor = if ($role -eq 'text_muted') { $MutedFloor } else { $TextFloor }
+            $raisedFloor = if ($role -in 'text', 'text_dim') { $TextFloor } else { $MutedFloor }
+            foreach ($s in $panels.Keys) { & $measure $role $panels[$s] $s $panelFloor }
+            foreach ($s in $raiseds.Keys) { & $measure $role $raiseds[$s] $s $raisedFloor }
+        }
+        foreach ($s in $chromes.Keys) { & $measure 'text' $chromes[$s] $s $TextFloor }
         foreach ($washRole in $WashRoles) {
-            $washed = Get-WashColor $v $washRole
-            foreach ($role in $TextRoles + 'text_muted') {
-                $floor = if ($role -in 'text', 'text_dim') { $TextFloor } else { $MutedFloor }
-                $on = Get-Contrast (& $hex $role) $washed
-                if ($on -lt $floor) { $failures.Add(('{0}.{1} on {2} wash is {3:0.00}:1, needs {4}:1.' -f $k, $role, $washRole, $on, $floor)) }
+            foreach ($s in $panels.Keys) {
+                $washed = Get-Blend (& $hex $washRole) $panels[$s] $v.Wash
+                foreach ($role in $TextRoles + 'text_muted') {
+                    $floor = if ($role -eq 'text') { $TextFloor } else { $MutedFloor }
+                    & $measure $role $washed "$washRole wash over $s" $floor
+                }
             }
         }
-        $on = Get-Contrast (& $hex 'on_accent') (& $hex 'accent')
-        if ($on -lt $TextFloor) { $failures.Add(('{0}.on_accent on accent is {1:0.00}:1, needs {2}:1.' -f $k, $on, $TextFloor)) }
+        & $measure 'on_accent' (& $hex 'accent') 'accent' $TextFloor
     }
     return @{ Failures = $failures; Warnings = $warnings }
 }
 
 Export-ModuleMember -Function Read-Palette, Get-VariantKeys, Get-ContrastFloors, Get-ColorFilters, ConvertFrom-Hex, Get-Blend, Get-Contrast,
-    Get-WashColor, Get-AnsiRole, Format-RoleColor, Test-PaletteContrast
+    Get-WashColor, Get-AnsiRole, Format-RoleColor, Get-GlassColor, Test-PaletteContrast
