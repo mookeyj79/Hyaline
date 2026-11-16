@@ -8,6 +8,11 @@
  * Layout: the sidebar, title bar, and footer are chrome (frame).
  * The writing area is the panel. Menus, dialogs, and popovers are raised.
  * Colored text only ever sits on the panel.
+ *
+ * The edge: a 1 px lit hairline on the top inside of chrome, raised
+ * surfaces, code blocks, and inputs, drawn as an inset box-shadow so the
+ * line borders stay. On Light's white raised surfaces it vanishes, and the
+ * line border carries the lift.
  */
 
 /* --- Typora variables ------------------------------------------------ */
@@ -368,6 +373,7 @@ pre.md-fences.mock-cm,
     background: #434850;
     border: 1px solid #6c7076;
     border-radius: 6px;
+    box-shadow: inset 0 1px 0 #6d7077;
     font-size: 0.9em;
 }
 
@@ -398,7 +404,12 @@ pre.md-fences.mock-cm,
 }
 
 .code-tooltip,
-div.code-tooltip,
+div.code-tooltip {
+    background: #565a62;
+    border: 1px solid #6c7076;
+    box-shadow: inset 0 1px 0 #6d7077;
+}
+
 .md-hover-tip .md-arrow:after {
     background: #565a62;
     border: 1px solid #6c7076;
@@ -541,7 +552,7 @@ div.code-tooltip,
 
 #typora-sidebar {
     border-right: 1px solid #6c7076;
-    box-shadow: none;
+    box-shadow: inset 0 1px 0 #6d7077;
 }
 
 .sidebar-tabs {
@@ -624,6 +635,7 @@ div.code-tooltip,
 #top-titlebar {
     background: #575b63;
     border-bottom: 1px solid #6c7076;
+    box-shadow: inset 0 1px 0 #6d7077;
 }
 
 .toolbar-icon.btn:hover,
@@ -643,6 +655,10 @@ footer.ty-footer,
     background: #575b63;
     color: #f2f5f9;
     border-color: #6c7076;
+}
+
+footer.ty-footer {
+    box-shadow: inset 0 1px 0 #6d7077;
 }
 
 .footer-item:hover,
@@ -672,6 +688,7 @@ footer.ty-footer,
     background: #565a62;
     color: #f2f5f9;
     border: 1px solid #6c7076;
+    box-shadow: inset 0 1px 0 #6d7077;
 }
 
 .popover-title {
@@ -717,6 +734,7 @@ footer.ty-footer,
     background: #565a62;
     color: #f2f5f9;
     border: 1px solid #6c7076;
+    box-shadow: inset 0 1px 0 #6d7077;
 }
 
 .modal-header,
@@ -744,7 +762,7 @@ textarea,
     background: #434850;
     border: 1px solid #6c7076;
     border-radius: 4px;
-    box-shadow: none;
+    box-shadow: inset 0 1px 0 #6d7077;
 }
 
 input:not([type="checkbox"]):not([type="radio"]):focus,
@@ -755,7 +773,7 @@ textarea:focus,
 .modal-content input:focus {
     border-color: #8dc7f6;
     outline: none;
-    box-shadow: none;
+    box-shadow: inset 0 1px 0 #6d7077;
 }
 
 .input-group-addon,
@@ -775,6 +793,7 @@ textarea:focus,
     color: #f2f5f9;
     background: #565a62;
     border: 1px solid #6c7076;
+    box-shadow: inset 0 1px 0 #6d7077;
 }
 
 .btn-default:hover,
@@ -1000,6 +1019,7 @@ div.mermaidTooltip {
     background: #565a62;
     color: #f2f5f9;
     border: 1px solid #6c7076;
+    box-shadow: inset 0 1px 0 #6d7077;
 }
 
 /* --- Print and export ------------------------------------------------- */
