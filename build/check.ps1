@@ -30,9 +30,9 @@
                      .svg and .xml are well formed, and .css has balanced
                      braces, comments, and quotes.
    10. Wallpapers   Every image in wallpapers/ has a thumbnail and a section in
-                     wallpapers/README.md with its author, source, and license.
-                     Contrast over a wallpaper needs an image library, so it is
-                     checked by build/wallpaper.ps1 -Check, not here.
+                     wallpapers/README.md with its author, source, license, and
+                     variant mark. Each pair has one dark and one light image,
+                     and pairs come before single images.
    11. Prose         No em dashes in the repo's Markdown (outside dist/ and
                      third-party assets/). Add "hyaline-ignore" to a line to
                      skip it.

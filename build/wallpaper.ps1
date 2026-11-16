@@ -5,21 +5,21 @@
 
 .DESCRIPTION
     Wallpapers come from Wikimedia Commons, where every file has a structured
-    license and author (ADR 0003). A wallpaper must:
+    license and author. They are chosen by taste (ADR 0012). Two rules are
+    gates:
 
-        Fit       be light, low in saturation, and low in detail
-        Read      keep every role readable on panel, and primary text on
-                  chrome and on a tab, in both variants
-        License   allow redistribution (CC0, public domain, CC BY, CC BY-SA)
+        Format    a landscape JPEG at least 1920 px wide
+        License   allows redistribution (CC0, public domain, CC BY, CC BY-SA)
 
-    Readability is measured the way the glass sees the image: scaled to a
-    1920 px wide screen, blurred 18 px, then the worst spot for each role.
+    Lightness, saturation, and detail are grades. They rank search results
+    and suggest a variant from lightness: light at L* 60 or above, dark at 40
+    or below, both in between. They never refuse an image.
 
     -Search lists Commons candidates and grades each from a small preview.
-    -Check measures one image at full size: a local file or a Commons title.
+    -Check grades one image at full size: a local file or a Commons title.
     -Add downloads a Commons file into wallpapers/, unmodified, writes the
-    640 px thumbnail, and prints the credit section for wallpapers/README.md.
-    It refuses an image that fails a rule.
+    640 px thumbnail, and prints the credit section for wallpapers/README.md,
+    with the variant mark given. It refuses an image that fails a gate.
 
     Images are read with SixLabors.ImageSharp (Apache 2.0 for open source
     projects), downloaded once from NuGet, checked against a pinned hash, and
@@ -32,7 +32,11 @@
     For -Search: how many candidates to show. Default 10.
 
 .PARAMETER All
-    For -Search: also show candidates that fail a rule, with the reason.
+    For -Search: also show candidates that fail a gate, with the reason.
+
+.PARAMETER Variant
+    For -Search: keep images suggested for this variant (dark, light, or
+    both), exact suggestions first. For -Add: the variant mark, required.
 
 .PARAMETER Check
     A local image path, or a Commons title such as "File:Example.jpg".
@@ -48,10 +52,13 @@
     pwsh build/wallpaper.ps1 -Search "salt flat"
 
 .EXAMPLE
+    pwsh build/wallpaper.ps1 -Search "dunes night" -Variant dark
+
+.EXAMPLE
     pwsh build/wallpaper.ps1 -Check wallpapers/white-sands-dunes.jpg
 
 .EXAMPLE
-    pwsh build/wallpaper.ps1 -Add "File:Minimal hike on the dunes (Unsplash).jpg" -Name white-sands-dunes
+    pwsh build/wallpaper.ps1 -Add "File:Minimal hike on the dunes (Unsplash).jpg" -Name white-sands-dunes -Variant light
 #>
 [CmdletBinding(DefaultParameterSetName = 'Search')]
 param(
@@ -64,6 +71,11 @@ param(
 
     [Parameter(ParameterSetName = 'Search')]
     [switch]$All,
+
+    [Parameter(ParameterSetName = 'Search')]
+    [Parameter(Mandatory, ParameterSetName = 'Add')]
+    [ValidateSet('dark', 'light', 'both')]
+    [string]$Variant,
 
     [Parameter(Mandatory, ParameterSetName = 'Check')]
     [string]$Check,
@@ -78,9 +90,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-foreach ($m in 'Palette', 'Wallpaper') {
-    Import-Module (Join-Path $PSScriptRoot 'lib' "$m.psm1") -Force
-}
+Import-Module (Join-Path $PSScriptRoot 'lib' 'Wallpaper.psm1') -Force
 
 $RepoRoot      = Split-Path -Parent $PSScriptRoot
 $WallpaperDir  = Join-Path $RepoRoot 'wallpapers'
@@ -92,12 +102,9 @@ $ImageSharpVersion = '3.2.0'
 $ImageSharpSha256  = '60d345f55451db74bbefb3231950c2524c12fe038173b08dabce4a844f22b179'
 
 $Rules     = Get-WallpaperRules
-$MinWidth  = $Rules.Screen.Width
+$MinWidth  = $Rules.Format.MinWidth
 $FitWidth  = 480
 $ThumbWidth = 640
-
-$palette = Read-Palette -Path (Join-Path $RepoRoot 'palette' 'palette.json')
-if ($palette.Errors.Count) { throw "Fix the palette first: $($palette.Errors -join ' ')" }
 
 # --- Downloads and ImageSharp -------------------------------------------------
 
@@ -142,12 +149,11 @@ function Read-Image([string]$Path) {
     return [SixLabors.ImageSharp.Image]::Load[SixLabors.ImageSharp.PixelFormats.Rgb24]($Path)
 }
 
-function Copy-Image($Image, [int]$Width, [double]$Blur = 0) {
-    # A resized (and optionally blurred) copy. Height keeps the aspect ratio.
+function Copy-Image($Image, [int]$Width) {
+    # A resized copy. Height keeps the aspect ratio.
     $ops = [Action[SixLabors.ImageSharp.Processing.IImageProcessingContext]] {
         param($c)
         [void][SixLabors.ImageSharp.Processing.ResizeExtensions]::Resize($c, $Width, 0)
-        if ($Blur -gt 0) { [void][SixLabors.ImageSharp.Processing.GaussianBlurExtensions]::GaussianBlur($c, [single]$Blur) }
     }.GetNewClosure()
     return [SixLabors.ImageSharp.Processing.ProcessingExtensions]::Clone($Image, $ops)
 }
@@ -169,57 +175,32 @@ function Get-Pixels($Image) {
 # --- Measuring ----------------------------------------------------------------
 
 function Measure-Image($Image) {
-    # Fit on a small copy, readability on the screen-size copy behind glass.
-    # Blur scales with the image, so a preview is measured like the full size.
-    $fitCopy = Copy-Image $Image ([math]::Min($FitWidth, $Image.Width))
-    $fit = Measure-WallpaperFit -Pixels (Get-Pixels $fitCopy) -Width $fitCopy.Width -Height $fitCopy.Height
-    $fitCopy.Dispose()
-
-    $scale = [math]::Min(1.0, $Image.Width / $Rules.Screen.Width)
-    $screen = Copy-Image $Image ([math]::Min($Rules.Screen.Width, $Image.Width)) ($Rules.Screen.Blur * $scale)
-    # The blur leaves nothing finer than a few pixels, so measure a small copy.
-    $glass = Copy-Image $screen ([math]::Max(16, [int]($screen.Width / 12)))
-    $rows = Measure-WallpaperContrast -Palette $palette -Pixels (Get-Pixels $glass)
-    $screen.Dispose(); $glass.Dispose()
-
-    $problems = [System.Collections.Generic.List[string]]::new()
-    foreach ($p in $fit.Problems) { $problems.Add($p) }
-    $surfaceName = @{ chrome = 'text on chrome'; tab = 'text on a tab'; panel = 'panel' }
-    foreach ($g in $rows | Where-Object { -not $_.Pass } | Group-Object Name, Surface) {
-        $worst = $g.Group | Sort-Object { $_.Worst / $_.Floor } | Select-Object -First 1
-        $what = if ($g.Count -gt 1) { "$($g.Count) roles fail, worst $($worst.Role)" } else { "$($worst.Role) fails" }
-        $problems.Add(('{0}, {1}: {2} at {3:0.00}:1, needs {4}:1.' -f $worst.Name, $surfaceName[$worst.Surface], $what, $worst.Worst, $worst.Floor))
-    }
-    return @{ Fit = $fit; Contrast = $rows; Problems = $problems }
+    # Grades from a small copy, so a preview grades like the full size.
+    $copy = Copy-Image $Image ([math]::Min($FitWidth, $Image.Width))
+    $fit = Measure-WallpaperFit -Pixels (Get-Pixels $copy) -Width $copy.Width -Height $copy.Height
+    $copy.Dispose()
+    return $fit
 }
 
-function Write-Report($Result) {
-    $f = $Result.Fit
-    Write-Host 'Fit'
-    foreach ($k in $Rules.Fit.Keys) {
-        $rule = $Rules.Fit[$k]
-        $limit = if ($rule.ContainsKey('Min')) { "at least $($rule.Min)" } else { "at most $($rule.Max)" }
-        Write-Host ('  {0,-11} {1,6}   {2}, {3}' -f $rule.Label, $f[$k], $rule.Unit, $limit)
+function Format-Fit($Fit) {
+    # One line: the measures, their grades, and the suggested variant.
+    return 'lightness {0} (suggests {1}), saturation {2} ({3}), detail {4} ({5})' -f `
+        $Fit.Lightness, $Fit.Variant, $Fit.Saturation, $Fit.Grades.Saturation, $Fit.Detail, $Fit.Grades.Detail
+}
+
+function Write-Report($Fit, $Problems, [string]$Gates = 'the format and license gates') {
+    Write-Host 'Grades'
+    Write-Host ('  {0,-11} {1,6}   mean L*, 0 to 100: suggests {2}' -f 'lightness', $Fit.Lightness, $Fit.Variant)
+    foreach ($k in $Rules.Grades.Keys) {
+        $g = $Rules.Grades[$k]
+        Write-Host ('  {0,-11} {1,6}   {2}: {3} (over {4} is {5})' -f $g.Label, $Fit[$k], $g.Unit, $Fit.Grades[$k], $g.Max, $g.Bad)
     }
     Write-Host ''
-    Write-Host "Behind the glass (worst spot, $($Rules.Screen.Width) px wide, $($Rules.Screen.Blur) px blur)"
-    foreach ($group in $Result.Contrast | Group-Object Name) {
-        $label = @{ chrome = 'text on chrome'; tab = 'text on a tab' }
-        foreach ($r in $group.Group | Where-Object Surface -ne 'panel') {
-            Write-Host ('  {0,-14} {1,-15} {2,6:0.00}:1  {3}' -f $group.Name, $label[$r.Surface], $r.Worst, $(if ($r.Pass) { 'ok' } else { 'FAIL' }))
-        }
-        $panel = @($group.Group | Where-Object Surface -eq 'panel')
-        $tight = $panel | Sort-Object { $_.Worst / $_.Floor } | Select-Object -First 1
-        $failed = @($panel | Where-Object { -not $_.Pass })
-        $state = if ($failed) { "FAIL ($($failed.Count) role(s))" } else { 'ok' }
-        Write-Host ('  {0,-14} {1,-15} {2,6:0.00}:1  {3}, tightest {4}' -f $group.Name, 'panel', $tight.Worst, $state, $tight.Role)
-    }
-    Write-Host ''
-    if ($Result.Problems.Count) {
+    if ($Problems.Count) {
         Write-Host 'Fails:'
-        foreach ($p in $Result.Problems) { Write-Host "  - $p" }
+        foreach ($p in $Problems) { Write-Host "  - $p" }
     }
-    else { Write-Host "Passes every rule for palette $($palette.Meta.version)." }
+    else { Write-Host "Passes $Gates." }
 }
 
 # --- Commons ------------------------------------------------------------------
@@ -278,7 +259,7 @@ function ConvertTo-Candidate($Page) {
 }
 
 function Get-RuleProblems($Candidate) {
-    # Rules that need no pixels: license, format, size, shape.
+    # The gates: license and format (JPEG, size, shape).
     $p = [System.Collections.Generic.List[string]]::new()
     if (-not (Test-WallpaperLicense $Candidate.License)) { $p.Add("license '$($Candidate.License)' does not clearly allow redistribution.") }
     if ($Candidate.Mime -ne 'image/jpeg') { $p.Add("$($Candidate.Mime), not a JPEG.") }
@@ -312,19 +293,21 @@ if ($PSCmdlet.ParameterSetName -eq 'Search') {
     $graded = foreach ($pg in $pages) {
         $c = ConvertTo-Candidate $pg
         $problems = Get-RuleProblems $c
-        $result = $null
+        $fit = $null
         if ($problems.Count -eq 0 -or $All) {
             try {
                 $img = Read-Image (Save-Url $c.ThumbUrl (Get-CachePath ('thumb-' + (Get-SafeFileName $c.Title))))
-                $result = Measure-Image $img
+                $fit = Measure-Image $img
                 $img.Dispose()
-                foreach ($p in $result.Problems) { $problems.Add($p) }
             }
             catch { $problems.Add("could not measure: $($_.Exception.Message)") }
         }
-        [pscustomobject]@{ Candidate = $c; Result = $result; Problems = $problems }
+        [pscustomobject]@{ Candidate = $c; Fit = $fit; Problems = $problems }
     }
-    $pass = @($graded | Where-Object { $_.Problems.Count -eq 0 } | Sort-Object { $_.Result.Fit.Detail })
+    $measured = @($graded | Where-Object { $_.Problems.Count -eq 0 })
+    $want = if ($Variant) { @{ Variant = $Variant } } else { @{} }
+    $pass = @(Select-WallpaperCandidate -Candidate $measured @want)
+    $other = $measured.Count - $pass.Count
     $fail = @($graded | Where-Object { $_.Problems.Count -gt 0 })
 
     $show = { param($g)
@@ -332,28 +315,23 @@ if ($PSCmdlet.ParameterSetName -eq 'Search') {
         Write-Host "  $($c.Title)"
         $by = if (-not $c.Author) { 'unknown' } elseif ($c.Author.Length -gt 50) { $c.Author.Substring(0, 47) + '...' } else { $c.Author }
         Write-Host "    $($c.Width) x $($c.Height), $($c.License), by $by"
-        if ($g.Result) {
-            $f = $g.Result.Fit
-            $tight = foreach ($v in $g.Result.Contrast | Group-Object Name) {
-                $t = $v.Group | Sort-Object { $_.Worst / $_.Floor } | Select-Object -First 1
-                '{0} {1:0.00}' -f ($v.Name -replace '^\S+ ', ''), $t.Worst
-            }
-            Write-Host ('    lightness {0}, saturation {1}, detail {2}; tightest contrast: {3}' -f $f.Lightness, $f.Saturation, $f.Detail, ($tight -join ', '))
-        }
+        if ($g.Fit) { Write-Host "    $(Format-Fit $g.Fit)" }
         Write-Host "    $($c.Page)"
         foreach ($p in $g.Problems) { Write-Host "    - $p" }
     }
 
     Write-Host ''
-    Write-Host "Pass every rule ($($pass.Count)), calmest first:"
+    $for = if ($Variant) { " for $Variant" } else { '' }
+    Write-Host "Pass the gates$for ($($pass.Count)), calmest first:"
     if ($pass) { foreach ($g in $pass | Select-Object -First $Limit) { & $show $g } }
     else { Write-Host '  none. Try other words, or -All to see why each failed.' }
+    if ($other) { Write-Host ''; Write-Host "$other more pass the gates but suggest another variant." }
     if ($All -and $fail) {
         Write-Host ''
         Write-Host "Fail ($($fail.Count)):"
         foreach ($g in $fail | Select-Object -First $Limit) { & $show $g }
     }
-    elseif ($fail) { Write-Host ''; Write-Host "$($fail.Count) failed a rule. Add -All to see why." }
+    elseif ($fail) { Write-Host ''; Write-Host "$($fail.Count) failed a gate. Add -All to see why." }
     Write-Host ''
     Write-Host 'Previews only. Look at a candidate, then run -Check "<title>" on the full image.'
     return
@@ -372,11 +350,17 @@ if ($PSCmdlet.ParameterSetName -eq 'Check') {
     Write-Host "$Check ($($img.Width) x $($img.Height))"
     if ($candidate) { Write-Host "$($candidate.License), by $($candidate.Author). $($candidate.Page)" }
     Write-Host ''
-    $result = Measure-Image $img
+    $problems = [System.Collections.Generic.List[string]]::new()
+    if ($candidate) { foreach ($p in Get-RuleProblems $candidate) { $problems.Add($p) } }
+    else {
+        if ($img.Width -lt $MinWidth) { $problems.Add("$($img.Width) px wide, needs at least $MinWidth.") }
+        if ($img.Width -le $img.Height) { $problems.Add('not landscape.') }
+    }
+    $fit = Measure-Image $img
     $img.Dispose()
-    if ($candidate) { foreach ($p in Get-RuleProblems $candidate) { $result.Problems.Insert(0, $p) } }
-    Write-Report $result
-    if ($result.Problems.Count) { exit 1 }
+    $gates = if ($candidate) { 'the format and license gates' } else { 'the format gate (license is checked for Commons titles)' }
+    Write-Report $fit $problems $gates
+    if ($problems.Count) { exit 1 }
     return
 }
 
@@ -393,9 +377,11 @@ if ($problems.Count) { throw "Not adding $($c.Title): $($problems -join ' ')" }
 
 $cached = Save-Url $c.Url (Get-CachePath ('full-' + (Get-SafeFileName $c.Title)))
 $img = Read-Image $cached
-$result = Measure-Image $img
-Write-Report $result
-if ($result.Problems.Count) { $img.Dispose(); throw "Not adding $($c.Title): it fails a rule (above)." }
+$fit = Measure-Image $img
+Write-Report $fit @()
+Write-Host ''
+$agree = if ($fit.Variant -eq $Variant) { 'agrees' } else { 'differs, your call stands' }
+Write-Host "Marked $Variant; lightness suggests $($fit.Variant) ($agree)."
 
 # The original goes in byte for byte. Only the thumbnail is re-encoded.
 # Both files or neither.
@@ -425,6 +411,7 @@ $section = @"
 | | |
 |---|---|
 | File | [``$Name.jpg``]($Name.jpg), $($c.Width) × $($c.Height), unmodified original |
+| Variant | $((Get-Culture).TextInfo.ToTitleCase($Variant)) |
 | Subject | $($c.Description) |
 | Author | $author |
 | Date | $(if ($c.Date) { $c.Date } else { 'Unknown' }) |
@@ -434,7 +421,8 @@ $section = @"
 
 Write-Host ''
 Write-Host "Wrote wallpapers/$Name.jpg and wallpapers/thumbs/$Name.jpg."
-Write-Host 'Add this to wallpapers/README.md. Rewrite the Subject in one plain line, and'
-Write-Host 'check the author and license against the Commons page:'
+Write-Host 'Add this to wallpapers/README.md, after the last section. For a pair, make it'
+Write-Host 'a ### subsection of the pair section instead. Rewrite the Subject in one plain'
+Write-Host 'line, and check the author and license against the Commons page:'
 Write-Host ''
 Write-Host $section
