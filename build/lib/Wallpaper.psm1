@@ -133,6 +133,41 @@ function Select-WallpaperCandidate {
     return @($kept | Sort-Object { if ($Variant -and $_.Fit.Variant -ne $Variant) { 1 } else { 0 } }, $calm)
 }
 
+# The image a README section credits, and the variant it is marked for.
+function Get-SectionFile([string]$Text) { $m = [regex]::Match($Text, '\[`([^`]+\.jpg)`\]'); if ($m.Success) { $m.Groups[1].Value } }
+function Get-SectionMark([string]$Text) { $m = [regex]::Match($Text, '(?mi)^\| Variant \| (dark|light|both) \|'); if ($m.Success) { $m.Groups[1].Value.ToLowerInvariant() } }
+
+function Test-WallpaperUse {
+    <#
+    .SYNOPSIS
+        A port may show a wallpaper only in a variant the wallpaper is marked
+        for, or in either when it is marked both (ADR 0012). Checks every
+        wallpapers/<name>.jpg a port's values.json names. Returns a list of
+        problems.
+    .PARAMETER Values
+        values.json as a hashtable: variant key -> { key -> value }.
+    #>
+    param([Parameter(Mandatory)][string]$Path, [Parameter(Mandatory)][System.Collections.IDictionary]$Values, [Parameter(Mandatory)][string]$Source)
+    $problems = [System.Collections.Generic.List[string]]::new()
+    $readmePath = Join-Path $Path 'README.md'
+    $readme = if (Test-Path $readmePath) { [System.IO.File]::ReadAllText($readmePath) } else { '' }
+    $marks = @{}
+    foreach ($s in [regex]::Split($readme, '(?m)^(?=##+ )')) { $n = Get-SectionFile $s; if ($n) { $marks[$n] = Get-SectionMark $s } }
+    foreach ($variant in @($Values.Keys | Sort-Object)) {
+        $set = $Values[$variant]
+        if ($set -isnot [System.Collections.IDictionary]) { continue }
+        foreach ($key in @($set.Keys | Sort-Object)) {
+            foreach ($m in [regex]::Matches([string]$set[$key], 'wallpapers/([^/"''()\s]+\.jpg)')) {
+                $n = $m.Groups[1].Value
+                $mark = $marks[$n]
+                if (-not $mark) { $problems.Add("${Source}: $variant uses $n, which wallpapers/README.md does not mark.") }
+                elseif ($mark -ne $variant -and $mark -ne 'both') { $problems.Add("${Source}: $variant uses $n, which wallpapers/README.md marks $mark.") }
+            }
+        }
+    }
+    return $problems
+}
+
 function Test-WallpaperFolder {
     <#
     .SYNOPSIS
@@ -146,15 +181,13 @@ function Test-WallpaperFolder {
     if (-not (Test-Path $Path)) { return }
     $readmePath = Join-Path $Path 'README.md'
     $readme = if (Test-Path $readmePath) { [System.IO.File]::ReadAllText($readmePath) } else { $problems.Add('wallpapers/README.md does not exist.'); '' }
-    $file = { param($Text) $m = [regex]::Match($Text, '\[`([^`]+\.jpg)`\]'); if ($m.Success) { $m.Groups[1].Value } }
-    $mark = { param($Text) $m = [regex]::Match($Text, '(?mi)^\| Variant \| (dark|light|both) \|'); if ($m.Success) { $m.Groups[1].Value.ToLowerInvariant() } }
     $sections = @{}
     $seenSingle = $false
     foreach ($s in [regex]::Split($readme, '(?m)^(?=## )')) {
         $title = [regex]::Match($s, '^## (.+)$', 'Multiline').Groups[1].Value.Trim()
         $parts = @([regex]::Split($s, '(?m)^(?=### )') | Select-Object -Skip 1)
         if (-not $parts) { $parts = @($s) }
-        $images = @(foreach ($part in $parts) { $n = & $file $part; if ($n) { $sections[$n] = $part; @{ Name = $n; Mark = & $mark $part } } })
+        $images = @(foreach ($part in $parts) { $n = Get-SectionFile $part; if ($n) { $sections[$n] = $part; @{ Name = $n; Mark = Get-SectionMark $part } } })
         if ($images.Count -eq 1) { $seenSingle = $true }
         if ($images.Count -gt 1) {
             if ($seenSingle) { $problems.Add("wallpapers/README.md: the $title pair comes after a single image. List pairs first.") }
@@ -171,7 +204,7 @@ function Test-WallpaperFolder {
         foreach ($row in 'Author', 'Source', 'License') {
             if ($sections[$n] -notmatch "(?m)^\| $row \| \S") { $problems.Add("wallpapers/README.md: the $n section has no $row.") }
         }
-        if (-not (& $mark $sections[$n])) { $problems.Add("wallpapers/README.md: the $n section has no Variant (dark, light, or both).") }
+        if (-not (Get-SectionMark $sections[$n])) { $problems.Add("wallpapers/README.md: the $n section has no Variant (dark, light, or both).") }
     }
     $thumbDir = Join-Path $Path 'thumbs'
     if (Test-Path $thumbDir) {
@@ -185,4 +218,4 @@ function Test-WallpaperFolder {
     return $problems
 }
 
-Export-ModuleMember -Function Test-WallpaperFolder, Get-WallpaperRules, Get-WallpaperVariant, Select-WallpaperCandidate, Test-WallpaperLicense, Test-WallpaperFormat, Measure-WallpaperFit
+Export-ModuleMember -Function Test-WallpaperFolder, Test-WallpaperUse, Get-WallpaperRules, Get-WallpaperVariant, Select-WallpaperCandidate, Test-WallpaperLicense, Test-WallpaperFormat, Measure-WallpaperFit

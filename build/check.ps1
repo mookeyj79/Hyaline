@@ -34,7 +34,8 @@
    10. Wallpapers   Every image in wallpapers/ has a thumbnail and a section in
                      wallpapers/README.md with its author, source, license, and
                      variant mark. Each pair has one dark and one light image,
-                     and pairs come before single images.
+                     and pairs come before single images. A port's values.json
+                     shows a wallpaper only in a variant it is marked for.
    11. Prose         No em dashes in the repo's Markdown (outside dist/ and
                      third-party assets/). Add "hyaline-ignore" to a line to
                      skip it.
@@ -272,7 +273,16 @@ Invoke-Section 'Format' {
 # --- 10. Wallpapers -------------------------------------------------------------
 
 Invoke-Section 'Wallpapers' {
-    foreach ($e in Test-WallpaperFolder -Path (Join-Path $RepoRoot 'wallpapers')) { Add-Failure "Wallpapers: $e" }
+    $wallpaperDir = Join-Path $RepoRoot 'wallpapers'
+    foreach ($e in Test-WallpaperFolder -Path $wallpaperDir) { Add-Failure "Wallpapers: $e" }
+    foreach ($port in $catalog.Ports) {
+        $valuesPath = Join-Path $port.Dir 'values.json'
+        if (-not (Test-Path $valuesPath)) { continue }
+        # Invalid JSON is reported by the Placeholders section.
+        try { $values = Get-Content -Raw -Path $valuesPath | ConvertFrom-Json -AsHashtable } catch { continue }
+        if ($values -isnot [System.Collections.IDictionary]) { continue }
+        foreach ($e in Test-WallpaperUse -Path $wallpaperDir -Values $values -Source (Get-RepoPath $valuesPath)) { Add-Failure "Wallpapers: $e" }
+    }
 }
 
 # --- 11. Prose ------------------------------------------------------------------

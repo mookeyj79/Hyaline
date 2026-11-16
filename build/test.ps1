@@ -604,6 +604,22 @@ $(& $image 'late-b' 'Dark')
     Assert-Equal 3 @(Test-WallpaperFolder -Path $dir).Count "problems:`n$all"
 }
 
+Test 'Wallpaper: a port uses a wallpaper only for a variant it is marked for' {
+    $dir = Join-Path $Tmp ('wp-' + [guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Path $dir -Force | Out-Null
+    $image = { param($Name, $Mark) "## $Name`n`n| | |`n|---|---|`n| File | [``$Name.jpg``]($Name.jpg) |`n| Variant | $Mark |`n" }
+    Set-Content (Join-Path $dir 'README.md') "# Wallpapers`n`n$(& $image 'snow' 'Light')`n$(& $image 'night' 'Dark')`n$(& $image 'dusk' 'Both')"
+    $url = { param($Name) "url(`"../../../../wallpapers/$Name.jpg`")" }
+    $good = @{ dark = @{ wallpaper = (& $url 'night') }; light = @{ wallpaper = (& $url 'snow'); other = (& $url 'dusk') } }
+    Assert-Equal 0 @(Test-WallpaperUse -Path $dir -Values $good -Source 'values.json').Count 'marked uses pass'
+    Assert-Equal 0 @(Test-WallpaperUse -Path $dir -Values @{ dark = @{ wallpaper = 'none' } } -Source 'values.json').Count 'no wallpaper passes'
+    $bad = @{ dark = @{ wallpaper = (& $url 'snow') }; light = @{ wallpaper = (& $url 'gone') } }
+    Assert-Equal @(
+        "values.json: dark uses snow.jpg, which wallpapers/README.md marks light.",
+        "values.json: light uses gone.jpg, which wallpapers/README.md does not mark."
+    ) @(Test-WallpaperUse -Path $dir -Values $bad -Source 'values.json') 'problems'
+}
+
 # --- Summary ------------------------------------------------------------------
 
 Remove-Item -Path $Tmp -Recurse -Force -ErrorAction SilentlyContinue
