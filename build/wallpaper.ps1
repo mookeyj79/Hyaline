@@ -309,8 +309,13 @@ function ConvertTo-Candidate($Page) {
 }
 
 function Get-RuleProblems($Candidate) {
-    # The gates: license and format (JPEG, size, shape).
+    # The gates: license and format (JPEG, size, shape). A local file is
+    # @{ Width; Height } only: no license or type to check.
     $p = [System.Collections.Generic.List[string]]::new()
+    if (-not $Candidate.PSObject.Properties['License']) {
+        foreach ($f in Test-WallpaperFormat -Width $Candidate.Width -Height $Candidate.Height) { $p.Add($f) }
+        return , $p
+    }
     if (-not (Test-WallpaperLicense $Candidate.License)) { $p.Add("license '$($Candidate.License)' does not clearly allow redistribution.") }
     if ($Candidate.Mime -ne 'image/jpeg') { $p.Add("$($Candidate.Mime), not a JPEG.") }
     foreach ($f in Test-WallpaperFormat -Width $Candidate.Width -Height $Candidate.Height) { $p.Add($f) }
@@ -405,11 +410,10 @@ if ($PSCmdlet.ParameterSetName -eq 'Check') {
     Write-Host ''
     # Get-RuleProblems returns its list whole; looping over the call would add
     # that list as one blank problem.
-    if ($candidate) { $problems = Get-RuleProblems $candidate }
-    else {
-        $problems = [System.Collections.Generic.List[string]]::new()
-        foreach ($p in Test-WallpaperFormat -Width $img.Width -Height $img.Height) { $problems.Add($p) }
-    }
+    # Both kinds go through it, so the local-file smoke test in test.ps1
+    # covers the same path as a Commons title.
+    $gated = if ($candidate) { $candidate } else { [pscustomobject]@{ Width = $img.Width; Height = $img.Height } }
+    $problems = Get-RuleProblems $gated
     $fit = Measure-Image $img
     $img.Dispose()
     $gates = if ($candidate) { 'the format and license gates' } else { 'the format gate (license is checked for Commons titles)' }

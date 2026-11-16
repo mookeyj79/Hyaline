@@ -90,14 +90,23 @@ function Read-Palette {
         @{ Hex (lowercase #rrggbb); Alpha; Clamp }. Clamp is $null except on
         chrome and panel: @{ Blur; Contrast; Brightness; Saturate; Alpha }. Errors lists every problem found.
         When Errors is not empty, Variants may be incomplete: do not build.
+    .PARAMETER Data
+        The parsed JSON instead of a file, as from ConvertFrom-Json -AsHashtable.
     #>
-    param([Parameter(Mandatory)][string]$Path)
+    [CmdletBinding(DefaultParameterSetName = 'Path')]
+    param(
+        [Parameter(Mandatory, ParameterSetName = 'Path')][string]$Path,
+        [Parameter(Mandatory, ParameterSetName = 'Data')]$Data
+    )
     $errors = [System.Collections.Generic.List[string]]::new()
     $result = @{ Meta = @{}; Variants = [ordered]@{}; Errors = $errors }
 
-    if (-not (Test-Path $Path)) { $errors.Add('palette/palette.json does not exist.'); return $result }
-    try { $raw = Get-Content -Raw -Path $Path | ConvertFrom-Json -AsHashtable }
-    catch { $errors.Add("palette/palette.json is not valid JSON: $($_.Exception.Message)"); return $result }
+    if ($PSCmdlet.ParameterSetName -eq 'Data') { $raw = $Data }
+    else {
+        if (-not (Test-Path $Path)) { $errors.Add('palette/palette.json does not exist.'); return $result }
+        try { $raw = Get-Content -Raw -Path $Path | ConvertFrom-Json -AsHashtable }
+        catch { $errors.Add("palette/palette.json is not valid JSON: $($_.Exception.Message)"); return $result }
+    }
 
     if ($raw -isnot [System.Collections.IDictionary]) { $errors.Add('palette/palette.json must be an object.'); return $result }
     if ($raw['meta'] -is [System.Collections.IDictionary]) { $result.Meta = $raw['meta'] }
@@ -163,6 +172,9 @@ function Read-Palette {
 }
 
 function Get-VariantKeys { return $VariantKeys }
+function Get-RequiredRoles { return $RequiredRoles }
+# The surface and edge roles: everything a port draws that is not text or a color role.
+function Get-SurfaceRoles { return @($RequiredRoles | Where-Object { $_ -notin $TextRoles + 'text_muted', 'on_accent' }) }
 function Get-ColorFilters { return @($Filters.Keys | Where-Object { $_ }) }
 
 function ConvertFrom-Hex([string]$Hex) {
@@ -279,7 +291,9 @@ function Test-PaletteContrast {
     <#
     .SYNOPSIS
         Measures the contrast floor in PHILOSOPHY.md (ADR 0011) on a valid
-        palette. Returns @{ Failures } as a message list.
+        palette. Returns @{ Failures; Measurements }: Failures as a message
+        list, Measurements as every ratio taken, passing or not, each
+        @{ Variant; Role; Surface; Ratio; Floor; Pass }.
     .DESCRIPTION
         A solid surface is measured as drawn. A translucent surface (chrome,
         panel) is measured over pure black and pure white, both at its dense
@@ -290,12 +304,14 @@ function Test-PaletteContrast {
     #>
     param($Palette)
     $failures = [System.Collections.Generic.List[string]]::new()
+    $measurements = [System.Collections.Generic.List[object]]::new()
     foreach ($v in $Palette.Variants.Values) {
         $k = $v.Key
         $hex = { param($r) $v.Roles[$r].Hex }
         $measure = {
             param([string]$Role, [string]$Surface, [string]$Where, [double]$Floor)
             $on = Get-Contrast (& $hex $Role) $Surface
+            $measurements.Add([pscustomobject]@{ Variant = $k; Role = $Role; Surface = $Where; Ratio = $on; Floor = $Floor; Pass = $on -ge $Floor })
             if ($on -lt $Floor) { $failures.Add(('{0}.{1} on {2} is {3:0.00}:1, needs {4}:1.' -f $k, $Role, $Where, $on, $Floor)) }
         }
         # Every way each surface can be drawn: name -> #rrggbb.
@@ -333,8 +349,8 @@ function Test-PaletteContrast {
         # with it (Cinnamon's destroy buttons and drag highlights).
         foreach ($fill in 'accent', 'red') { & $measure 'on_accent' (& $hex $fill) $fill $TextFloor }
     }
-    return @{ Failures = $failures }
+    return @{ Failures = $failures; Measurements = $measurements }
 }
 
-Export-ModuleMember -Function Read-Palette, Get-VariantKeys, Get-ColorFilters, ConvertFrom-Hex, Get-Blend, Get-Contrast,
+Export-ModuleMember -Function Read-Palette, Get-VariantKeys, Get-RequiredRoles, Get-SurfaceRoles, Get-ColorFilters, ConvertFrom-Hex, Get-Blend, Get-Contrast,
     Get-WashColor, Get-AnsiRole, Format-RoleColor, Get-GlassColor, Test-PaletteContrast
