@@ -1,30 +1,37 @@
 ---
 name: wallpaper
-description: Find, check, and add a wallpaper (a found backdrop image) from Wikimedia Commons. Use when asked to "find a wallpaper", "add a backdrop", "check this image", or to recheck the wallpapers after a palette change.
+description: Find, check, and add a wallpaper (a found backdrop image) from Wikimedia Commons, marked with the variant it suits. Use when asked to "find a wallpaper", "add a backdrop", "find a dark wallpaper", "find the other half of a pair", or "check this image".
 argument-hint: [search words]
 ---
 
 # Wallpaper
 
-Wallpapers are found images behind Hyaline's glass (ADR 0003). They are the one exception to the palette rule, so every one must earn its place. `build/wallpaper.ps1` applies the rules; this skill is the order to run it in.
+Wallpapers are found images behind Hyaline's glass (ADR 0012). The glass keeps text readable over any backdrop, so a wallpaper is chosen by taste. `build/wallpaper.ps1` applies the hard rules and grades the rest; this skill is the order to run it in.
 
 ## The rules
 
-A wallpaper passes only if all of these hold. The script checks each one.
+Gates (the script refuses an image that fails one):
 
 - **License** allows redistribution: CC0, public domain, CC BY, or CC BY-SA.
-- **Fit**: a landscape JPEG at least 1920 px wide, light, low in saturation, low in detail.
-- **Readable**: scaled to 1920 px and blurred 18 px, every role passes on `panel` and primary text passes on `chrome` and on a tab, in both variants.
+- **Format**: a landscape JPEG at least 1920 px wide.
 
-Hyaline Light's panel is the tight one. Most photos fail it. Bright, even scenes do best: snow, sand, mist over water, pale sky.
+Grades (they rank results and never refuse):
+
+- **Lightness** suggests a variant: `light` at L* 60 or above, `dark` at 40 or below, `both` in between.
+- **Saturation** over 25 is `colorful`, **detail** over 1.5 is `busy`. Otherwise `calm`.
+
+Taste: calm, not busy; color that doesn't fight the role colors; suits the variant it is marked for. No faces, text, or logos.
 
 ## 1. Search
 
 ```
 pwsh build/wallpaper.ps1 -Search "$ARGUMENTS"
+pwsh build/wallpaper.ps1 -Search "$ARGUMENTS" -Variant dark
 ```
 
-Grades up to 50 Commons results from previews (about a minute). Try several words if nothing passes. `-All` shows why each one failed. Pick candidates that pass and suit "smoke by night, frost by day": calm, airy, no faces, no text, no logos.
+Grades up to 50 Commons results from previews (about a minute), calmest first. `-Variant dark|light|both` keeps images suggested for that variant, exact suggestions first, then those suggested for `both`. `-All` shows why candidates failed a gate. Try several words if nothing suits.
+
+To find the other half of a pair, search for the same kind of subject with the other variant, for example `-Search "dunes night" -Variant dark` for White Sands.
 
 ## 2. Check at full size
 
@@ -32,7 +39,7 @@ Grades up to 50 Commons results from previews (about a minute). Try several word
 pwsh build/wallpaper.ps1 -Check "File:<title>.jpg"
 ```
 
-Previews can be off by a little. Only the full-size check counts. It exits 1 on any failure.
+Previews can be off by a little. The full-size grades count. It exits 1 only on a failed gate.
 
 ## 3. Read the Commons page yourself
 
@@ -45,28 +52,25 @@ If anything is unclear, stop and ask the user. Do not add it.
 
 ## 4. Show the user before adding
 
-List the passing candidates with their Commons links and let the user pick. Taste is theirs, not the script's.
+List the candidates with their Commons links, grades, and suggested variant, and let the user pick the image and its mark. Taste is theirs, not the script's.
 
 ## 5. Add
 
 ```
-pwsh build/wallpaper.ps1 -Add "File:<title>.jpg" -Name <short-name>
+pwsh build/wallpaper.ps1 -Add "File:<title>.jpg" -Name <short-name> -Variant <dark|light|both>
 ```
 
-Saves the original byte for byte to `wallpapers/<short-name>.jpg`, writes the 640 px thumbnail, and prints a credit section. Paste it into `wallpapers/README.md` after the last wallpaper. Rewrite **Subject** as one plain line. Keep the README to what a reader needs: image, credit, license. No measurements or notes.
+`-Variant` is required; the script shows the suggestion beside it. It saves the original byte for byte to `wallpapers/<short-name>.jpg`, writes the 640 px thumbnail, and prints a credit section with the mark.
 
-Then run `pwsh build/check.ps1`. It confirms every wallpaper has a thumbnail and a credit.
+Paste it into `wallpapers/README.md`:
 
-## After a palette change
+- A single image gets its own `##` section, after the last one.
+- A pair is one `##` section, listed before single images, with both thumbnails and a `###` subsection per image: one `dark`, one `light`.
 
-Recheck every wallpaper, since the result depends on the palette:
+Rewrite **Subject** as one plain line. Keep the README to what a reader needs: image, mark, credit, license. No measurements or notes.
 
-```
-pwsh build/wallpaper.ps1 -Check wallpapers/<name>.jpg
-```
-
-If one fails, tell the user. The palette or the wallpaper has to give way; that is their call.
+Then run `pwsh build/check.ps1`. It confirms every wallpaper has a thumbnail, a credit, and a mark, and every pair has one dark and one light image.
 
 ## Report back
 
-One or two lines: which image, its license and author, and its tightest contrast.
+One or two lines: which image, its license and author, its mark, and the suggested variant if it differs.

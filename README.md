@@ -70,7 +70,7 @@ Free under the SIL Open Font License.
 
 [![White Sands dunes](wallpapers/thumbs/white-sands-dunes.jpg)](wallpapers/white-sands-dunes.jpg)
 
-Glass needs something behind it. [`wallpapers/`](wallpapers/) has desktop wallpapers that go well behind both variants, free to use. See [`wallpapers/README.md`](wallpapers/README.md).
+Glass needs something behind it. [`wallpapers/`](wallpapers/) has desktop wallpapers that go well behind Hyaline, each marked with the variant it suits, free to use. See [`wallpapers/README.md`](wallpapers/README.md).
 
 ## How it works
 

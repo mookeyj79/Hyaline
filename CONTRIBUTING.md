@@ -12,7 +12,7 @@ Thanks for helping. Hyaline only works if every port looks like it belongs to th
 
 ## Rules every port follows
 
-1. **No color values outside `palette/palette.json`.** Templates use `{{role}}` placeholders only. No hex, `rgb()`, `hsl()`, or named colors. Wallpapers are the one exception ([ADR 0003](docs/adr/0003-wallpapers-are-found-images.md)).
+1. **No color values outside `palette/palette.json`.** Templates use `{{role}}` placeholders only. No hex, `rgb()`, `hsl()`, or named colors. Wallpapers are the one exception ([ADR 0012](docs/adr/0012-wallpapers-are-chosen-by-taste.md)).
 2. **Never invent a color.** If a port needs something the palette lacks, open an issue proposing a palette change.
 3. **Never edit `dist/` by hand.** Change the template or the palette, then rebuild.
 4. **Both variants or neither.** If the app supports only one mode, ship that one and say so in the port README.
@@ -123,18 +123,20 @@ The quickest way is [Claude Code](https://claude.com/claude-code): open the repo
 Wallpapers come from [Wikimedia Commons](https://commons.wikimedia.org/), where every file has a recorded license and author. `build/wallpaper.ps1` finds, checks, and adds them:
 
 ```sh
-pwsh build/wallpaper.ps1 -Search "salt flat"                  # grade Commons candidates from previews
-pwsh build/wallpaper.ps1 -Check "File:Example.jpg"            # measure one at full size
-pwsh build/wallpaper.ps1 -Add "File:Example.jpg" -Name example  # save it, its thumbnail, and its credit
+pwsh build/wallpaper.ps1 -Search "salt flat"                                 # grade Commons candidates from previews
+pwsh build/wallpaper.ps1 -Search "dunes night" -Variant dark                 # only images that suit Dark
+pwsh build/wallpaper.ps1 -Check "File:Example.jpg"                           # grade one at full size
+pwsh build/wallpaper.ps1 -Add "File:Example.jpg" -Name example -Variant dark  # save it, its thumbnail, and its credit
 ```
 
-A wallpaper must pass every rule:
+Wallpapers are chosen by taste: calm, not busy, with color that doesn't fight the role colors. Two rules are hard:
 
 - **License**: allows redistribution: CC0, public domain, CC BY, or CC BY-SA. No NonCommercial or NoDerivatives.
-- **Fit**: light, low saturation, and low detail. A landscape JPEG at least 1920 px wide.
-- **Readable**: scaled to 1920 px and blurred 18 px, every role still meets the contrast floor on `panel`, and primary text on `chrome` and on a tab, in both variants.
+- **Format**: a landscape JPEG at least 1920 px wide.
 
-`-Add` saves the original unmodified as `wallpapers/<name>.jpg`, a 640 px thumbnail in `wallpapers/thumbs/`, and prints the credit section for [`wallpapers/README.md`](wallpapers/README.md). The check is not recorded: rerun `-Check` on every wallpaper after a palette change.
+Lightness, saturation, and detail are grades. They rank search results and suggest a variant from lightness: `light` at L* 60 or above, `dark` at 40 or below, `both` in between.
+
+`-Add` needs `-Variant dark`, `light`, or `both`, and shows the suggestion beside it. It saves the original unmodified as `wallpapers/<name>.jpg`, a 640 px thumbnail in `wallpapers/thumbs/`, and prints the credit section for [`wallpapers/README.md`](wallpapers/README.md). A pair (one dark and one light image of the same kind of subject) is one section with a subsection per image, listed before single images. `check.ps1` confirms every image has a thumbnail, a credit, and a variant mark, and every pair has one dark and one light image.
 
 ## Retake the preview screenshots
 
