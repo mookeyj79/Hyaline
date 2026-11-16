@@ -2,13 +2,20 @@
 :root[data-variant="light"] {
   color-scheme: light;
   --backdrop: #dfe6ee;
+  --wallpaper: url("../../../../wallpapers/white-sands-dunes.jpg");
   --chrome: rgba(255, 255, 255, 0.55);
+  --chrome-clamp: blur(30px) contrast(0.35) brightness(1.55) saturate(1.8);
+  --chrome-tint: rgba(255, 255, 255, 0.3);
   --chrome-flat: #e3e8ee;
   --panel: rgba(255, 255, 255, 0.96);
+  --panel-clamp: blur(30px) contrast(0.1) brightness(2.1) saturate(3);
+  --panel-tint: rgba(255, 255, 255, 0.55);
   --panel-flat: #fafbfc;
   --raised: rgba(255, 255, 255, 0.85);
   --raised-flat: #ffffff;
   --line: #c4ccd7;
+  --edge: rgba(255, 255, 255, 0.85);
+  --edge-flat: #ffffff;
   --text: #1b2130;
   --text-dim: #465066;
   --text-muted: #667085;
