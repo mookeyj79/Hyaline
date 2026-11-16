@@ -30,12 +30,12 @@ foreground-color='#1b2130'
 bold-color-same-as-fg=true
 bold-is-bright=false
 cursor-colors-set=true
-cursor-background-color='#2973b0'
+cursor-background-color='#2773b1'
 cursor-foreground-color='#ffffff'
 highlight-colors-set=true
-highlight-background-color='#2973b0'
+highlight-background-color='#2773b1'
 highlight-foreground-color='#ffffff'
-palette=['#1b2130', '#c04538', '#207e52', '#78710a', '#2973b0', '#ae47a0', '#18788b', '#d3dae3', '#667085', '#c04538', '#207e52', '#78710a', '#2973b0', '#ae47a0', '#18788b', '#f9fafc']
+palette=['#1b2130', '#c14437', '#287d54', '#767124', '#2773b1', '#ae47a0', '#287788', '#c4ccd7', '#667085', '#c14437', '#287d54', '#767124', '#2773b1', '#ae47a0', '#287788', '#ffffff']
 use-system-font=false
 font='FiraCode Nerd Font Mono 12'
 EOF
@@ -48,12 +48,12 @@ if [ "$glass" = true ]; then
 background-color='#ffffff'
 use-theme-transparency=false
 use-transparent-background=true
-background-transparency-percent=$((100 - 93))
+background-transparency-percent=$((100 - 96))
 EOF
 else
   dconf load "$base/:$uuid/" <<'EOF'
 [/]
-background-color='#f3f6f9'
+background-color='#fafbfc'
 use-theme-transparency=false
 use-transparent-background=false
 EOF

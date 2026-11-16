@@ -8,6 +8,11 @@
  * Layout: the sidebar, title bar, and footer are chrome (frame).
  * The writing area is the panel. Menus, dialogs, and popovers are raised.
  * Colored text only ever sits on the panel.
+ *
+ * The edge: a 1 px lit hairline on the top inside of chrome, raised
+ * surfaces, code blocks, and inputs, drawn as an inset box-shadow so the
+ * line borders stay. On Light's white raised surfaces it vanishes, and the
+ * line border carries the lift.
  */
 
 /* --- Typora variables ------------------------------------------------ */
@@ -398,7 +403,11 @@ pre.md-fences.mock-cm,
 }
 
 .code-tooltip,
-div.code-tooltip,
+div.code-tooltip {
+    background: {{raised_flat}};
+    border: 1px solid {{line}};
+}
+
 .md-hover-tip .md-arrow:after {
     background: {{raised_flat}};
     border: 1px solid {{line}};
@@ -541,7 +550,6 @@ div.code-tooltip,
 
 #typora-sidebar {
     border-right: 1px solid {{line}};
-    box-shadow: none;
 }
 
 .sidebar-tabs {
@@ -744,7 +752,6 @@ textarea,
     background: {{panel_flat}};
     border: 1px solid {{line}};
     border-radius: 4px;
-    box-shadow: none;
 }
 
 input:not([type="checkbox"]):not([type="radio"]):focus,
@@ -755,7 +762,6 @@ textarea:focus,
 .modal-content input:focus {
     border-color: {{accent}};
     outline: none;
-    box-shadow: none;
 }
 
 .input-group-addon,
@@ -1000,6 +1006,55 @@ div.mermaidTooltip {
     background: {{raised_flat}};
     color: {{text}};
     border: 1px solid {{line}};
+}
+
+/* --- The edge --------------------------------------------------------- */
+
+/* The lit hairline on chrome, raised surfaces, code blocks, and inputs. */
+pre.md-fences,
+pre.md-fences.mock-cm,
+.md-fences,
+.code-tooltip,
+div.code-tooltip,
+#typora-sidebar,
+#top-titlebar,
+footer.ty-footer,
+.context-menu,
+.dropdown-menu,
+#spell-check-panel,
+#toc-dropmenu,
+#sidebar-files-menu,
+.auto-suggest-container,
+#typora-quick-open,
+.popover,
+.modal-content,
+#md-searchpanel,
+.megamenu-content,
+.megamenu-opened header,
+#md-notification,
+#ty-tooltip,
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea,
+#typora-quick-open input,
+#md-searchpanel input,
+.modal-content input,
+.megamenu-menu-panel input[type='text'],
+.ty-preferences input[type="search"],
+.ty-preferences select,
+input:not([type="checkbox"]):not([type="radio"]):focus,
+select:focus,
+textarea:focus,
+#typora-quick-open input:focus,
+#md-searchpanel input:focus,
+.modal-content input:focus,
+.modal-footer .btn,
+.btn-default,
+.ty-preferences .btn-default,
+.megamenu-menu-panel .btn,
+#recent-file-panel-action-btn,
+div.mermaidTooltip {
+    box-shadow: inset 0 1px 0 {{edge_flat}};
 }
 
 /* --- Print and export ------------------------------------------------- */

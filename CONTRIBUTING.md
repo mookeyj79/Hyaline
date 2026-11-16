@@ -12,7 +12,7 @@ Thanks for helping. Hyaline only works if every port looks like it belongs to th
 
 ## Rules every port follows
 
-1. **No color values outside `palette/palette.json`.** Templates use `{{role}}` placeholders only. No hex, `rgb()`, `hsl()`, or named colors. Wallpapers are the one exception ([ADR 0003](docs/adr/0003-wallpapers-are-found-images.md)).
+1. **No color values outside `palette/palette.json`.** Templates use `{{role}}` placeholders only. No hex, `rgb()`, `hsl()`, or named colors. Wallpapers are the one exception ([ADR 0012](docs/adr/0012-wallpapers-are-chosen-by-taste.md)).
 2. **Never invent a color.** If a port needs something the palette lacks, open an issue proposing a palette change.
 3. **Never edit `dist/` by hand.** Change the template or the palette, then rebuild.
 4. **Both variants or neither.** If the app supports only one mode, ship that one and say so in the port README.
@@ -55,7 +55,7 @@ The quickest way is [Claude Code](https://claude.com/claude-code): open the repo
 
 1. **Research** the app's theme format, install path, light and dark support, translucency, and where it sets its font. Use official docs.
 2. **Pick a tier**: 1 Full glass, 2 Flat, or 3 Minimal (see [PHILOSOPHY.md](PHILOSOPHY.md#port-tiers)).
-3. **Map every color slot to a role.** Use `chrome` for the frame (title bars, tabs, sidebars) and `panel` for content. Follow the syntax and terminal mappings in PHILOSOPHY.md.
+3. **Map every color slot to a role.** Use `chrome` for the frame (title bars, tabs, sidebars) and `panel` for content. Draw the edge with `edge` on glass and `edge_flat` on solid surfaces, and the line around a window with `window_edge` or `window_edge_flat`. Follow the syntax and terminal mappings in PHILOSOPHY.md.
 4. **Write the template** in `Ports/<app_name>/template/`, using these placeholders:
 
    | Placeholder | Output |
@@ -70,6 +70,8 @@ The quickest way is [Claude Code](https://claude.com/claude-code): open the repo
    | `{{role\|wash}}` | `#rrggbbaa` using the variant's `wash` alpha, for see-through highlights. Wash roles only: `accent` and the seven colors |
    | `{{role\|washflat}}` | `#rrggbb`, the wash laid over `panel_flat`, for apps that take solid colors only. Wash roles only |
    | `{{role\|clear}}` | `#rrggbb00`, fully transparent, for app settings that can only be switched off with a color |
+   | `{{role\|clamp}}` | the CSS `backdrop-filter` value for the glass, `blur(30px) contrast(c) brightness(b) saturate(s)`. `chrome` and `panel` only |
+   | `{{role\|clamptint}}` | `rgba(r, g, b, a)`, the thin tint laid over the clamp, for the same surface's background. `chrome` and `panel` only |
    | `{{ansi.<slot>}}` | the role for a terminal ANSI slot per ADR 0001 (`black` to `white`, `bright_<slot>`), takes the same filters |
    | `{{meta.name}}`, `{{meta.version}}`, `{{meta.repository}}` | theme name, palette version, repo URL |
    | `{{variant.name}}`, `{{variant.mode}}`, `{{variant.key}}` | variant name, `dark` or `light`, the variant's key in the palette |
@@ -121,18 +123,20 @@ The quickest way is [Claude Code](https://claude.com/claude-code): open the repo
 Wallpapers come from [Wikimedia Commons](https://commons.wikimedia.org/), where every file has a recorded license and author. `build/wallpaper.ps1` finds, checks, and adds them:
 
 ```sh
-pwsh build/wallpaper.ps1 -Search "salt flat"                  # grade Commons candidates from previews
-pwsh build/wallpaper.ps1 -Check "File:Example.jpg"            # measure one at full size
-pwsh build/wallpaper.ps1 -Add "File:Example.jpg" -Name example  # save it, its thumbnail, and its credit
+pwsh build/wallpaper.ps1 -Search "salt flat"                                 # grade Commons candidates from previews
+pwsh build/wallpaper.ps1 -Search "dunes night" -Variant dark                 # only images that suit Dark
+pwsh build/wallpaper.ps1 -Check "File:Example.jpg"                           # grade one at full size
+pwsh build/wallpaper.ps1 -Add "File:Example.jpg" -Name example -Variant dark  # save it, its thumbnail, and its credit
 ```
 
-A wallpaper must pass every rule:
+Wallpapers are chosen by taste: calm, not busy, with color that doesn't fight the role colors. Two rules are hard:
 
 - **License**: allows redistribution: CC0, public domain, CC BY, or CC BY-SA. No NonCommercial or NoDerivatives.
-- **Fit**: light, low saturation, and low detail. A landscape JPEG at least 1920 px wide.
-- **Readable**: scaled to 1920 px and blurred 18 px, every role still meets the contrast floor on `panel`, and primary text on `chrome` and on a tab, in both variants.
+- **Format**: a landscape JPEG at least 1920 px wide.
 
-`-Add` saves the original unmodified as `wallpapers/<name>.jpg`, a 640 px thumbnail in `wallpapers/thumbs/`, and prints the credit section for [`wallpapers/README.md`](wallpapers/README.md). The check is not recorded: rerun `-Check` on every wallpaper after a palette change.
+Lightness, saturation, and detail are grades. They rank search results and suggest a variant from lightness: `light` at L* 60 or above, `dark` at 40 or below, `both` in between.
+
+`-Add` needs `-Variant dark`, `light`, or `both`, and shows the suggestion beside it. It saves the original unmodified as `wallpapers/<name>.jpg`, a 640 px thumbnail in `wallpapers/thumbs/`, and prints the credit section for [`wallpapers/README.md`](wallpapers/README.md). A pair (one dark and one light image of the same kind of subject) is one section with a subsection per image, listed before single images. `check.ps1` confirms every image has a thumbnail, a credit, and a variant mark, and every pair has one dark and one light image.
 
 ## Retake the preview screenshots
 

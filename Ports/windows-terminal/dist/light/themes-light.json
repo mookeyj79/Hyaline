@@ -5,15 +5,15 @@
       "window": {
         "applicationTheme": "light",
         "useMica": true,
-        "frame": "#2973b0",
-        "unfocusedFrame": "#d3dae3"
+        "frame": "#2773b1",
+        "unfocusedFrame": "#c4ccd7"
       },
       "tabRow": {
-        "background": "#ffffff4c",
-        "unfocusedBackground": "#ffffff4c"
+        "background": "#ffffff8c",
+        "unfocusedBackground": "#ffffff8c"
       },
       "tab": {
-        "background": "#f3f6f9",
+        "background": "#fafbfc",
         "unfocusedBackground": null
       }
     },
@@ -22,15 +22,15 @@
       "window": {
         "applicationTheme": "light",
         "useMica": false,
-        "frame": "#2973b0",
-        "unfocusedFrame": "#d3dae3"
+        "frame": "#2773b1",
+        "unfocusedFrame": "#c4ccd7"
       },
       "tabRow": {
-        "background": "#e9eef3",
-        "unfocusedBackground": "#e9eef3"
+        "background": "#e3e8ee",
+        "unfocusedBackground": "#e3e8ee"
       },
       "tab": {
-        "background": "#f3f6f9",
+        "background": "#fafbfc",
         "unfocusedBackground": null
       }
     }

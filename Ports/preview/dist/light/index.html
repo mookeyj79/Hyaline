@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Hyaline Preview</title>
-<meta name="description" content="Hyaline 0.3.1: one theme, two variants. Mock apps, roles, and contrast for Hyaline Dark and Hyaline Light.">
+<meta name="description" content="Hyaline 1.0.0: one theme, two variants. Mock apps, roles, and contrast for Hyaline Dark and Hyaline Light.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
@@ -34,22 +34,23 @@ h1 span { color: var(--accent); text-transform: capitalize; }
 .panel.win { overflow: hidden; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
 /* Content inside a window sits on panel; the title bar is chrome. */
 .win > :not(.bar):not(.status) {
-  background: var(--panel);
-  -webkit-backdrop-filter: var(--blur);
-  backdrop-filter: var(--blur);
+  background: var(--panel-glass);
+  -webkit-backdrop-filter: var(--panel-filter);
+  backdrop-filter: var(--panel-filter);
 }
 .bar {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
   padding: 8px 12px;
-  background: var(--chrome);
-  -webkit-backdrop-filter: var(--blur);
-  backdrop-filter: var(--blur);
+  background: var(--chrome-glass);
+  -webkit-backdrop-filter: var(--chrome-filter);
+  backdrop-filter: var(--chrome-filter);
   border-bottom: 1px solid var(--line);
+  box-shadow: var(--edge-top);
   font: 400 .75rem var(--font-mono);
   color: var(--text);
 }
-.bar .tab { padding: 2px 10px; border-radius: 5px; background: var(--raised); }
-.bar .url { flex: 1; min-width: 0; padding: 3px 12px; border-radius: 99px; background: var(--raised); overflow-wrap: anywhere; }
+.bar .tab { padding: 2px 10px; border-radius: 5px; background: var(--raised); box-shadow: var(--lift-ring); }
+.bar .url { flex: 1; min-width: 0; padding: 3px 12px; border-radius: 99px; background: var(--raised); box-shadow: var(--lift-ring); overflow-wrap: anywhere; }
 .bar .kind { margin-left: auto; font: 500 .7rem var(--font-display); letter-spacing: .1em; text-transform: uppercase; }
 pre {
   margin: 0;
@@ -89,13 +90,13 @@ pre {
 .doc .meta { font: .72rem var(--font-mono); color: var(--text-muted); }
 .doc p { margin: 0; color: var(--text-dim); font-size: .92rem; max-width: 62ch; }
 .doc code { font: .82rem var(--font-mono); color: var(--orange); background: var(--raised); padding: 1px 5px; border-radius: 4px; }
-.callout { border: 1px solid var(--line); border-left: 3px solid currentColor; border-radius: 0 6px 6px 0; padding: 8px 12px; background: var(--raised); font-size: .88rem; }
+.callout { border: 1px solid var(--line); border-left: 3px solid currentColor; border-radius: 0 6px 6px 0; padding: 8px 12px; background: var(--raised); box-shadow: var(--lift); font-size: .88rem; }
 .callout b { font-weight: 500; }
 .callout span { color: var(--text-dim); }
 .field { display: flex; flex-direction: column; gap: 4px; font-size: .82rem; color: var(--text-dim); }
 .field input {
   font: .85rem var(--font-body); color: var(--text);
-  background: var(--raised); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px;
+  background: var(--raised); box-shadow: var(--lift); border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px;
 }
 .field input:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
 .field input::placeholder { color: var(--text-muted); }
@@ -115,7 +116,7 @@ pre {
 
 /* Dashboard */
 .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
-.tile { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--raised); display: flex; flex-direction: column; gap: 4px; }
+.tile { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--raised); box-shadow: var(--lift); display: flex; flex-direction: column; gap: 4px; }
 .tile .name { display: flex; align-items: center; gap: 7px; font: 500 .78rem var(--font-mono); }
 .tile .name span { color: var(--text); }
 .tile .val { font: 600 1.25rem/1.2 var(--font-display); color: var(--text); font-variant-numeric: tabular-nums; }
@@ -131,7 +132,7 @@ pre {
 .diagram-note code { font-family: var(--font-mono); color: var(--orange); }
 
 /* Font specimen */
-.specimen { border: 1px solid var(--line); border-radius: 8px; background: var(--raised); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; font-family: var(--font-mono); min-width: 0; }
+.specimen { border: 1px solid var(--line); border-radius: 8px; background: var(--raised); box-shadow: var(--lift); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; font-family: var(--font-mono); min-width: 0; }
 .spec-name { font-weight: 500; font-size: 1.15rem; }
 .spec-line { font-size: .9rem; white-space: pre-wrap; overflow-wrap: anywhere; }
 .icons { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .78rem; color: var(--text-dim); }
@@ -144,7 +145,7 @@ h2 { font: 600 1.1rem var(--font-display); margin: 0; }
 h2 + p { margin: -6px 0 0; color: var(--text-dim); font-size: .9rem; }
 h3.group { font: 500 .75rem var(--font-display); letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); margin: 6px 0 0; }
 .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
-.sw { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--raised); }
+.sw { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--raised); box-shadow: var(--lift); }
 .sw .chip { height: 40px; border-bottom: 1px solid var(--line); }
 .sw .info { padding: 6px 9px 8px; font: .72rem/1.45 var(--font-mono); display: flex; flex-direction: column; }
 .sw .info b { font-weight: 500; color: var(--text); }
@@ -172,7 +173,7 @@ footer p + p { margin-top: 4px; }
 </head>
 <body>
 <div class="topbar">
-  <span class="brand">Hyaline<small>v0.3.1</small></span>
+  <span class="brand">Hyaline<small>v1.0.0</small></span>
   <div class="topbar-end">
     <a class="repo" href="ports.html" data-page="ports.html"><span class="repo-label">Ports</span></a>
     <a class="repo" href="https://github.com/mookeyj79/Hyaline"><span class="repo-icon" aria-hidden="true">&#xF09B;</span><span class="repo-label">GitHub</span></a>
@@ -188,7 +189,7 @@ footer p + p { margin-top: 4px; }
     <h1 id="title">Hyaline <span id="variant-name">light</span></h1>
     <p>Smoke by night, frost by day. One theme, two variants, the same look in every app. Switch variants at the top and everything below repaints.</p>
     <p class="note">The apps below are mockups that show how each role is used. They are not screenshots of real ports. All sample data is made up.</p>
-    <p class="note">The top bar and the title bars are chrome: clear glass that carries primary text only. Everything you read sits on the denser panel, so every color stays readable over the wallpaper.</p>
+    <p class="note">The top bar and the title bars are chrome: clear glass that carries primary text only. Everything else sits on the panel, which clamps the wallpaper behind it harder, so every color stays readable over any wallpaper. A lit edge runs along the top of chrome and raised surfaces and around each window.</p>
   </section>
 
   <section class="panel win" aria-label="Terminal mockup">
@@ -311,7 +312,7 @@ footer p + p { margin-top: 4px; }
 
   <section class="panel ref" aria-labelledby="roles">
     <h2 id="roles">Roles</h2>
-    <p>Every color in every port comes from one of these. Contrast is measured against the flat panel, the worst case.</p>
+    <p>Every color in every port comes from one of these. Contrast is measured against the flat panel.</p>
     <div id="swatches"></div>
   </section>
 
@@ -357,7 +358,7 @@ footer p + p { margin-top: 4px; }
   </section>
 
   <footer class="panel">
-    <p>Hyaline 0.3.1. Every color on this page is generated from <code>palette/palette.json</code>.</p>
+    <p>Hyaline 1.0.0. Every color on this page is generated from <code>palette/palette.json</code>.</p>
     <p>Ports, install guides, and the palette are on <a href="https://github.com/mookeyj79/Hyaline">GitHub</a>.</p>
   </footer>
 </main>
@@ -377,7 +378,9 @@ footer p + p { margin-top: 4px; }
       ["panel-flat", "Main surface, solid"],
       ["raised", "Lifted surface, translucent"],
       ["raised-flat", "Lifted surface, solid"],
-      ["line", "Borders and dividers"]
+      ["line", "Borders and dividers"],
+      ["edge", "Lit hairline, translucent"],
+      ["edge-flat", "Lit hairline, solid"]
     ]},
     { title: "Text", roles: [
       ["text", "Content", 4.5],

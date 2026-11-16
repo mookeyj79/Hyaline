@@ -5,12 +5,14 @@
 
 .DESCRIPTION
     1. Palette       Both variants exist, every required role is present and valid.
-    2. Contrast      Text and color roles meet the contrast floor in PHILOSOPHY.md,
-                     measured against panel_flat. Primary text must also pass on
-                     chrome_flat, the only text role chrome carries. On raised_flat,
-                     anything under 3:1 is reported as a warning. On a wash (a
-                     color role at the variant's wash alpha over panel_flat),
-                     text and text_dim need 4.5:1, muted and color roles 3:1.
+    2. Contrast      Text and color roles meet the contrast floor in PHILOSOPHY.md
+                     (ADR 0011). Solid surfaces are measured as drawn. Chrome and
+                     panel glass are measured over pure black and pure white, at
+                     the dense alpha and through the clamp, and every result must
+                     pass. Chrome carries primary text only. On raised (raised_flat,
+                     and translucent raised on the clamped panel) color roles need
+                     3:1. On a wash over any panel surface, text needs 4.5:1,
+                     everything else 3:1. line and edge have no floor.
     3. Structure     Every port has a README.md and a template/ folder, and a
                      site.json, where there is one, points at real files.
     4. Port list     Every port has a valid port.json (except folders listed as
@@ -30,9 +32,10 @@
                      .svg and .xml are well formed, and .css has balanced
                      braces, comments, and quotes.
    10. Wallpapers   Every image in wallpapers/ has a thumbnail and a section in
-                     wallpapers/README.md with its author, source, and license.
-                     Contrast over a wallpaper needs an image library, so it is
-                     checked by build/wallpaper.ps1 -Check, not here.
+                     wallpapers/README.md with its author, source, license, and
+                     variant mark. Each pair has one dark and one light image,
+                     and pairs come before single images. A port's values.json
+                     shows a wallpaper only in a variant it is marked for.
    11. Prose         No em dashes in the repo's Markdown (outside dist/ and
                      third-party assets/). Add "hyaline-ignore" to a line to
                      skip it.
@@ -57,7 +60,6 @@ $RepoRoot  = Split-Path -Parent $PSScriptRoot
 $PortsRoot = Join-Path $RepoRoot 'Ports'
 
 $script:Failures = [System.Collections.Generic.List[string]]::new()
-$script:Warnings = [System.Collections.Generic.List[string]]::new()
 function Add-Failure([string]$Message) { $script:Failures.Add($Message) }
 
 function Invoke-Section([string]$Title, [scriptblock]$Body) {
@@ -85,7 +87,6 @@ if ($paletteOk) {
     Invoke-Section 'Contrast' {
         $c = Test-PaletteContrast -Palette $palette
         foreach ($f in $c.Failures) { Add-Failure "Contrast: $f" }
-        foreach ($w in $c.Warnings) { $script:Warnings.Add("Contrast: $w") }
     }
 }
 else { Skip-Section 'Contrast' 'fix the palette first' }
@@ -272,7 +273,16 @@ Invoke-Section 'Format' {
 # --- 10. Wallpapers -------------------------------------------------------------
 
 Invoke-Section 'Wallpapers' {
-    foreach ($e in Test-WallpaperFolder -Path (Join-Path $RepoRoot 'wallpapers')) { Add-Failure "Wallpapers: $e" }
+    $wallpaperDir = Join-Path $RepoRoot 'wallpapers'
+    foreach ($e in Test-WallpaperFolder -Path $wallpaperDir) { Add-Failure "Wallpapers: $e" }
+    foreach ($port in $catalog.Ports) {
+        $valuesPath = Join-Path $port.Dir 'values.json'
+        if (-not (Test-Path $valuesPath)) { continue }
+        # Invalid JSON is reported by the Placeholders section.
+        try { $values = Get-Content -Raw -Path $valuesPath | ConvertFrom-Json -AsHashtable } catch { continue }
+        if ($values -isnot [System.Collections.IDictionary]) { continue }
+        foreach ($e in Test-WallpaperUse -Path $wallpaperDir -Values $values -Source (Get-RepoPath $valuesPath)) { Add-Failure "Wallpapers: $e" }
+    }
 }
 
 # --- 11. Prose ------------------------------------------------------------------
@@ -308,7 +318,6 @@ Invoke-Section 'Prose' {
 Write-Host ''
 if ($catalog.Ports.Count -eq 0) { Write-Host 'No ports yet. Palette checks only.' }
 
-foreach ($w in $script:Warnings) { Write-Host "warning: $w" -ForegroundColor Yellow }
 foreach ($f in $script:Failures) { Write-Host "FAIL: $f" -ForegroundColor Red }
 
 if ($script:Failures.Count -gt 0) {
@@ -316,5 +325,5 @@ if ($script:Failures.Count -gt 0) {
     Write-Host "$($script:Failures.Count) check(s) failed." -ForegroundColor Red
     exit 1
 }
-Write-Host "All checks passed ($($catalog.Ports.Count) port(s), $($script:Warnings.Count) warning(s))."
+Write-Host "All checks passed ($($catalog.Ports.Count) port(s))."
 exit 0

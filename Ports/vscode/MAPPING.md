@@ -9,6 +9,7 @@ VS Code cannot make its window translucent, so this is a Flat port: every surfac
 - **Chrome** (`chrome_flat`): title bar, activity bar, status bar, and the empty part of the tab strip. They carry `text` and solid `accent` fills only.
 - **Content** (`panel_flat`): the editor, side bar, bottom panel, tabs, and the hover, suggest, and peek widgets. Tabs and the side bar show colored git and problem labels, and widgets show code, so they stay on the panel where every color passes.
 - **Raised** (`raised_flat`): inputs, dropdowns, menus, quick pick, and the command center.
+- **Edge** (`edge_flat`): VS Code has no inner top hairline, so the edge is drawn with the borders it does expose along the top of an area: the status bar's top border, the side bar and panel section headers, and the top of the active tab in an unfocused group. The active tab in the focused group keeps its `accent` top border, since that marks state. See [the edge as borders](#the-edge-as-borders).
 - **Washes**: selections, find matches, word highlights, and diff and merge lines use a color role at the variant's wash alpha, so the code under them keeps its colors.
 
 ## Role mapping
@@ -48,7 +49,7 @@ Every color the theme sets.
 | `titleBar.activeForeground`, `titleBar.inactiveForeground` | `text` |
 | `titleBar.border` | `line` |
 | `window.activeBorder` | `accent` |
-| `window.inactiveBorder` | `line` |
+| `window.inactiveBorder` | `window_edge_flat` |
 | `commandCenter.background`, `commandCenter.activeBackground` | `raised_flat` |
 | `commandCenter.foreground`, `commandCenter.activeForeground` | `text` |
 | `commandCenter.border`, `commandCenter.inactiveBorder` | `line` |
@@ -63,7 +64,7 @@ Every color the theme sets.
 | `activityBarBadge.foreground` | `on_accent` |
 | `statusBar.background`, `statusBar.noFolderBackground` | `chrome_flat` |
 | `statusBar.foreground`, `statusBar.noFolderForeground` | `text` |
-| `statusBar.border` | `line` |
+| `statusBar.border` | `edge_flat` |
 | `statusBar.focusBorder` | `accent` |
 | `statusBar.debuggingBackground`, `statusBarItem.remoteBackground`, `statusBarItem.prominentBackground` | `accent` |
 | `statusBar.debuggingForeground`, `statusBarItem.remoteForeground`, `statusBarItem.prominentForeground` | `on_accent` |
@@ -80,7 +81,8 @@ Every color the theme sets.
 |---|---|
 | `sideBar.background`, `sideBarSectionHeader.background` | `panel_flat` |
 | `sideBar.foreground`, `sideBarTitle.foreground`, `sideBarSectionHeader.foreground` | `text` |
-| `sideBar.border`, `sideBarSectionHeader.border` | `line` |
+| `sideBar.border` | `line` |
+| `sideBarSectionHeader.border` | `edge_flat` |
 | `sideBar.dropBackground` | `accent` wash |
 | `editorGroupHeader.tabsBackground` | `chrome_flat` |
 | `editorGroupHeader.noTabsBackground` | `panel_flat` |
@@ -90,7 +92,8 @@ Every color the theme sets.
 | `tab.activeForeground`, `tab.unfocusedActiveForeground` | `text` |
 | `tab.inactiveForeground`, `tab.unfocusedInactiveForeground` | `text_dim` |
 | `tab.activeBorderTop` | `accent` |
-| `tab.unfocusedActiveBorderTop`, `tab.border` | `line` |
+| `tab.unfocusedActiveBorderTop` | `edge_flat` |
+| `tab.border` | `line` |
 | `tab.hoverBackground`, `tab.unfocusedHoverBackground` | `raised_flat` |
 | `tab.activeModifiedBorder`, `tab.inactiveModifiedBorder` | `yellow` |
 | `breadcrumb.background` | `panel_flat` |
@@ -105,7 +108,7 @@ Every color the theme sets.
 | `panelTitle.activeBorder` | `accent` |
 | `panelSectionHeader.background` | `panel_flat` |
 | `panelSectionHeader.foreground` | `text` |
-| `panelSectionHeader.border` | `line` |
+| `panelSectionHeader.border` | `edge_flat` |
 
 **Lists and trees**
 
@@ -386,6 +389,24 @@ Every color the theme sets.
 
 Semantic tokens follow the same table: types, classes, and namespaces are `cyan`, functions, methods, and properties `blue`, enum members, keywords, and macros `magenta`, decorators and events `yellow`, parameters and variables `text`.
 
+## The edge as borders
+
+Each key below was looked up in the [Theme Color reference](https://code.visualstudio.com/api/references/theme-color).
+
+| Key | What the reference says it draws | Role |
+|---|---|---|
+| [`statusBar.border`](https://code.visualstudio.com/api/references/theme-color#status-bar-colors) | the border separating the status bar and editor, so the top of the status bar | `edge_flat` |
+| [`sideBarSectionHeader.border`](https://code.visualstudio.com/api/references/theme-color#side-bar) | the side bar section header border | `edge_flat` |
+| [`panelSectionHeader.border`](https://code.visualstudio.com/api/references/theme-color#panel-colors) | the panel section header border, when views are stacked | `edge_flat` |
+| [`tab.unfocusedActiveBorderTop`](https://code.visualstudio.com/api/references/theme-color) | the top border of the active tab in an inactive group | `edge_flat` |
+| [`window.inactiveBorder`](https://code.visualstudio.com/api/references/theme-color#window-border) | the border around an inactive window, with the custom title bar | `window_edge_flat` |
+| [`input.border`](https://code.visualstudio.com/api/references/theme-color#input-control), [`dropdown.border`](https://code.visualstudio.com/api/references/theme-color#dropdown-control), `checkbox.border`, [`menu.border`](https://code.visualstudio.com/api/references/theme-color#menu-bar-colors), [`commandCenter.border`](https://code.visualstudio.com/api/references/theme-color#command-center-colors), `commandCenter.inactiveBorder` | the whole outline of a raised surface | `line` |
+
+- **The window outline** is `window_edge_flat`, which is the edge in Dark and `line` in Light (ADR 0009). The active window's border is `accent` instead: it marks which window has focus, so it is a state border (ADR 0011).
+- **One role per key.** A template sets one role for both variants. The raised outlines use `line`, which Light calls for (ADR 0009: on white raised surfaces `line` carries the lift). In Dark, `edge_flat` and `line` are one step apart, so Dark looks the same as with the edge.
+- **No top-only key for raised surfaces or the title bar.** Inputs, dropdowns, menus, quick pick, and the command center only take a full outline, and quick pick has no border key of its own. `titleBar.border` sits under the title bar, so it stays `line`. A white full outline in Light would erase the white raised surfaces against the panel.
+- **Light's edge is white.** On the near-white panel, the section header and tab top edges are barely there, by design: the edge is light catching the glass, not a divider.
+
 ## Gaps and trade-offs
 
 - **No glass.** VS Code cannot make its window translucent, so the port is Tier 2 and uses flat values throughout.
@@ -393,6 +414,7 @@ Semantic tokens follow the same table: types, classes, and namespaces are `cyan`
 - **Changed characters inside a diff line** get a thin `green` or `red` border instead of a stronger tint. Two washes on top of each other would drop text below the contrast floor.
 - **Rainbow brackets are off.** All bracket pair colors are `text_dim`, since brackets are punctuation.
 - **Button hover** does not change color. The palette has one accent, with no hover shade.
+- **Line and range highlights** (`editor.lineHighlightBackground`, `editor.lineHighlightBorder`, `editor.rangeHighlightBackground`, `editor.findRangeHighlightBackground`, `editor.hoverHighlightBackground`, `editorInlayHint.background`) stay `raised` with its alpha. The reference asks for three of them not to be opaque, so decorations show through, and they always sit on the solid editor (`panel_flat`), never over the wallpaper. They are line highlights, held to the floor like a wash (ADR 0011): primary text needs 4.5 on them, and role colors and dim or muted text need 3. Laid over `panel_flat`, Dark's `raised` comes out exactly `raised_flat`: `text` is 6.33, the lowest role color is `magenta` at 3.71, and `text_muted` is 3.62. Light's is near white, with role colors at 4.95 and up.
 - **Shadows** under widgets and menus use VS Code's default shadow. The palette has no shadow color.
 - **Settings not listed above** keep VS Code's default for the base theme (Dark Modern or Light Modern). That covers newer or rarely seen parts, such as the notebook editor, chat, and the welcome page.
 - **Publisher.** `template/package.json` uses `hyaline` as a placeholder publisher ID. Replace it with the real Marketplace publisher ID once one exists, then rebuild.

@@ -14,7 +14,7 @@ Typora variables:
 | `--meta-content-color` (link and image addresses) | `cyan` |
 | `--side-bar-bg-color` | `chrome_flat` |
 | `--control-text-color`, `--control-text-hover-color` | `text` |
-| `--window-border` | `line` |
+| `--window-border` (borders for the sidebar and similar parts) | `line` |
 | `--item-hover-bg-color` / `--item-hover-text-color` | `raised_flat` / `text` |
 | `--active-file-bg-color` / `--active-file-text-color` | `accent` / `on_accent` |
 | `--primary-color`, `--primary-btn-border-color` | `accent` |
@@ -33,6 +33,7 @@ Surfaces:
 | Borders, rules, table lines, scrollbars | `line` |
 | Selected text, open file, active menu item, primary buttons | `accent` with `on_accent` |
 | Modal backdrop | `backdrop` |
+| Edge: top inside of the sidebar, title bar, footer, code blocks, inputs, buttons, menus, dialogs, and tooltips | `edge_flat` |
 
 Writing:
 
@@ -87,6 +88,8 @@ Mermaid diagrams:
 ## Gaps and trade-offs
 
 - **No glass.** Typora's window is opaque, and themes cannot make it see-through or blurred. Tier 2, flat roles throughout.
+- **The edge is an inset shadow.** It is drawn as `box-shadow: inset 0 1px 0` with `edge_flat`, so it sits inside the existing `line` borders and adds no layout. On Light's white raised surfaces it is white on white, and the `line` border carries the lift, as ADR 0009 asks.
+- **No window outline.** Typora's docs describe `--window-border` as the "border for sidebar, etc", not the window frame, and document no CSS that reaches the window outline. The OS draws the frame, so the port draws no outline in either variant, and `--window-border` stays `line`.
 - **Colored text stays on the panel.** In Hyaline Dark, `raised_flat` is too light for colored text to pass the contrast floor, so code blocks and inline code use `panel_flat` with a `line` border instead of a lifted background.
 - **Some of Typora's own UI keeps its look.** Parts of the preferences window, the export dialog, and a few icons are styled by Typora and only partly follow the theme.
 - **Typora's class names are not a stable API.** Typora says its CSS variables "may change in future". A Typora update can leave a part unstyled until the port catches up.
@@ -96,6 +99,6 @@ Mermaid diagrams:
 
 ## Research
 
-- What each official doc page was used for: About Themes (Open Theme Folder, file naming, how menu names are built, separate themes for light and dark mode); Write a Custom Theme (CSS variables, `#write`, `.md-fences`, `.cm-s-inner`, `.cm-s-typora-default`, debug tools); Add Custom CSS (`base.user.css` and load order); Custom Font (`--monospace`, `body` font, `#typora-source`, font size setting); Dark Mode and Typora on Windows (following the OS mode); 0.9.98 release notes (themes per light and dark mode).
+- What each official doc page was used for: [Write a Custom Theme](https://theme.typora.io/doc/Write-Custom-Theme/) for `--window-border` ("border for sidebar, etc") and the other variables, which shaped where the edge goes; About Themes (Open Theme Folder, file naming, how menu names are built, separate themes for light and dark mode); Write a Custom Theme (CSS variables, `#write`, `.md-fences`, `.cm-s-inner`, `.cm-s-typora-default`, debug tools); Add Custom CSS (`base.user.css` and load order); Custom Font (`--monospace`, `body` font, `#typora-source`, font size setting); Dark Mode and Typora on Windows (following the OS mode); 0.9.98 release notes (themes per light and dark mode).
 - Theme studied: Typora's built-in [Night theme](https://github.com/typora/typora-default-themes) (no license stated), for which UI selectors a dark theme must cover. Selector names only; no rules or colors reused.
 - Ports studied: [Catppuccin for Typora](https://github.com/vari-sh/Catppuccin-Typora) (community port) and [Dracula for Typora](https://github.com/Teyler7/dracula-typora-theme). Method only: one CSS file per variant, installed through Open Theme Folder. No files or colors reused.

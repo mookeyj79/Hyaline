@@ -34,14 +34,14 @@ h1 { font: 600 1.9rem/1.15 var(--font-display); margin: 0; text-wrap: balance; }
 .search input {
   flex: 1; min-width: 0;
   font: .95rem var(--font-body); color: var(--text);
-  background: var(--raised); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px;
+  background: var(--raised); box-shadow: var(--lift); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px;
 }
 .search input:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
 .search input::placeholder { color: var(--text-muted); }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip {
   font: 500 .82rem var(--font-body); color: var(--text);
-  background: var(--raised); border: 1px solid var(--line); border-radius: 99px;
+  background: var(--raised); box-shadow: var(--lift); border: 1px solid var(--line); border-radius: 99px;
   padding: 4px 12px; cursor: pointer;
 }
 .chip span { color: var(--text-dim); margin-left: 4px; font-variant-numeric: tabular-nums; }
@@ -53,7 +53,7 @@ h1 { font: 600 1.9rem/1.15 var(--font-display); margin: 0; text-wrap: balance; }
 /* Port cards */
 .group { display: flex; flex-direction: column; gap: 10px; }
 .group[hidden] { display: none; }
-h2 { font: 500 .78rem var(--font-display); letter-spacing: .12em; text-transform: uppercase; color: var(--text); margin: 0; padding: 4px 12px; align-self: flex-start; border-radius: 6px; background: var(--chrome); -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur); }
+h2 { font: 500 .78rem var(--font-display); letter-spacing: .12em; text-transform: uppercase; color: var(--text); margin: 0; padding: 4px 12px; align-self: flex-start; border-radius: 6px; background: var(--chrome-glass); -webkit-backdrop-filter: var(--chrome-filter); backdrop-filter: var(--chrome-filter); box-shadow: var(--edge-top); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
 .card { position: relative; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
 .card:hover, .card:focus-within { border-color: var(--accent); }
@@ -61,7 +61,7 @@ h2 { font: 500 .78rem var(--font-display); letter-spacing: .12em; text-transform
 .mono {
   flex: none; width: 44px; height: 44px; border-radius: 10px;
   display: grid; place-items: center;
-  background: var(--raised); border: 1px solid var(--line);
+  background: var(--raised); box-shadow: var(--lift); border: 1px solid var(--line);
   font: 600 1rem var(--font-display); letter-spacing: .02em;
 }
 /* Port icons are single-color shapes (ADR 0007), drawn in the text color through a mask.
@@ -106,7 +106,7 @@ footer p + p { margin-top: 4px; }
 </head>
 <body>
 <div class="topbar">
-  <span class="brand">Hyaline<small>v0.3.1</small></span>
+  <span class="brand">Hyaline<small>v1.0.0</small></span>
   <div class="topbar-end">
     <a class="repo" href="index.html" data-page="index.html"><span class="repo-label">Preview</span></a>
     <a class="repo" href="https://github.com/mookeyj79/Hyaline"><span class="repo-icon" aria-hidden="true">&#xF09B;</span><span class="repo-label">GitHub</span></a>
@@ -159,7 +159,7 @@ footer p + p { margin-top: 4px; }
   </section>
 
   <footer class="panel">
-    <p>Hyaline 0.3.1. This list is generated from each port's <code>port.json</code>, so it is always current.</p>
+    <p>Hyaline 1.0.0. This list is generated from each port's <code>port.json</code>, so it is always current.</p>
     <p>Every color on this page is generated from <code>palette/palette.json</code>.</p>
     <p id="icon-credits" hidden></p>
   </footer>

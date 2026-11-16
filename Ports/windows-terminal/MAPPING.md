@@ -43,11 +43,11 @@ Theme:
 | `tab.background` (active tab) | `panel_flat` |
 | `tab.unfocusedBackground` | not set, so inactive tabs show the tab row |
 
-The glass scheme's `background` is the panel tint and `opacity` is the panel alpha, so the terminal area is the same `panel` glass as other Tier 1 ports. Windows Terminal always draws the active tab solid, so it uses `panel_flat`: the color the pane appears as over a neutral backdrop.
+The glass scheme's `background` is the panel tint and `opacity` is the panel alpha, so the terminal area is the same `panel` glass as other Tier 1 ports. Windows Terminal always draws the active tab solid, so it uses `panel_flat`: the glass as it looks, laid down solid.
 
 ## Gaps and trade-offs
 
-- **One opacity for both variants.** `opacity` is a profile setting, not part of the scheme. When following Windows, use Hyaline Light's denser `panel` alpha, so Hyaline Dark is a little more solid than on other glass ports.
+- **One opacity for both variants.** `opacity` is a profile setting, not part of the scheme. When following Windows, use Hyaline Light's denser `panel` alpha (96, against Dark's 82), so Hyaline Dark is more solid than on other glass ports.
 - **Tab and menu text color** comes from `applicationTheme`, so chrome text is not a palette role.
 - **Selected text** keeps its own color on the `accent` selection. There is no selection text color setting. Check that selected text is readable when taking screenshots, especially in Light.
 - **Window frame colors** (`frame`, `unfocusedFrame`) only work in Windows Terminal Preview on Windows 11, per the docs.

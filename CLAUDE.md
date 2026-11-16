@@ -35,7 +35,7 @@ build/lib/                  the rules, as modules the scripts share:
   Placeholders.psm1         the {{...}} grammar: resolves, lists problems, reads template files
   Build.psm1                renders a port into dist/ and compares a build with dist/
   Catalog.psm1              finds ports, validates port.json, ports.json, icons, site.json
-  Wallpaper.psm1            wallpaper rules: fit, contrast behind the glass, license
+  Wallpaper.psm1            wallpaper rules: grades, variant marks and pairs, license
 build/build.ps1             palette + templates = dist
 build/check.ps1             runs the rules: palette, contrast, structure, port list, raw color,
                             placeholders, drift, leftovers, file format, em dashes
@@ -52,7 +52,7 @@ build/setup-linux.sh        installs pwsh and chromium on a fresh Linux sandbox
 
 ## Rules that are never broken
 
-1. **No color values outside `palette/palette.json`.** Templates use `{{role}}` placeholders only. This includes hex, rgb(), hsl(), and named colors. The one exception is wallpapers, which are image assets (ADR 0003). Port icons are not an exception: they use `currentColor` only (ADR 0007).
+1. **No color values outside `palette/palette.json`.** Templates use `{{role}}` placeholders only. This includes hex, rgb(), hsl(), and named colors. The one exception is wallpapers, which are image assets (ADR 0012). Port icons are not an exception: they use `currentColor` only (ADR 0007).
 2. **Never invent a color.** If a port needs something the palette lacks, stop and propose a palette change to the user. Do not approximate.
 3. **Never edit files in `dist/` by hand.** Change the template or the palette, then rebuild.
 4. **Both variants or neither.** If the app supports only one mode, ship that one and say so in the port README.
@@ -94,6 +94,8 @@ Run build and check before every commit that touches `palette/` or `Ports/`. Run
 The placeholder table (`{{role|wash}}`, `{{ansi.<slot>}}`, `{{port.<key>}}`, and the rest) is in CONTRIBUTING.md, step 4 of "Add a port". `build/lib/Placeholders.psm1` is the source of truth, and `check.ps1` fails if that table misses a filter.
 
 Surface roles come in pairs: `chrome`, `panel`, and `raised` are translucent, `chrome_flat`, `panel_flat`, and `raised_flat` are the solid fallbacks. Use the flat ones anywhere the app cannot blur. Chrome (title bars, tabs, sidebars) carries `text` and solid accent fills only; everything else goes on `panel`.
+
+The edge (ADR 0009) follows the same pattern: `edge` is the glass value and `edge_flat` the solid one, for the lit hairline on the top inside of chrome and raised surfaces. The line around a window is its own pair, `window_edge` and `window_edge_flat`, so ports never choose between `edge` and `line` per variant. None of the four marks state: focus and active borders stay `accent`.
 
 ## Working style
 
