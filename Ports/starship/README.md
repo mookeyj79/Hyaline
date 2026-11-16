@@ -1,7 +1,7 @@
 # Hyaline for Starship
 
-**Tier:** 2 Flat
-**Variants:** Hyaline Dark, Hyaline Light
+**Tier:** 2 Flat\
+**Variants:** Hyaline Dark, Hyaline Light\
 **Tested with:** Not tested yet
 
 Starship is a prompt, not a window. It draws colored text on your terminal's background, so it has no surface of its own to make glass. The glass comes from the terminal. Pair this port with a Hyaline terminal port, such as [Windows Terminal](../windows-terminal/README.md), on the same variant.

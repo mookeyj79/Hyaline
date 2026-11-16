@@ -1,7 +1,7 @@
 # Hyaline for <App>
 
-**Tier:** <1 Full glass | 2 Flat | 3 Minimal>
-**Variants:** Hyaline Dark, Hyaline Light
+**Tier:** <1 Full glass | 2 Flat | 3 Minimal>\
+**Variants:** Hyaline Dark, Hyaline Light\
 **Tested with:** <App> <version> on <OS>, or "Not tested yet"
 
 ## Before you start

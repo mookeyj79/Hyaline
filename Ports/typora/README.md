@@ -1,7 +1,7 @@
 # Hyaline for Typora
 
-**Tier:** 2 Flat
-**Variants:** Hyaline Dark, Hyaline Light
+**Tier:** 2 Flat\
+**Variants:** Hyaline Dark, Hyaline Light\
 **Tested with:** Not tested yet
 
 The port is two Typora themes, one CSS file per variant. They show up in Typora's **Themes** menu as **Hyaline Dark** and **Hyaline Light**. Typora cannot make its window see-through, so the themes use solid colors.

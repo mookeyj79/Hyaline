@@ -1,7 +1,7 @@
 # Hyaline for Claude Code
 
-**Tier:** 2 Flat
-**Variants:** Hyaline Dark, Hyaline Light
+**Tier:** 2 Flat\
+**Variants:** Hyaline Dark, Hyaline Light\
 **Tested with:** Not tested yet
 
 The port is a pair of Claude Code custom themes, one file per variant. It covers the Claude Code CLI in a terminal: the prompt box, dialogs, status colors, diffs, mode indicators, and message backgrounds.

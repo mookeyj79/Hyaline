@@ -1,7 +1,7 @@
 # Hyaline for Material Icon Theme
 
-**Tier:** 3 Minimal
-**Variants:** Hyaline Dark, Hyaline Light
+**Tier:** 3 Minimal\
+**Variants:** Hyaline Dark, Hyaline Light\
 **Tested with:** Not tested yet
 
 [Material Icon Theme](https://marketplace.visualstudio.com/items?itemName=PKief.material-icon-theme) is a file icon theme for VS Code. Most of its icons are fixed logos and cannot be recolored. It does let you set three colors: the default folder icon, the root folder icon, and the default file icon. This port sets those three to Hyaline's text colors, so plain folders and files sit quietly in the explorer and only the language icons stand out.

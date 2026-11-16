@@ -1,6 +1,6 @@
 # Hyaline preview page
 
-**Variants:** Hyaline Dark, Hyaline Light
+**Variants:** Hyaline Dark, Hyaline Light\
 **Tested with:** current Chrome, Firefox, and Safari
 
 A single web page that shows what Hyaline looks like before you install anything: mock apps (terminal, editor, docs site, CI pipeline, dashboard), Mermaid diagrams, every color with its value and contrast, and how code is colored. A switch at the top flips between Dark and Light. A second page lists every port with its category, tier, and platforms, plus the planned ones, with search and category filters.
