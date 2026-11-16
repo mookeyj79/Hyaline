@@ -1,62 +1,82 @@
 {
   "meta": {
     "name": "Hyaline",
-    "version": "0.3.1",
+    "version": "1.0.0",
     "repository": "https://github.com/mookeyj79/Hyaline"
   },
   "variants": {
     "dark": {
       "name": "Hyaline Dark",
       "mode": "dark",
-      "wash": 0.15,
+      "wash": 0.18,
       "roles": {
-        "backdrop": "#dfe6ee",
-        "chrome": { "hex": "#1c2028", "alpha": 0.7 },
+        "backdrop": "#2c323b",
+        "chrome": {
+          "hex": "#1c2028",
+          "alpha": 0.74,
+          "clamp": { "blur": 30, "contrast": 0.35, "brightness": 0.5, "saturate": 1.8, "alpha": 0.45 }
+        },
         "chrome_flat": "#575b63",
-        "panel": { "hex": "#1c2028", "alpha": 0.8 },
+        "panel": {
+          "hex": "#1c2028",
+          "alpha": 0.82,
+          "clamp": { "blur": 30, "contrast": 0.15, "brightness": 0.45, "saturate": 2.5, "alpha": 0.6 }
+        },
         "panel_flat": "#434850",
         "raised": { "hex": "#ffffff", "alpha": 0.1 },
         "raised_flat": "#565a62",
         "line": "#6c7076",
+        "edge": { "hex": "#ffffff", "alpha": 0.14 },
+        "edge_flat": "#6d7077",
         "text": "#f2f5f9",
         "text_dim": "#d0d6e0",
         "text_muted": "#b4bcc9",
-        "accent": "#9cc6e8",
+        "accent": "#8dc7f6",
         "on_accent": "#1c2028",
-        "red": "#f1afa7",
-        "green": "#a3d9c0",
-        "yellow": "#ddd99a",
-        "blue": "#9cc6e8",
-        "magenta": "#dfb1d9",
-        "cyan": "#a6d2db",
-        "orange": "#e6c196"
+        "red": "#f7aca4",
+        "green": "#88e1ba",
+        "yellow": "#e2da71",
+        "blue": "#8dc7f6",
+        "magenta": "#eda7e5",
+        "cyan": "#84d9e9",
+        "orange": "#f4bd79"
       }
     },
     "light": {
       "name": "Hyaline Light",
       "mode": "light",
-      "wash": 0.2,
+      "wash": 0.24,
       "roles": {
         "backdrop": "#dfe6ee",
-        "chrome": { "hex": "#ffffff", "alpha": 0.3 },
-        "chrome_flat": "#e9eef3",
-        "panel": { "hex": "#ffffff", "alpha": 0.93 },
-        "panel_flat": "#f3f6f9",
-        "raised": { "hex": "#ffffff", "alpha": 0.5 },
-        "raised_flat": "#f9fafc",
-        "line": "#d3dae3",
+        "chrome": {
+          "hex": "#ffffff",
+          "alpha": 0.55,
+          "clamp": { "blur": 30, "contrast": 0.35, "brightness": 1.55, "saturate": 1.8, "alpha": 0.3 }
+        },
+        "chrome_flat": "#e3e8ee",
+        "panel": {
+          "hex": "#ffffff",
+          "alpha": 0.96,
+          "clamp": { "blur": 30, "contrast": 0.1, "brightness": 2.1, "saturate": 3, "alpha": 0.55 }
+        },
+        "panel_flat": "#fafbfc",
+        "raised": { "hex": "#ffffff", "alpha": 0.85 },
+        "raised_flat": "#ffffff",
+        "line": "#c4ccd7",
+        "edge": { "hex": "#ffffff", "alpha": 0.85 },
+        "edge_flat": "#ffffff",
         "text": "#1b2130",
         "text_dim": "#465066",
         "text_muted": "#667085",
-        "accent": "#2973b0",
+        "accent": "#2773b1",
         "on_accent": "#ffffff",
-        "red": "#c04538",
-        "green": "#207e52",
-        "yellow": "#78710a",
-        "blue": "#2973b0",
+        "red": "#c14437",
+        "green": "#287d54",
+        "yellow": "#767124",
+        "blue": "#2773b1",
         "magenta": "#ae47a0",
-        "cyan": "#18788b",
-        "orange": "#a16017"
+        "cyan": "#287788",
+        "orange": "#9d6225"
       }
     }
   }

@@ -30,12 +30,12 @@ foreground-color='#f2f5f9'
 bold-color-same-as-fg=true
 bold-is-bright=false
 cursor-colors-set=true
-cursor-background-color='#9cc6e8'
+cursor-background-color='#8dc7f6'
 cursor-foreground-color='#1c2028'
 highlight-colors-set=true
-highlight-background-color='#9cc6e8'
+highlight-background-color='#8dc7f6'
 highlight-foreground-color='#1c2028'
-palette=['#565a62', '#f1afa7', '#a3d9c0', '#ddd99a', '#9cc6e8', '#dfb1d9', '#a6d2db', '#d0d6e0', '#b4bcc9', '#f1afa7', '#a3d9c0', '#ddd99a', '#9cc6e8', '#dfb1d9', '#a6d2db', '#f2f5f9']
+palette=['#565a62', '#f7aca4', '#88e1ba', '#e2da71', '#8dc7f6', '#eda7e5', '#84d9e9', '#d0d6e0', '#b4bcc9', '#f7aca4', '#88e1ba', '#e2da71', '#8dc7f6', '#eda7e5', '#84d9e9', '#f2f5f9']
 use-system-font=false
 font='FiraCode Nerd Font Mono 12'
 EOF
@@ -48,7 +48,7 @@ if [ "$glass" = true ]; then
 background-color='#1c2028'
 use-theme-transparency=false
 use-transparent-background=true
-background-transparency-percent=$((100 - 80))
+background-transparency-percent=$((100 - 82))
 EOF
 else
   dconf load "$base/:$uuid/" <<'EOF'

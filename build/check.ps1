@@ -5,12 +5,14 @@
 
 .DESCRIPTION
     1. Palette       Both variants exist, every required role is present and valid.
-    2. Contrast      Text and color roles meet the contrast floor in PHILOSOPHY.md,
-                     measured against panel_flat. Primary text must also pass on
-                     chrome_flat, the only text role chrome carries. On raised_flat,
-                     anything under 3:1 is reported as a warning. On a wash (a
-                     color role at the variant's wash alpha over panel_flat),
-                     text and text_dim need 4.5:1, muted and color roles 3:1.
+    2. Contrast      Text and color roles meet the contrast floor in PHILOSOPHY.md
+                     (ADR 0011). Solid surfaces are measured as drawn. Chrome and
+                     panel glass are measured over pure black and pure white, at
+                     the dense alpha and through the clamp, and every result must
+                     pass. Chrome carries primary text only. On raised (raised_flat,
+                     and translucent raised on the clamped panel) color roles need
+                     3:1. On a wash over any panel surface, text needs 4.5:1,
+                     everything else 3:1. line and edge have no floor.
     3. Structure     Every port has a README.md and a template/ folder, and a
                      site.json, where there is one, points at real files.
     4. Port list     Every port has a valid port.json (except folders listed as

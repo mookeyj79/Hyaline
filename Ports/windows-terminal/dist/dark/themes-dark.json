@@ -5,12 +5,12 @@
       "window": {
         "applicationTheme": "dark",
         "useMica": true,
-        "frame": "#9cc6e8",
+        "frame": "#8dc7f6",
         "unfocusedFrame": "#6c7076"
       },
       "tabRow": {
-        "background": "#1c2028b2",
-        "unfocusedBackground": "#1c2028b2"
+        "background": "#1c2028bd",
+        "unfocusedBackground": "#1c2028bd"
       },
       "tab": {
         "background": "#434850",
@@ -22,7 +22,7 @@
       "window": {
         "applicationTheme": "dark",
         "useMica": false,
-        "frame": "#9cc6e8",
+        "frame": "#8dc7f6",
         "unfocusedFrame": "#6c7076"
       },
       "tabRow": {

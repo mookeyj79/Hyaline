@@ -8,7 +8,7 @@ For maintainers. The install guide is [README.md](README.md).
 |---|---|---|
 | `background-color` | Background | Flat: `panel_flat`. Glass: `panel` |
 | `use-transparent-background` | Use transparent background | Flat: off. Glass: on |
-| `background-transparency-percent` | the transparency slider | Glass: 100 minus `panel` opacity in percent (Dark 20, Light 7). The script computes it at install time |
+| `background-transparency-percent` | the transparency slider | Glass: 100 minus `panel` opacity in percent (Dark 18, Light 4). The script computes it at install time |
 | `use-theme-transparency` | Use transparency from system theme | off, so the palette sets the amount |
 | `foreground-color` | Text | `text` |
 | `bold-color-same-as-fg` | Bold color same as text | on, so bold uses `text` |
@@ -31,7 +31,7 @@ Each variant has a fixed profile UUID, kept in `values.json`, so running the scr
 ## Gaps and trade-offs
 
 - **Glass is partial.** Transparency only exists in builds that patch it back in, such as Ubuntu and Linux Mint, and the blur comes from the desktop, not the terminal. Upstream GNOME and Debian 13 builds get flat only. Tier 1 where glass works, Tier 2 elsewhere.
-- **Glass without blur still reads.** The glass background is `panel` at the same tint as the panel, so text passes the contrast floor even when the desktop does not blur. A busy wallpaper stays sharp, though, so the README points those users to flat.
+- **Glass without blur still reads.** The glass background is the `panel` tint at its dense alpha, which passes the contrast floor over pure black and pure white, so text reads over any wallpaper even when the desktop does not blur. A busy wallpaper stays sharp, though, so the README points those users to flat.
 - **Window frame and tab bar** are drawn by the GTK theme, not the profile. They follow the Cinnamon or GNOME theme in use, and the **Theme variant** setting picks its light or dark version.
 - **No automatic light and dark switching.** A profile has one set of colors, so switching variants means switching profiles.
 - **Default profile on a brand new account.** If GNOME Terminal has never been opened, its profile list is still empty, and installing first leaves Hyaline as the only listed profile.
