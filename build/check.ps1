@@ -59,7 +59,6 @@ $RepoRoot  = Split-Path -Parent $PSScriptRoot
 $PortsRoot = Join-Path $RepoRoot 'Ports'
 
 $script:Failures = [System.Collections.Generic.List[string]]::new()
-$script:Warnings = [System.Collections.Generic.List[string]]::new()
 function Add-Failure([string]$Message) { $script:Failures.Add($Message) }
 
 function Invoke-Section([string]$Title, [scriptblock]$Body) {
@@ -87,7 +86,6 @@ if ($paletteOk) {
     Invoke-Section 'Contrast' {
         $c = Test-PaletteContrast -Palette $palette
         foreach ($f in $c.Failures) { Add-Failure "Contrast: $f" }
-        foreach ($w in $c.Warnings) { $script:Warnings.Add("Contrast: $w") }
     }
 }
 else { Skip-Section 'Contrast' 'fix the palette first' }
@@ -310,7 +308,6 @@ Invoke-Section 'Prose' {
 Write-Host ''
 if ($catalog.Ports.Count -eq 0) { Write-Host 'No ports yet. Palette checks only.' }
 
-foreach ($w in $script:Warnings) { Write-Host "warning: $w" -ForegroundColor Yellow }
 foreach ($f in $script:Failures) { Write-Host "FAIL: $f" -ForegroundColor Red }
 
 if ($script:Failures.Count -gt 0) {
@@ -318,5 +315,5 @@ if ($script:Failures.Count -gt 0) {
     Write-Host "$($script:Failures.Count) check(s) failed." -ForegroundColor Red
     exit 1
 }
-Write-Host "All checks passed ($($catalog.Ports.Count) port(s), $($script:Warnings.Count) warning(s))."
+Write-Host "All checks passed ($($catalog.Ports.Count) port(s))."
 exit 0

@@ -188,7 +188,6 @@ Test 'Palette: glass over a backdrop, dense or clamped' {
 Test 'Palette: contrast floor' {
     $c = Test-PaletteContrast (Get-TestPalette (New-PaletteData))
     Assert-Equal 0 $c.Failures.Count "failures on a good palette ($($c.Failures -join '; '))"
-    Assert-Equal 0 $c.Warnings.Count "warnings on a good palette ($($c.Warnings -join '; '))"
     $d = New-PaletteData
     $d.variants.light.roles.yellow = '#f0f0a0'
     $c = Test-PaletteContrast (Get-TestPalette $d)
@@ -250,10 +249,17 @@ Test 'Contrast: role colors on raised fail under 3:1, short labels pass from 3:1
     $d.variants.dark.roles.raised_flat = '#707070'   # #f0f0f0 on it is about 3.9:1
     $c = Test-PaletteContrast (Get-TestPalette $d)
     Assert-NoFailure $c '*dark.red on raised_flat*'
-    Assert-Equal 0 $c.Warnings.Count 'no warnings'
     Assert-Failure $c '*dark.text on raised_flat*needs 4.5*'
     $d.variants.dark.roles.raised_flat = '#a0a0a0'   # about 1.9:1
     Assert-Failure (Test-PaletteContrast (Get-TestPalette $d)) '*dark.red on raised_flat*needs 3*'
+}
+
+Test 'Contrast: on_accent needs 4.5:1 on solid red as on accent' {
+    $d = New-PaletteData
+    $d.variants.dark.roles.red = '#303030'   # #101010 on it is about 1.4:1
+    $c = Test-PaletteContrast (Get-TestPalette $d)
+    Assert-Failure $c '*dark.on_accent on red is*needs 4.5*'
+    Assert-NoFailure $c '*light.on_accent*'
 }
 
 Test 'Contrast: dim text on a wash needs 3:1, primary text 4.5:1' {

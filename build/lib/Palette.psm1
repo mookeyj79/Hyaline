@@ -279,7 +279,7 @@ function Test-PaletteContrast {
     <#
     .SYNOPSIS
         Measures the contrast floor in PHILOSOPHY.md (ADR 0011) on a valid
-        palette. Returns @{ Failures; Warnings } as message lists.
+        palette. Returns @{ Failures } as a message list.
     .DESCRIPTION
         A solid surface is measured as drawn. A translucent surface (chrome,
         panel) is measured over pure black and pure white, both at its dense
@@ -290,7 +290,6 @@ function Test-PaletteContrast {
     #>
     param($Palette)
     $failures = [System.Collections.Generic.List[string]]::new()
-    $warnings = [System.Collections.Generic.List[string]]::new()
     foreach ($v in $Palette.Variants.Values) {
         $k = $v.Key
         $hex = { param($r) $v.Roles[$r].Hex }
@@ -330,9 +329,11 @@ function Test-PaletteContrast {
                 }
             }
         }
-        & $measure 'on_accent' (& $hex 'accent') 'accent' $TextFloor
+        # on_accent is drawn on accent, and on solid red where an app fills
+        # with it (Cinnamon's destroy buttons and drag highlights).
+        foreach ($fill in 'accent', 'red') { & $measure 'on_accent' (& $hex $fill) $fill $TextFloor }
     }
-    return @{ Failures = $failures; Warnings = $warnings }
+    return @{ Failures = $failures }
 }
 
 Export-ModuleMember -Function Read-Palette, Get-VariantKeys, Get-ColorFilters, ConvertFrom-Hex, Get-Blend, Get-Contrast,
