@@ -2,13 +2,20 @@
 :root[data-variant="{{variant.mode}}"] {
   color-scheme: {{variant.mode}};
   --backdrop: {{backdrop}};
+  --wallpaper: {{port.wallpaper}};
   --chrome: {{chrome|rgba}};
+  --chrome-clamp: {{chrome|clamp}};
+  --chrome-tint: {{chrome|clamptint}};
   --chrome-flat: {{chrome_flat}};
   --panel: {{panel|rgba}};
+  --panel-clamp: {{panel|clamp}};
+  --panel-tint: {{panel|clamptint}};
   --panel-flat: {{panel_flat}};
   --raised: {{raised|rgba}};
   --raised-flat: {{raised_flat}};
   --line: {{line}};
+  --edge: {{edge|rgba}};
+  --edge-flat: {{edge_flat}};
   --text: {{text}};
   --text-dim: {{text_dim}};
   --text-muted: {{text_muted}};

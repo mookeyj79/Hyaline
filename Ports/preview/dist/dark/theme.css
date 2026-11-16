@@ -2,13 +2,20 @@
 :root[data-variant="dark"] {
   color-scheme: dark;
   --backdrop: #2c323b;
+  --wallpaper: none;
   --chrome: rgba(28, 32, 40, 0.74);
+  --chrome-clamp: blur(30px) contrast(0.35) brightness(0.5) saturate(1.8);
+  --chrome-tint: rgba(28, 32, 40, 0.45);
   --chrome-flat: #575b63;
   --panel: rgba(28, 32, 40, 0.82);
+  --panel-clamp: blur(30px) contrast(0.15) brightness(0.45) saturate(2.5);
+  --panel-tint: rgba(28, 32, 40, 0.6);
   --panel-flat: #434850;
   --raised: rgba(255, 255, 255, 0.1);
   --raised-flat: #565a62;
   --line: #6c7076;
+  --edge: rgba(255, 255, 255, 0.14);
+  --edge-flat: #6d7077;
   --text: #f2f5f9;
   --text-dim: #d0d6e0;
   --text-muted: #b4bcc9;

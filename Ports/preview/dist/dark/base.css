@@ -20,7 +20,35 @@
   --font-display: "Chakra Petch", "Trebuchet MS", sans-serif;
   --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "FiraCode Nerd Font Mono", "FiraCode Nerd Font", "Fira Code", Consolas, Menlo, monospace;
-  --blur: blur(18px);
+  /* Glass without backdrop filters: the dense tint alone, which passes over any backdrop (ADR 0008). */
+  --chrome-glass: var(--chrome);
+  --panel-glass: var(--panel);
+  --chrome-filter: none;
+  --panel-filter: none;
+  /* The edge (ADR 0009): a lit hairline on the top inside of chrome and raised surfaces,
+     and the outline around each window. */
+  --edge-top: inset 0 1px 0 var(--edge);
+  --outline: var(--edge);
+  /* Lift for raised surfaces that have a line border, and for those that have none. */
+  --lift: var(--edge-top);
+  --lift-ring: var(--edge-top);
+}
+/* With backdrop filters, the glass clamps the backdrop into a dark or light band
+   and lays a thin tint on top. The panel is clamped harder than the chrome. */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  :root {
+    --chrome-glass: var(--chrome-tint);
+    --panel-glass: var(--panel-tint);
+    --chrome-filter: var(--chrome-clamp);
+    --panel-filter: var(--panel-clamp);
+  }
+}
+/* In Light the edge is white on white: the window outline uses line,
+   and on raised surfaces line carries the lift. */
+:root[data-variant="light"] {
+  --outline: var(--line);
+  --lift: none;
+  --lift-ring: inset 0 0 0 1px var(--line);
 }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -33,13 +61,13 @@ body {
   font-size: 16px;
   line-height: 1.55;
 }
-/* Backdrop: a wallpaper from wallpapers/ (ADR 0003), over the backdrop role. */
+/* Backdrop: the variant's backdrop role, under a wallpaper marked for the variant (ADR 0012), if any. */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: var(--backdrop) url("../../../../wallpapers/white-sands-dunes.jpg") center / cover no-repeat;
+  background: var(--backdrop) var(--wallpaper) center / cover no-repeat;
 }
 ::selection { background: var(--accent); color: var(--on-accent); }
 a { color: var(--accent); text-underline-offset: 3px; }
@@ -48,23 +76,24 @@ button { font-family: inherit; }
 
 /* Surfaces. Text never sits directly on the backdrop. */
 .panel {
-  background: var(--panel);
-  -webkit-backdrop-filter: var(--blur);
-  backdrop-filter: var(--blur);
-  border: 1px solid var(--line);
+  background: var(--panel-glass);
+  -webkit-backdrop-filter: var(--panel-filter);
+  backdrop-filter: var(--panel-filter);
+  border: 1px solid var(--outline);
   border-radius: 10px;
 }
-.raised { background: var(--raised); }
+.raised { background: var(--raised); box-shadow: var(--lift-ring); }
 
 /* Top bar */
 .topbar {
   position: sticky; top: 0; z-index: 5;
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 8px 16px;
-  background: var(--chrome);
-  -webkit-backdrop-filter: var(--blur);
-  backdrop-filter: var(--blur);
+  background: var(--chrome-glass);
+  -webkit-backdrop-filter: var(--chrome-filter);
+  backdrop-filter: var(--chrome-filter);
   border-bottom: 1px solid var(--line);
+  box-shadow: var(--edge-top);
 }
 .brand { font: 600 1rem var(--font-display); letter-spacing: .04em; }
 .brand small { font: 400 .72rem var(--font-mono); color: var(--text); margin-left: 6px; letter-spacing: 0; }
@@ -80,6 +109,7 @@ button { font-family: inherit; }
   color: var(--text);
   text-decoration: none;
   background: var(--raised);
+  box-shadow: var(--lift);
 }
 .switch a + a { border-left: 1px solid var(--line); }
 .switch a[aria-current="true"] { background: var(--accent); color: var(--on-accent); }
