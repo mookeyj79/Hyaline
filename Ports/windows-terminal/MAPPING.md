@@ -38,7 +38,7 @@ Theme:
 | `window.applicationTheme` | the variant's mode, `dark` or `light` |
 | `window.useMica` | `true` (glass), `false` (Flat) |
 | `window.frame` | `accent` |
-| `window.unfocusedFrame` | `line` |
+| `window.unfocusedFrame` | `window_edge_flat` |
 | `tabRow.background`, `tabRow.unfocusedBackground` | `chrome` with its alpha (glass), `chrome_flat` (Flat) |
 | `tab.background` (active tab) | `panel_flat` |
 | `tab.unfocusedBackground` | not set, so inactive tabs show the tab row |
