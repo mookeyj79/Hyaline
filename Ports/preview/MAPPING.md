@@ -24,7 +24,7 @@ The preview is not an app theme. It is treated as a port so it gets the same bui
 - Mono text uses the recommended font, FiraCode Nerd Font Mono, from `assets/fonts/`. Those files are trimmed to the characters the page uses (Latin, ligatures, and the icons shown), so they total about 90 KB instead of 5 MB.
 - The page itself holds no color values. The role values and contrast ratios in the Roles section are read from the CSS variables at runtime.
 - Text never sits directly on the backdrop. Everything is on a panel, so text reads over any backdrop.
-- The backdrop follows the variant: the `backdrop` role, under a wallpaper marked for that variant in `wallpapers/README.md` (Light or Both). The pick is `wallpaper` in `values.json`, a CSS value (`url(...)` relative to the repo root, or `none`). Light uses `white-sands-dunes.jpg`. No wallpaper is marked Dark or Both yet, so Dark shows the backdrop color alone; when one is added, set it in `values.json` and rebuild. The page is not self-contained: it needs the repo layout (or the Pages site, which keeps it).
+- The backdrop follows the variant: the `backdrop` role, under a wallpaper marked for that variant in `wallpapers/README.md` (Dark, Light or Both). The pick is `wallpaper` in `values.json`, a CSS value (`url(...)` relative to the repo root, or `none`). Light uses `white-sands-dunes.jpg`, Dark uses `forest-under-gray-sky.jpg`. The page is not self-contained: it needs the repo layout (or the Pages site, which keeps it).
 
 ## Glass and edge
 

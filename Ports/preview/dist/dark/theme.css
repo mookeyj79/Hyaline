@@ -2,7 +2,7 @@
 :root[data-variant="dark"] {
   color-scheme: dark;
   --backdrop: #2c323b;
-  --wallpaper: none;
+  --wallpaper: url("../../../../wallpapers/forest-under-gray-sky.jpg");
   --chrome: rgba(28, 32, 40, 0.74);
   --chrome-clamp: blur(30px) contrast(0.35) brightness(0.5) saturate(1.8);
   --chrome-tint: rgba(28, 32, 40, 0.45);

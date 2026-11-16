@@ -1,4 +1,4 @@
 {
-  "dark": { "wallpaper": "none" },
+  "dark": { "wallpaper": "url(\"../../../../wallpapers/forest-under-gray-sky.jpg\")" },
   "light": { "wallpaper": "url(\"../../../../wallpapers/white-sands-dunes.jpg\")" }
 }
