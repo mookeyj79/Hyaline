@@ -16,7 +16,8 @@
     or below, both in between. They never refuse an image.
 
     -Search lists Commons candidates and grades each from a small preview.
-    -Check grades one image at full size: a local file or a Commons title.
+    -Check grades one image from its 1920 px Commons thumbnail (or a local
+    file) instead of a preview.
     -Add downloads a Commons file into wallpapers/, unmodified, writes the
     640 px thumbnail, and prints the credit section for wallpapers/README.md,
     with the variant mark given. It refuses an image that fails a gate.
@@ -104,6 +105,7 @@ $ImageSharpSha256  = '60d345f55451db74bbefb3231950c2524c12fe038173b08dabce4a844f
 $Rules     = Get-WallpaperRules
 $MinWidth  = $Rules.Format.MinWidth
 $FitWidth  = 480
+$CheckWidth = 1920   # a standard Commons thumbnail size; grades are taken from a 480 px copy anyway
 $ThumbWidth = 640
 
 # --- Downloads and ImageSharp -------------------------------------------------
@@ -113,10 +115,57 @@ function Get-CachePath([string]$Name) {
     return Join-Path $CacheDir $Name
 }
 
+function Wait-RequestSlot {
+    # Waits until the last request from any running copy of the finder is at
+    # least the minimum gap old, then stamps now. The cache folder is shared,
+    # so a lock file there keeps parallel searches from bursting.
+    $gap = (Get-WallpaperRules).Polite.MinGapSeconds
+    $lock = Get-CachePath 'request.lock'
+    $stream = $null
+    while (-not $stream) {
+        try { $stream = [System.IO.File]::Open($lock, 'OpenOrCreate', 'ReadWrite', 'None') }
+        catch [System.IO.IOException] { Start-Sleep -Milliseconds 200 }
+    }
+    try {
+        $buf = [byte[]]::new(32)
+        $n = $stream.Read($buf, 0, $buf.Length)
+        $last = [long]0
+        if ($n -and [long]::TryParse([Text.Encoding]::ASCII.GetString($buf, 0, $n), [ref]$last)) {
+            $wait = $gap * 1000 - ([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() - $last)
+            if ($wait -gt 0) { Start-Sleep -Milliseconds ([math]::Min($wait, $gap * 1000)) }
+        }
+        $stamp = [Text.Encoding]::ASCII.GetBytes([string][DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())
+        $stream.SetLength(0); $stream.Write($stamp, 0, $stamp.Length)
+    }
+    finally { $stream.Dispose() }
+}
+
+function Invoke-Polite([scriptblock]$Request) {
+    # Runs a web request in its turn, and retries it when the server says it
+    # is busy (429 or 503), waiting as long as it asks.
+    for ($attempt = 1; ; $attempt++) {
+        Wait-RequestSlot
+        try { return & $Request }
+        catch {
+            $resp = $_.Exception.PSObject.Properties['Response']?.Value
+            if (-not $resp -or -not $resp.PSObject.Properties['StatusCode']) { throw }
+            $after = if ($resp.Headers.RetryAfter) { $resp.Headers.RetryAfter.ToString() } else { $null }
+            $polite = (Get-WallpaperRules).Polite
+            $wait = Get-WallpaperRetryDelay -Status ([int]$resp.StatusCode) -Attempt $attempt -RetryAfter $after
+            if ($wait -lt 0) { throw }
+            if ($wait -gt $polite.MaxSeconds) {
+                throw "Commons is rate limiting this machine ($([int]$resp.StatusCode)) and asks for a pause of $([math]::Ceiling($wait / 60)) min. Try again after that; retrying sooner extends the block."
+            }
+            Write-Host "Commons is busy ($([int]$resp.StatusCode)). Waiting $wait s, then trying again ($($attempt + 1) of $($polite.Attempts))..."
+            Start-Sleep -Seconds $wait
+        }
+    }
+}
+
 function Save-Url([string]$Url, [string]$Path) {
     if (Test-Path $Path) { return $Path }
     $part = "$Path.part"
-    try { Invoke-WebRequest -Uri $Url -OutFile $part -UserAgent $UserAgent; Move-Item $part $Path -Force }
+    try { Invoke-Polite { Invoke-WebRequest -Uri $Url -OutFile $part -UserAgent $UserAgent }; Move-Item $part $Path -Force }
     catch { Remove-Item $part -ErrorAction SilentlyContinue; throw "Could not download $Url : $($_.Exception.Message)" }
     return $Path
 }
@@ -208,7 +257,8 @@ function Write-Report($Fit, $Problems, [string]$Gates = 'the format and license 
 function Invoke-Commons([hashtable]$Query) {
     $Query['action'] = 'query'; $Query['format'] = 'json'; $Query['formatversion'] = '2'
     $pairs = foreach ($k in $Query.Keys) { "$k=$([uri]::EscapeDataString([string]$Query[$k]))" }
-    return Invoke-RestMethod -Uri "$CommonsApi`?$($pairs -join '&')" -UserAgent $UserAgent
+    $uri = "$CommonsApi`?$($pairs -join '&')"
+    return Invoke-Polite { Invoke-RestMethod -Uri $uri -UserAgent $UserAgent }
 }
 
 $InfoProps = @{
@@ -267,9 +317,10 @@ function Get-RuleProblems($Candidate) {
     return , $p
 }
 
-function Get-Candidate([string]$Title) {
+function Get-Candidate([string]$Title, [int]$PreviewWidth = $FitWidth) {
     if ($Title -notmatch '^File:') { $Title = "File:$Title" }
     $q = @{ titles = $Title } + $InfoProps
+    $q['iiurlwidth'] = $PreviewWidth
     $page = (Invoke-Commons $q).query.pages[0]
     if ($page.PSObject.Properties['missing'] -or -not $page.PSObject.Properties['imageinfo']) { throw "Commons has no file '$Title'." }
     return ConvertTo-Candidate $page
@@ -342,16 +393,23 @@ if ($PSCmdlet.ParameterSetName -eq 'Check') {
     $candidate = $null
     if (Test-Path -LiteralPath $Check -PathType Leaf) { $path = (Resolve-Path -LiteralPath $Check).Path }
     else {
-        $candidate = Get-Candidate $Check
-        $path = Save-Url $candidate.Url (Get-CachePath ('full-' + (Get-SafeFileName $candidate.Title)))
+        # The 1920 px standard thumbnail, not the original: it grades the same
+        # and spares Commons a download of many megabytes.
+        $candidate = Get-Candidate $Check $CheckWidth
+        $path = Save-Url $candidate.ThumbUrl (Get-CachePath ("check$CheckWidth-" + (Get-SafeFileName $candidate.Title)))
     }
     $img = Read-Image $path
-    Write-Host "$Check ($($img.Width) x $($img.Height))"
+    $size = if ($candidate) { "$($candidate.Width) x $($candidate.Height)" } else { "$($img.Width) x $($img.Height)" }
+    Write-Host "$Check ($size)"
     if ($candidate) { Write-Host "$($candidate.License), by $($candidate.Author). $($candidate.Page)" }
     Write-Host ''
-    $problems = [System.Collections.Generic.List[string]]::new()
-    if ($candidate) { foreach ($p in Get-RuleProblems $candidate) { $problems.Add($p) } }
-    else { foreach ($p in Test-WallpaperFormat -Width $img.Width -Height $img.Height) { $problems.Add($p) } }
+    # Get-RuleProblems returns its list whole; looping over the call would add
+    # that list as one blank problem.
+    if ($candidate) { $problems = Get-RuleProblems $candidate }
+    else {
+        $problems = [System.Collections.Generic.List[string]]::new()
+        foreach ($p in Test-WallpaperFormat -Width $img.Width -Height $img.Height) { $problems.Add($p) }
+    }
     $fit = Measure-Image $img
     $img.Dispose()
     $gates = if ($candidate) { 'the format and license gates' } else { 'the format gate (license is checked for Commons titles)' }

@@ -125,7 +125,7 @@ Wallpapers come from [Wikimedia Commons](https://commons.wikimedia.org/), where 
 ```sh
 pwsh build/wallpaper.ps1 -Search "salt flat"                                 # grade Commons candidates from previews
 pwsh build/wallpaper.ps1 -Search "dunes night" -Variant dark                 # only images that suit Dark
-pwsh build/wallpaper.ps1 -Check "File:Example.jpg"                           # grade one at full size
+pwsh build/wallpaper.ps1 -Check "File:Example.jpg"                           # grade one from a large copy
 pwsh build/wallpaper.ps1 -Add "File:Example.jpg" -Name example -Variant dark  # save it, its thumbnail, and its credit
 ```
 

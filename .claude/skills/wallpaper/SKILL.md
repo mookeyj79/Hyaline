@@ -33,13 +33,15 @@ Grades up to 50 Commons results from previews (about a minute), calmest first. `
 
 To find the other half of a pair, search for the same kind of subject with the other variant, for example `-Search "dunes night" -Variant dark` for White Sands.
 
-## 2. Check at full size
+## 2. Check from a large copy
 
 ```
 pwsh build/wallpaper.ps1 -Check "File:<title>.jpg"
 ```
 
-Previews can be off by a little. The full-size grades count. It exits 1 only on a failed gate.
+Previews can be off by a little. `-Check` grades the 1920 px copy, and those grades count. It exits 1 only on a failed gate.
+
+The script paces its requests to Commons and waits out a busy server on its own, even across parallel runs. If Commons asks for a long pause, the script stops and says how long. Wait that long; retrying sooner extends the block.
 
 ## 3. Read the Commons page yourself
 

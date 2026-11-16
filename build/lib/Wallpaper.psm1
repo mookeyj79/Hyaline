@@ -30,6 +30,14 @@ $LicensePatterns = @(
     '^CC BY(-SA)? [1-4]\.0$'
 )
 
+# Polite downloads from Wikimedia Commons. Requests are spaced at least
+# MinGapSeconds apart, across every running copy of the finder. A 429 or 503
+# is retried up to Attempts times, waiting as long as the server asks
+# (Retry-After) or, when it does not say, BaseSeconds doubling each attempt,
+# up to MaxSeconds. A server that asks for longer than MaxSeconds is never
+# retried early: the finder stops and says when to try again.
+$Polite = @{ MinGapSeconds = 1; Attempts = 5; BaseSeconds = 5; MaxSeconds = 120; RetryStatus = @(429, 503) }
+
 # One sRGB channel (0 to 255, not rounded) to linear light, as a lookup.
 function Get-LinearLight([double]$Channel) {
     $s = $Channel / 255
@@ -39,9 +47,32 @@ function Get-LinearLight([double]$Channel) {
 $Linear = [double[]]::new(256)
 for ($i = 0; $i -lt 256; $i++) { $Linear[$i] = Get-LinearLight $i }
 
+function Get-WallpaperRetryDelay {
+    # Seconds to wait before retry number $Attempt (1 for the first retry),
+    # or -1 when the status is not worth retrying or the attempts are spent.
+    # RetryAfter is the header as sent: whole seconds or an HTTP date. It is
+    # honored in full, so the result can exceed MaxSeconds; the caller stops
+    # rather than wait that long.
+    param(
+        [Parameter(Mandatory)][int]$Status,
+        [Parameter(Mandatory)][int]$Attempt,
+        [AllowEmptyString()][AllowNull()][string]$RetryAfter,
+        [datetimeoffset]$Now = [datetimeoffset]::UtcNow
+    )
+    if ($Status -notin $Polite.RetryStatus -or $Attempt -ge $Polite.Attempts) { return -1 }
+    $wait = [math]::Min($Polite.BaseSeconds * [math]::Pow(2, $Attempt - 1), $Polite.MaxSeconds)
+    $seconds = 0; $date = [datetimeoffset]::MinValue
+    if ($RetryAfter -and [int]::TryParse($RetryAfter.Trim(), [ref]$seconds)) { $wait = $seconds }
+    elseif ($RetryAfter -and [datetimeoffset]::TryParse($RetryAfter.Trim(), [cultureinfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::AssumeUniversal, [ref]$date)) {
+        $wait = [math]::Ceiling(($date - $Now).TotalSeconds)
+    }
+    return [int][math]::Max($wait, $Polite.MinGapSeconds)
+}
+
 function Get-WallpaperRules {
-    # The grade limits, variant thresholds, and gates, for reports and the skill.
-    return @{ Grades = $Grades; Variants = $Variants; Format = $Format; Licenses = $LicensePatterns }
+    # The grade limits, variant thresholds, gates, and download pacing, for
+    # reports and the skill.
+    return @{ Grades = $Grades; Variants = $Variants; Format = $Format; Licenses = $LicensePatterns; Polite = $Polite }
 }
 
 function Get-WallpaperVariant {
@@ -218,4 +249,4 @@ function Test-WallpaperFolder {
     return $problems
 }
 
-Export-ModuleMember -Function Test-WallpaperFolder, Test-WallpaperUse, Get-WallpaperRules, Get-WallpaperVariant, Select-WallpaperCandidate, Test-WallpaperLicense, Test-WallpaperFormat, Measure-WallpaperFit
+Export-ModuleMember -Function Get-WallpaperRetryDelay, Test-WallpaperFolder, Test-WallpaperUse, Get-WallpaperRules, Get-WallpaperVariant, Select-WallpaperCandidate, Test-WallpaperLicense, Test-WallpaperFormat, Measure-WallpaperFit
