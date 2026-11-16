@@ -457,6 +457,13 @@ Test 'Wallpaper: licenses' {
     foreach ($no in 'CC BY-NC 4.0', 'CC BY-ND 2.0', 'CC BY-NC-SA 4.0', 'GFDL', '', 'Copyrighted') { Assert-True (-not (Test-WallpaperLicense $no)) "'$no' should fail" }
 }
 
+Test 'Wallpaper: format needs a wide landscape image' {
+    Assert-Equal 0 @(Test-WallpaperFormat -Width 1920 -Height 1080).Count 'a 1920 x 1080 image passes'
+    Assert-Equal @('1919 px wide, needs at least 1920.') @(Test-WallpaperFormat -Width 1919 -Height 1000) 'too narrow'
+    Assert-Equal @('not landscape.') @(Test-WallpaperFormat -Width 2000 -Height 2000) 'square'
+    Assert-Equal @('1080 px wide, needs at least 1920.', 'not landscape.') @(Test-WallpaperFormat -Width 1080 -Height 1920) 'portrait phone shot'
+}
+
 Test 'Wallpaper: fit of flat, colorful, and busy images' {
     $f = Measure-WallpaperFit -Pixels (New-Pixels 16 @(240, 240, 240)) -Width 4 -Height 4
     Assert-Equal 0.0 $f.Detail 'flat detail'

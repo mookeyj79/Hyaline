@@ -59,6 +59,16 @@ function Test-WallpaperLicense {
     return $false
 }
 
+function Test-WallpaperFormat {
+    # The format gate's size and shape: problems for an image this big, none
+    # when it is landscape and wide enough.
+    param([Parameter(Mandatory)][int]$Width, [Parameter(Mandatory)][int]$Height)
+    $problems = [System.Collections.Generic.List[string]]::new()
+    if ($Width -lt $Format.MinWidth) { $problems.Add("$Width px wide, needs at least $($Format.MinWidth).") }
+    if ($Width -le $Height) { $problems.Add('not landscape.') }
+    return $problems
+}
+
 function Measure-WallpaperFit {
     <#
     .SYNOPSIS
@@ -175,4 +185,4 @@ function Test-WallpaperFolder {
     return $problems
 }
 
-Export-ModuleMember -Function Test-WallpaperFolder, Get-WallpaperRules, Get-WallpaperVariant, Select-WallpaperCandidate, Test-WallpaperLicense, Measure-WallpaperFit
+Export-ModuleMember -Function Test-WallpaperFolder, Get-WallpaperRules, Get-WallpaperVariant, Select-WallpaperCandidate, Test-WallpaperLicense, Test-WallpaperFormat, Measure-WallpaperFit
