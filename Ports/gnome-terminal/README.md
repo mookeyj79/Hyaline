@@ -1,7 +1,7 @@
 # Hyaline for GNOME Terminal
 
-**Tier:** 1 Full glass (glass needs Ubuntu or Linux Mint and a blurring desktop; Flat everywhere else)
-**Variants:** Hyaline Dark, Hyaline Light
+**Tier:** 1 Full glass (glass needs Ubuntu or Linux Mint and a blurring desktop; Flat everywhere else)\
+**Variants:** Hyaline Dark, Hyaline Light\
 **Tested with:** Not tested yet
 
 GNOME Terminal is the default terminal in Linux Mint Cinnamon, Ubuntu, Fedora Workstation, and other GNOME-based systems. It keeps its colors in **profiles**, which live in your settings database (dconf), not in a file. Each variant here is a small script that adds one profile: `Hyaline Dark` or `Hyaline Light`. Your existing profiles are not touched.

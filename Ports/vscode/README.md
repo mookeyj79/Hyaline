@@ -1,7 +1,7 @@
 # Hyaline for VS Code
 
-**Tier:** 2 Flat
-**Variants:** Hyaline Dark, Hyaline Light
+**Tier:** 2 Flat\
+**Variants:** Hyaline Dark, Hyaline Light\
 **Tested with:** Not tested yet
 
 Each variant is its own small VS Code extension: `dist/dark/` is **Hyaline Dark** and `dist/light/` is **Hyaline Light**. Install both, then pick one or let VS Code follow Windows.

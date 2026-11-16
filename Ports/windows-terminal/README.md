@@ -1,7 +1,7 @@
 # Hyaline for Windows Terminal
 
-**Tier:** 1 Full glass
-**Variants:** Hyaline Dark, Hyaline Light (each with a Flat version)
+**Tier:** 1 Full glass\
+**Variants:** Hyaline Dark, Hyaline Light (each with a Flat version)\
 **Tested with:** Not tested yet
 
 The port has three parts:

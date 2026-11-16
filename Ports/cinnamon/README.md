@@ -1,7 +1,7 @@
 # Hyaline for Cinnamon
 
-**Tier:** 2 Flat
-**Variants:** Hyaline Dark, Hyaline Light
+**Tier:** 2 Flat\
+**Variants:** Hyaline Dark, Hyaline Light\
 **Tested with:** Not tested yet
 
 The port is a Cinnamon **Desktop** theme: the panel bar, start menu, applet menus, calendar, notifications, on-screen displays, Alt+Tab, dialogs, the lock screen, workspace overview, and desklets. It does not change app windows, title bars, icons, or the mouse pointer. Those are set separately in Cinnamon (see [Known limits](#known-limits)).
