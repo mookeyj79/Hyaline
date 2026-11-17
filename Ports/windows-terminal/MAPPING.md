@@ -47,7 +47,7 @@ The glass scheme's `background` is the panel tint and `opacity` is the panel alp
 
 ## Gaps and trade-offs
 
-- **One opacity for both variants.** `opacity` is a profile setting, not part of the scheme. When following Windows, use Hyaline Light's denser `panel` alpha (96, against Dark's 82), so Hyaline Dark is more solid than on other glass ports.
+- **One opacity for both variants.** `opacity` is a profile setting, not part of the scheme. When following Windows, both variants use the same `panel` alpha (82), so one opacity fits both.
 - **Tab and menu text color** comes from `applicationTheme`, so chrome text is not a palette role.
 - **Selected text** keeps its own color on the `accent` selection. There is no selection text color setting. Check that selected text is readable when taking screenshots, especially in Light.
 - **Window frame colors** (`frame`, `unfocusedFrame`) only work in Windows Terminal Preview on Windows 11, per the docs.

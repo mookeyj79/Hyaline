@@ -289,6 +289,70 @@ Test 'Contrast: washes are measured over the glass too' {
     Assert-Failure $c '*dark.text on yellow wash over panel over white*'
 }
 
+Test 'Contrast: role colors on opacity-only glass need 3:1, on the clamp and panel_flat 4.5:1' {
+    $d = New-PaletteData
+    $d.variants.dark.roles.red = '#6b6b6b'   # about 3.6:1 on the panel over black, 3.6:1 on panel_flat, 3.3:1 on the clamp
+    $c = Test-PaletteContrast (Get-TestPalette $d)
+    Assert-NoFailure $c '*dark.red on panel over black*'
+    Assert-Failure $c '*dark.red on panel_flat is*needs 4.5:1*'
+    Assert-Failure $c '*dark.red on panel clamp over black is*needs 4.5:1*'
+    $m = @($c.Measurements | Where-Object { $_.Variant -eq 'dark' -and $_.Role -eq 'red' -and $_.Surface -eq 'panel over black' })
+    Assert-Equal 3.0 $m[0].Floor 'floor on opacity-only glass'
+    $d.variants.dark.roles.red = '#505050'   # about 2.3:1
+    Assert-Failure (Test-PaletteContrast (Get-TestPalette $d)) '*dark.red on panel over black is*needs 3:1*'
+}
+
+Test 'Contrast: on opacity-only glass primary text needs 4.5:1, dim 3:1, muted 2:1' {
+    $d = New-PaletteData
+    $d.variants.dark.roles.text = '#808080'         # about 4.9:1 over black, 3.7:1 over white
+    $d.variants.dark.roles.text_dim = '#6b6b6b'     # about 3.6:1 over black, 2.8:1 over white
+    $d.variants.dark.roles.text_muted = '#5a5a5a'   # about 2.8:1 over black, 2.1:1 over white
+    $c = Test-PaletteContrast (Get-TestPalette $d)
+    Assert-NoFailure $c '*dark.text on panel over black*'
+    Assert-Failure $c '*dark.text on panel over white is*needs 4.5:1*'
+    Assert-NoFailure $c '*dark.text_dim on panel over black*'
+    Assert-Failure $c '*dark.text_dim on panel over white is*needs 3:1*'
+    Assert-NoFailure $c '*dark.text_muted on panel over*'
+    $d.variants.dark.roles.text_muted = '#505050'   # about 1.8:1 over white
+    Assert-Failure (Test-PaletteContrast (Get-TestPalette $d)) '*dark.text_muted on panel over white is*needs 2:1*'
+}
+
+Test 'Contrast: on a wash over opacity-only glass everything but primary text needs 2:1' {
+    $d = New-PaletteData
+    $d.variants.dark.roles.red = '#ffffff'
+    $d.variants.dark.wash = 0.25
+    # About 2.2:1 on the red wash over the panel over black, and over panel_flat.
+    foreach ($r in 'text_dim', 'text_muted', 'green') { $d.variants.dark.roles[$r] = '#808080' }
+    $c = Test-PaletteContrast (Get-TestPalette $d)
+    foreach ($r in 'text_dim', 'text_muted', 'green') {
+        Assert-NoFailure $c "*dark.$r on red wash over panel over black*"
+        # The full wash row still holds over panel_flat and the clamped panel.
+        Assert-Failure $c "*dark.$r on red wash over panel_flat is*needs 3:1*"
+        Assert-Failure $c "*dark.$r on red wash over panel clamp over black is*needs 3:1*"
+    }
+    $d.variants.dark.roles.text = '#a0a0a0'   # about 3.4:1
+    $c = Test-PaletteContrast (Get-TestPalette $d)
+    # Primary text needs 4.5:1 on a wash over every panel surface.
+    Assert-Failure $c '*dark.text on red wash over panel over black is*needs 4.5:1*'
+    Assert-Failure $c '*dark.text on red wash over panel_flat is*needs 4.5:1*'
+    Assert-Failure $c '*dark.text on red wash over panel clamp over black is*needs 4.5:1*'
+    $d.variants.dark.roles.text_dim = '#606060'   # under 2:1
+    Assert-Failure (Test-PaletteContrast (Get-TestPalette $d)) '*dark.text_dim on red wash over panel over black is*needs 2:1*'
+}
+
+Test 'Contrast: raised and chrome keep their rows beside opacity-only glass' {
+    $d = New-PaletteData
+    $d.variants.dark.roles.raised_flat = '#707070'   # #f0f0f0 on it is about 3.9:1
+    $d.variants.dark.roles.text = '#808080'          # about 3.7:1 on chrome over white
+    $c = Test-PaletteContrast (Get-TestPalette $d)
+    Assert-Failure $c '*dark.text_dim on raised_flat is*needs 4.5:1*'
+    Assert-Failure $c '*dark.text on chrome over white is*needs 4.5:1*'
+    $m = @($c.Measurements | Where-Object { $_.Variant -eq 'dark' -and $_.Surface -like 'chrome*' })
+    Assert-Equal 'text' (@($m.Role | Sort-Object -Unique) -join ',') 'roles measured on chrome'
+    Assert-Equal 3.0 @($c.Measurements | Where-Object { $_.Variant -eq 'dark' -and $_.Role -eq 'red' -and $_.Surface -eq 'raised_flat' })[0].Floor 'role colors on raised_flat'
+    Assert-Equal 3.0 @($c.Measurements | Where-Object { $_.Variant -eq 'dark' -and $_.Role -eq 'text_muted' -and $_.Surface -eq 'raised over panel clamp over black' })[0].Floor 'muted text on translucent raised'
+}
+
 Test 'Contrast: line, edge, and the window edge have no floor' {
     $d = New-PaletteData
     foreach ($r in 'line', 'edge', 'edge_flat', 'window_edge', 'window_edge_flat') { $d.variants.dark.roles[$r] = '#101010'; $d.variants.light.roles[$r] = '#f8f8f8' }

@@ -1,6 +1,6 @@
 # Hyaline for GNOME Terminal
 
-**Tier:** 1 Full glass (glass needs Ubuntu or Linux Mint and a blurring desktop; Flat everywhere else)\
+**Tier:** 1 Full glass (glass needs Ubuntu or Linux Mint; Flat everywhere else)\
 **Variants:** Hyaline Dark, Hyaline Light\
 **Tested with:** Not tested yet
 
@@ -11,7 +11,7 @@ Each profile comes in two looks. The script installs one of them:
 | Look | Use it when |
 |---|---|
 | Flat (default) | Any GNOME Terminal. A solid background. |
-| Glass (`--glass`) | Ubuntu or Linux Mint, whose GNOME Terminal has a **Use transparent background** option. Add a blur on the desktop side to get real glass (see [Turn on the glass effect](#turn-on-the-glass-effect)). |
+| Glass (`--glass`) | Ubuntu or Linux Mint, whose GNOME Terminal has a **Use transparent background** option. A blur on the desktop side is optional (see [Turn on the glass effect](#turn-on-the-glass-effect)). |
 
 ## Before you start
 
@@ -74,8 +74,6 @@ GNOME Terminal cannot switch profiles when the system switches between light and
 
 ## Turn on the glass effect
 
-GNOME Terminal can make its background see-through but cannot blur. The blur comes from the desktop. These steps are for Linux Mint Cinnamon 21.3 or later (Cinnamon 6.0 or later).
-
 1. Install both profiles with `--glass`:
 
    ```sh
@@ -83,16 +81,23 @@ GNOME Terminal can make its background see-through but cannot blur. The blur com
    bash Ports/gnome-terminal/dist/dark/install.sh --glass --default
    ```
 
-2. Open a new window. The wallpaper now shows faintly through the background. The script ticks **Use transparent background** on the profile's **Colors** tab and sets the slider to 20 percent (Dark) or 7 percent (Light).
-3. Open **System Settings** > **Extensions**, go to the **Download** tab, and install **Blur Cinnamon**.
-4. On the **Manage** tab, select **Blur Cinnamon** and click **+** to turn it on.
-5. Open its settings. On the **General setup** tab, turn on blurring for **Application windows**.
-6. Under **Component specific settings**, open the **Windows** table and click **Pick a window to blur...**, then click a GNOME Terminal window.
-7. Make sure the new row for GNOME Terminal is **Enabled**.
+2. Open a new window. The wallpaper now shows faintly through the background. The script ticks **Use transparent background** on the profile's **Colors** tab and sets the slider to 18 percent in both variants.
+
+That's all glass needs. Text stays readable, and the wallpaper stays sharp behind it.
+
+### Optional: blur the glass
+
+GNOME Terminal cannot blur. The blur comes from the desktop. These steps are for Linux Mint Cinnamon 21.3 or later (Cinnamon 6.0 or later).
+
+1. Open **System Settings** > **Extensions**, go to the **Download** tab, and install **Blur Cinnamon**.
+2. On the **Manage** tab, select **Blur Cinnamon** and click **+** to turn it on.
+3. Open its settings. On the **General setup** tab, turn on blurring for **Application windows**.
+4. Under **Component specific settings**, open the **Windows** table and click **Pick a window to blur...**, then click a GNOME Terminal window.
+5. Make sure the new row for GNOME Terminal is **Enabled**.
 
 The wallpaper behind the terminal is now blurred. If the blur makes the desktop slow, switch the extension from Gaussian to **Dual Kawase** blur, which is lighter on the GPU.
 
-On other desktops, the transparency works the same, but the blur needs that desktop's compositor or an extension that blurs behind windows. Without a blur, text stays readable, but a busy wallpaper stays sharp behind it. Use flat in that case.
+On other desktops, the blur needs that desktop's compositor or an extension that blurs behind windows.
 
 ## Uninstall
 

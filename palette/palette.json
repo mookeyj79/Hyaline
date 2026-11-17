@@ -1,7 +1,7 @@
 {
   "meta": {
     "name": "Hyaline",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "repository": "https://github.com/mookeyj79/Hyaline"
   },
   "variants": {
@@ -58,7 +58,7 @@
         "chrome_flat": "#e3e8ee",
         "panel": {
           "hex": "#ffffff",
-          "alpha": 0.96,
+          "alpha": 0.82,
           "clamp": { "blur": 30, "contrast": 0.1, "brightness": 2.1, "saturate": 3, "alpha": 0.55 }
         },
         "panel_flat": "#fafbfc",

@@ -7,7 +7,7 @@
   --chrome-clamp: blur(30px) contrast(0.35) brightness(1.55) saturate(1.8);
   --chrome-tint: rgba(255, 255, 255, 0.3);
   --chrome-flat: #e3e8ee;
-  --panel: rgba(255, 255, 255, 0.96);
+  --panel: rgba(255, 255, 255, 0.82);
   --panel-clamp: blur(30px) contrast(0.1) brightness(2.1) saturate(3);
   --panel-tint: rgba(255, 255, 255, 0.55);
   --panel-flat: #fafbfc;
