@@ -59,12 +59,12 @@ These steps install both variants and let Windows Terminal follow your Windows l
 
     ```json
     "colorScheme": { "dark": "Hyaline Dark", "light": "Hyaline Light" },
-    "opacity": 93,
+    "opacity": 82,
     "useAcrylic": true,
     "font": { "face": "FiraCode Nerd Font Mono" }
     ```
 
-    The `opacity` is the one in `dist/light/profile-defaults-light.json`. Windows Terminal has one opacity for both variants, so use the denser of the two. Text stays readable in both.
+    Both variants use the same `opacity`, so one setting serves both. Glass works without blur, so text stays readable even with acrylic off.
 14. Save `settings.json`. Windows Terminal applies it right away. If it shows an error banner, a comma is missing or extra (see Troubleshooting).
 
 If a profile in `"list"` sets its own `colorScheme`, `opacity`, `useAcrylic`, or `font`, it overrides these defaults. Remove those lines from the profile to use Hyaline.
@@ -142,7 +142,6 @@ Without Mica (Windows 10, or Windows 11 before build 22621), the tab row cannot 
 
 ## Known limits
 
-- **One transparency level for both variants.** Windows Terminal has one `opacity` setting, not one per variant. When it follows Windows, Hyaline Dark is a little more solid than it would be on its own.
 - **Tab and menu text color** cannot be set. It is light text in dark mode and dark text in light mode.
 - **Selected text** keeps its own color on the blue selection. Windows Terminal has no setting for the color of selected text.
 - **Window frame colors** only work in Windows Terminal Preview on Windows 11. Other versions ignore them.

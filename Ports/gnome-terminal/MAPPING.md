@@ -8,7 +8,7 @@ For maintainers. The install guide is [README.md](README.md).
 |---|---|---|
 | `background-color` | Background | Flat: `panel_flat`. Glass: `panel` |
 | `use-transparent-background` | Use transparent background | Flat: off. Glass: on |
-| `background-transparency-percent` | the transparency slider | Glass: 100 minus `panel` opacity in percent (Dark 18, Light 4). The script computes it at install time |
+| `background-transparency-percent` | the transparency slider | Glass: 100 minus `panel` opacity in percent (18 in both variants). The script computes it at install time |
 | `use-theme-transparency` | Use transparency from system theme | off, so the palette sets the amount |
 | `foreground-color` | Text | `text` |
 | `bold-color-same-as-fg` | Bold color same as text | on, so bold uses `text` |
