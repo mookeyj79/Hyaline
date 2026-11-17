@@ -16,7 +16,7 @@ Captures: Dark on `forest-under-gray-sky.jpg`, Light on `white-sands-dunes.jpg`,
 
 ## Findings
 
-- **Light glass looks flat in every treatment.** The port is 93 percent opaque. Moving the window over the horizon (`GEOM_POS=+300+440`) shows only a faint ghost. That is the port's opacity, not framing.
+- **Light glass looks flat in every treatment.** The port is 96 percent opaque (palette 1.0.0). Moving the window over the horizon (`GEOM_POS=+300+440`) shows only a faint ghost. That is the port's opacity, not framing.
 - **picom's real shadow is safe.** Flat windows were pixel-identical with and without it. Glass windows changed by at most 2 of 255 levels across the body, which cannot be seen.
 - **A pasted backdrop disagrees with glass.** In C, Dark glass shows the blurred forest inside a flat slate card.
 - **The title bar stays with B.** A margin of real desktop needs the whole window, so cropping to the client area is not an option. The frame is Adwaita drawn by metacity.
