@@ -74,8 +74,6 @@ GNOME Terminal cannot switch profiles when the system switches between light and
 
 ## Turn on the glass effect
 
-GNOME Terminal can make its background see-through but cannot blur. The blur comes from the desktop. These steps are for Linux Mint Cinnamon 21.3 or later (Cinnamon 6.0 or later).
-
 1. Install both profiles with `--glass`:
 
    ```sh
@@ -84,15 +82,22 @@ GNOME Terminal can make its background see-through but cannot blur. The blur com
    ```
 
 2. Open a new window. The wallpaper now shows faintly through the background. The script ticks **Use transparent background** on the profile's **Colors** tab and sets the slider to 18 percent in both variants.
-3. For an optional blur, open **System Settings** > **Extensions**, go to the **Download** tab, and install **Blur Cinnamon**.
-4. On the **Manage** tab, select **Blur Cinnamon** and click **+** to turn it on.
-5. Open its settings. On the **General setup** tab, turn on blurring for **Application windows**.
-6. Under **Component specific settings**, open the **Windows** table and click **Pick a window to blur...**, then click a GNOME Terminal window.
-7. Make sure the new row for GNOME Terminal is **Enabled**.
+
+That's all glass needs. Text stays readable, and the wallpaper stays sharp behind it.
+
+### Optional: blur the glass
+
+GNOME Terminal cannot blur. The blur comes from the desktop. These steps are for Linux Mint Cinnamon 21.3 or later (Cinnamon 6.0 or later).
+
+1. Open **System Settings** > **Extensions**, go to the **Download** tab, and install **Blur Cinnamon**.
+2. On the **Manage** tab, select **Blur Cinnamon** and click **+** to turn it on.
+3. Open its settings. On the **General setup** tab, turn on blurring for **Application windows**.
+4. Under **Component specific settings**, open the **Windows** table and click **Pick a window to blur...**, then click a GNOME Terminal window.
+5. Make sure the new row for GNOME Terminal is **Enabled**.
 
 The wallpaper behind the terminal is now blurred. If the blur makes the desktop slow, switch the extension from Gaussian to **Dual Kawase** blur, which is lighter on the GPU.
 
-On other desktops, the transparency works the same, but the blur needs that desktop's compositor or an extension that blurs behind windows. Glass works without blur: text stays readable, and the wallpaper just stays sharp behind it.
+On other desktops, the blur needs that desktop's compositor or an extension that blurs behind windows.
 
 ## Uninstall
 

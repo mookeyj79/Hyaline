@@ -331,7 +331,11 @@ Test 'Contrast: on a wash over opacity-only glass everything but primary text ne
         Assert-Failure $c "*dark.$r on red wash over panel clamp over black is*needs 3:1*"
     }
     $d.variants.dark.roles.text = '#a0a0a0'   # about 3.4:1
-    Assert-Failure (Test-PaletteContrast (Get-TestPalette $d)) '*dark.text on red wash over panel over black is*needs 4.5:1*'
+    $c = Test-PaletteContrast (Get-TestPalette $d)
+    # Primary text needs 4.5:1 on a wash over every panel surface.
+    Assert-Failure $c '*dark.text on red wash over panel over black is*needs 4.5:1*'
+    Assert-Failure $c '*dark.text on red wash over panel_flat is*needs 4.5:1*'
+    Assert-Failure $c '*dark.text on red wash over panel clamp over black is*needs 4.5:1*'
     $d.variants.dark.roles.text_dim = '#606060'   # under 2:1
     Assert-Failure (Test-PaletteContrast (Get-TestPalette $d)) '*dark.text_dim on red wash over panel over black is*needs 2:1*'
 }

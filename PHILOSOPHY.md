@@ -123,7 +123,7 @@ Opacity-only glass, where the app offers a tint and one opacity, is measured the
 | A wash | 4.5 | 2 | 2 | 2 |
 | Chrome | 4.5 | n/a | n/a | n/a |
 
-Raised surfaces are solid on opacity-only glass and keep the rows above. See [ADR 0013](docs/adr/0013-opacity-only-glass-has-its-own-floor-rows.md).
+Raised surfaces are solid on opacity-only glass and keep the Raised row of the first table. See [ADR 0013](docs/adr/0013-opacity-only-glass-has-its-own-floor-rows.md).
 
 `on_accent` on an accent fill: 4.5. Borders that mark state (focus, an active tab, an error) use a role color and need 3 against their surface. `line` and `edge` carry no meaning and have no floor.
 

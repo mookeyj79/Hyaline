@@ -9,14 +9,13 @@
                      (ADR 0011). Solid surfaces are measured as drawn. Chrome and
                      panel glass are measured over pure black and pure white, at
                      the dense alpha and through the clamp, and every result must
-                     pass. Chrome carries primary text only. On raised (raised_flat,
-                     and translucent raised on the clamped panel) color roles need
-                     3:1. On a wash over any panel surface, text needs 4.5:1,
-                     everything else 3:1. Opacity-only glass (the panel at its
-                     dense alpha, and washes over it) has its own rows (ADR
-                     0013): on the panel, dim text and role colors need 3:1,
-                     muted text 2:1; on a wash, everything but text needs 2:1.
-                     Primary text needs 4.5:1 everywhere. line and edge have
+                     pass. Chrome carries primary text only. Raised is
+                     raised_flat, and translucent raised on the clamped panel.
+                     Washes are measured over every panel surface. Opacity-only
+                     glass (the panel at its dense alpha, and washes over it)
+                     is held to the opacity-only rows for the panel and a wash
+                     (ADR 0013); everything else to the full rows. The numbers
+                     are in PHILOSOPHY.md, "Contrast floor". line and edge have
                      no floor.
     3. Structure     Every port has a README.md and a template/ folder, and a
                      site.json, where there is one, points at real files.

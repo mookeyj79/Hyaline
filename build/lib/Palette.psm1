@@ -51,13 +51,22 @@ $AnsiNeutrals = @{
 
 # Contrast floor (PHILOSOPHY.md, ADR 0011 and 0013). line, edge, and window_edge
 # carry no meaning and have no floor, so they are never measured.
-$TextFloor   = 4.5
-$MutedFloor  = 3.0
+# One row per surface kind, as in the two tables in PHILOSOPHY.md; "color"
+# stands for every role color. Read them through Get-ContrastFloor.
+$FloorRows = @{
+    panel  = @{ text = 4.5; text_dim = 4.5; text_muted = 3.0; color = 4.5 }
+    raised = @{ text = 4.5; text_dim = 4.5; text_muted = 3.0; color = 3.0 }
+    chrome = @{ text = 4.5 }
+    wash   = @{ text = 4.5; text_dim = 3.0; text_muted = 3.0; color = 3.0 }
+    fill   = @{ on_accent = 4.5 }
+}
 # Opacity-only glass (ADR 0013): the panel at its dense alpha, and washes
 # over it, have their own rows. Primary text keeps 4.5; every other
-# threshold is two thirds of the solid row. Chrome keeps its row.
-$OpacityOnlyPanelFloor = @{ text = 4.5; text_dim = 3.0; text_muted = 2.0; color = 3.0 }
-$OpacityOnlyWashFloor  = @{ text = 4.5; text_dim = 2.0; text_muted = 2.0; color = 2.0 }
+# threshold is two thirds of the full row. Raised and chrome keep theirs.
+$OpacityOnlyFloorRows = @{
+    panel = @{ text = 4.5; text_dim = 3.0; text_muted = 2.0; color = 3.0 }
+    wash  = @{ text = 4.5; text_dim = 2.0; text_muted = 2.0; color = 2.0 }
+}
 $TextRoles   = @('text', 'text_dim', 'accent', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'orange')
 # Pure black and pure white bound every backdrop under a tint (ADR 0011).
 $Backdrops   = [ordered]@{ black = '#000000'; white = '#ffffff' }
@@ -292,6 +301,18 @@ function Get-GlassColor {
     return Get-Blend $c.Hex ('#' + ($squeezed -join '')) $k.Alpha
 }
 
+function Get-ContrastFloor {
+    # The floor for $Role on a surface of kind $Kind, or on a wash over it.
+    # Kinds: panel, opacityOnly (the panel at its dense alpha), raised,
+    # chrome, fill. Only panel and opacityOnly carry washes.
+    param([ValidateSet('panel', 'opacityOnly', 'raised', 'chrome', 'fill')][string]$Kind, [string]$Role, [switch]$Wash)
+    $rows = if ($Kind -eq 'opacityOnly') { $OpacityOnlyFloorRows } else { $FloorRows }
+    $row = if ($Wash) { $rows['wash'] } else { $rows[$Kind -replace '^opacityOnly$', 'panel'] }
+    if (-not $row) { throw "$Kind has no wash floor." }
+    $key = if ($row.ContainsKey($Role)) { $Role } elseif ($Role -in $TextRoles -and $row.ContainsKey('color')) { 'color' } else { throw "$Role has no floor on $Kind." }
+    return $row[$key]
+}
+
 function Test-PaletteContrast {
     <#
     .SYNOPSIS
@@ -308,11 +329,10 @@ function Test-PaletteContrast {
         panel. Washes are measured over every panel surface.
 
         The panel at its dense alpha is opacity-only glass, and it and the
-        washes over it are measured against their own rows (ADR 0013):
-        primary text 4.5, dim text and role colors 3, muted text 2 on the
-        panel; primary text 4.5, everything else 2 on a wash. The clamped
-        panel, panel_flat, raised, and chrome keep the full rows. A failure
-        message states the floor that was missed.
+        washes over it are measured against the opacity-only rows for the
+        panel and a wash (ADR 0013). The clamped panel, panel_flat, raised,
+        and chrome keep the full rows. PHILOSOPHY.md, "Contrast floor", has
+        the numbers. A failure message states the floor that was missed.
     #>
     param($Palette)
     $failures = [System.Collections.Generic.List[string]]::new()
@@ -342,32 +362,25 @@ function Test-PaletteContrast {
         }
 
         # The panel at its dense alpha is opacity-only glass; the clamp and panel_flat are not.
-        $opacityOnly = @(foreach ($b in $Backdrops.Keys) { "panel over $b" })
-        $row = { param($Floors, [string]$Role) if ($Floors.ContainsKey($Role)) { $Floors[$Role] } else { $Floors['color'] } }
+        $opacityOnlySurfaces = @(foreach ($b in $Backdrops.Keys) { "panel over $b" })
+        $panelKind = { param([string]$Surface) if ($Surface -in $opacityOnlySurfaces) { 'opacityOnly' } else { 'panel' } }
 
         foreach ($role in $TextRoles + 'text_muted') {
-            $panelFloor = if ($role -eq 'text_muted') { $MutedFloor } else { $TextFloor }
-            $raisedFloor = if ($role -in 'text', 'text_dim') { $TextFloor } else { $MutedFloor }
-            foreach ($s in $panels.Keys) {
-                $floor = if ($s -in $opacityOnly) { & $row $OpacityOnlyPanelFloor $role } else { $panelFloor }
-                & $measure $role $panels[$s] $s $floor
-            }
-            foreach ($s in $raiseds.Keys) { & $measure $role $raiseds[$s] $s $raisedFloor }
+            foreach ($s in $panels.Keys) { & $measure $role $panels[$s] $s (Get-ContrastFloor (& $panelKind $s) $role) }
+            foreach ($s in $raiseds.Keys) { & $measure $role $raiseds[$s] $s (Get-ContrastFloor raised $role) }
         }
-        foreach ($s in $chromes.Keys) { & $measure 'text' $chromes[$s] $s $TextFloor }
+        foreach ($s in $chromes.Keys) { & $measure 'text' $chromes[$s] $s (Get-ContrastFloor chrome 'text') }
         foreach ($washRole in $WashRoles) {
             foreach ($s in $panels.Keys) {
                 $washed = Get-Blend (& $hex $washRole) $panels[$s] $v.Wash
                 foreach ($role in $TextRoles + 'text_muted') {
-                    $floor = if ($s -in $opacityOnly) { & $row $OpacityOnlyWashFloor $role }
-                             elseif ($role -eq 'text') { $TextFloor } else { $MutedFloor }
-                    & $measure $role $washed "$washRole wash over $s" $floor
+                    & $measure $role $washed "$washRole wash over $s" (Get-ContrastFloor (& $panelKind $s) $role -Wash)
                 }
             }
         }
         # on_accent is drawn on accent, and on solid red where an app fills
         # with it (Cinnamon's destroy buttons and drag highlights).
-        foreach ($fill in 'accent', 'red') { & $measure 'on_accent' (& $hex $fill) $fill $TextFloor }
+        foreach ($fill in 'accent', 'red') { & $measure 'on_accent' (& $hex $fill) $fill (Get-ContrastFloor fill 'on_accent') }
     }
     return @{ Failures = $failures; Measurements = $measurements }
 }
