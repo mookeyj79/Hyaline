@@ -115,6 +115,16 @@ Every surface must pass, over any backdrop. A solid surface is measured as drawn
 | Chrome | 4.5 | n/a | n/a | n/a |
 | A wash | 4.5 | 3 | 3 | 3 |
 
+Opacity-only glass, where the app offers a tint and one opacity, is measured the same way but has its own rows. Primary text keeps 4.5, and every other threshold is two thirds of the same row in the table above.
+
+| On (opacity-only glass) | Primary text | Dim text | Muted text | Role colors |
+|---|---|---|---|---|
+| Panel | 4.5 | 3 | 2 | 3 |
+| A wash | 4.5 | 2 | 2 | 2 |
+| Chrome | 4.5 | n/a | n/a | n/a |
+
+Raised surfaces are solid on opacity-only glass and keep the rows above. See [ADR 0013](docs/adr/0013-opacity-only-glass-has-its-own-floor-rows.md).
+
 `on_accent` on an accent fill: 4.5. Borders that mark state (focus, an active tab, an error) use a role color and need 3 against their surface. `line` and `edge` carry no meaning and have no floor.
 
 Short labels are inline code, badges, and a tag in a tab. Running colored text, such as code, goes on the panel.
@@ -176,6 +186,6 @@ Every palette change rebuilds every port. CI fails if any committed output does 
 - **How the glass stays readable.** It clamps the backdrop, or uses a tint dense enough for any backdrop. See [ADR 0008](docs/adr/0008-the-glass-clamps-the-backdrop.md).
 - **Flat values.** Chosen to match the glass, with a lit edge. See [ADR 0009](docs/adr/0009-flat-is-the-glass-as-it-looks.md).
 - **What chrome carries.** Primary text and solid fills, because only those pass everywhere. See [ADR 0010](docs/adr/0010-chrome-carries-what-passes-everywhere.md).
-- **Contrast floor.** Holds over any backdrop. See [ADR 0011](docs/adr/0011-the-contrast-floor-holds-over-any-backdrop.md).
+- **Contrast floor.** Holds over any backdrop. See [ADR 0011](docs/adr/0011-the-contrast-floor-holds-over-any-backdrop.md). Opacity-only glass has its own rows. See [ADR 0013](docs/adr/0013-opacity-only-glass-has-its-own-floor-rows.md).
 - **See-through highlights.** One wash alpha per variant, applied to any color role. See [ADR 0006](docs/adr/0006-one-wash-alpha-for-highlights.md), amended by [ADR 0011](docs/adr/0011-the-contrast-floor-holds-over-any-backdrop.md).
 - **Port icons.** Single-color, colored by the page, so they follow the palette rule. A brand mark where the app allows it, otherwise a glyph. See [ADR 0007](docs/adr/0007-port-icons-are-single-color.md).
