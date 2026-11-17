@@ -12,7 +12,12 @@
                      pass. Chrome carries primary text only. On raised (raised_flat,
                      and translucent raised on the clamped panel) color roles need
                      3:1. On a wash over any panel surface, text needs 4.5:1,
-                     everything else 3:1. line and edge have no floor.
+                     everything else 3:1. Opacity-only glass (the panel at its
+                     dense alpha, and washes over it) has its own rows (ADR
+                     0013): on the panel, dim text and role colors need 3:1,
+                     muted text 2:1; on a wash, everything but text needs 2:1.
+                     Primary text needs 4.5:1 everywhere. line and edge have
+                     no floor.
     3. Structure     Every port has a README.md and a template/ folder, and a
                      site.json, where there is one, points at real files.
     4. Port list     Every port has a valid port.json (except folders listed as

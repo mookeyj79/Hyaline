@@ -49,10 +49,15 @@ $AnsiNeutrals = @{
     light = @{ black = 'text';        bright_black = 'text_muted'; white = 'line';     bright_white = 'raised_flat' }
 }
 
-# Contrast floor (PHILOSOPHY.md, ADR 0011). line, edge, and window_edge
+# Contrast floor (PHILOSOPHY.md, ADR 0011 and 0013). line, edge, and window_edge
 # carry no meaning and have no floor, so they are never measured.
 $TextFloor   = 4.5
 $MutedFloor  = 3.0
+# Opacity-only glass (ADR 0013): the panel at its dense alpha, and washes
+# over it, have their own rows. Primary text keeps 4.5; every other
+# threshold is two thirds of the solid row. Chrome keeps its row.
+$OpacityOnlyPanelFloor = @{ text = 4.5; text_dim = 3.0; text_muted = 2.0; color = 3.0 }
+$OpacityOnlyWashFloor  = @{ text = 4.5; text_dim = 2.0; text_muted = 2.0; color = 2.0 }
 $TextRoles   = @('text', 'text_dim', 'accent', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'orange')
 # Pure black and pure white bound every backdrop under a tint (ADR 0011).
 $Backdrops   = [ordered]@{ black = '#000000'; white = '#ffffff' }
@@ -301,6 +306,13 @@ function Test-PaletteContrast {
         counts. Translucent raised is only drawn on clamped glass (ADR 0008:
         with opacity only, raised is solid), so it is measured over the clamped
         panel. Washes are measured over every panel surface.
+
+        The panel at its dense alpha is opacity-only glass, and it and the
+        washes over it are measured against their own rows (ADR 0013):
+        primary text 4.5, dim text and role colors 3, muted text 2 on the
+        panel; primary text 4.5, everything else 2 on a wash. The clamped
+        panel, panel_flat, raised, and chrome keep the full rows. A failure
+        message states the floor that was missed.
     #>
     param($Palette)
     $failures = [System.Collections.Generic.List[string]]::new()
@@ -329,10 +341,17 @@ function Test-PaletteContrast {
             $raiseds["raised over panel clamp over $b"] = Get-Blend (& $hex 'raised') $panels["panel clamp over $b"] $v.Roles['raised'].Alpha
         }
 
+        # The panel at its dense alpha is opacity-only glass; the clamp and panel_flat are not.
+        $opacityOnly = @(foreach ($b in $Backdrops.Keys) { "panel over $b" })
+        $row = { param($Floors, [string]$Role) if ($Floors.ContainsKey($Role)) { $Floors[$Role] } else { $Floors['color'] } }
+
         foreach ($role in $TextRoles + 'text_muted') {
             $panelFloor = if ($role -eq 'text_muted') { $MutedFloor } else { $TextFloor }
             $raisedFloor = if ($role -in 'text', 'text_dim') { $TextFloor } else { $MutedFloor }
-            foreach ($s in $panels.Keys) { & $measure $role $panels[$s] $s $panelFloor }
+            foreach ($s in $panels.Keys) {
+                $floor = if ($s -in $opacityOnly) { & $row $OpacityOnlyPanelFloor $role } else { $panelFloor }
+                & $measure $role $panels[$s] $s $floor
+            }
             foreach ($s in $raiseds.Keys) { & $measure $role $raiseds[$s] $s $raisedFloor }
         }
         foreach ($s in $chromes.Keys) { & $measure 'text' $chromes[$s] $s $TextFloor }
@@ -340,7 +359,8 @@ function Test-PaletteContrast {
             foreach ($s in $panels.Keys) {
                 $washed = Get-Blend (& $hex $washRole) $panels[$s] $v.Wash
                 foreach ($role in $TextRoles + 'text_muted') {
-                    $floor = if ($role -eq 'text') { $TextFloor } else { $MutedFloor }
+                    $floor = if ($s -in $opacityOnly) { & $row $OpacityOnlyWashFloor $role }
+                             elseif ($role -eq 'text') { $TextFloor } else { $MutedFloor }
                     & $measure $role $washed "$washRole wash over $s" $floor
                 }
             }
