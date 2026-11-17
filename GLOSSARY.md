@@ -62,7 +62,7 @@ The role that means "you are here": focus, selection, cursor, links. One fixed b
 _Avoid_: Highlight, primary color
 
 **Contrast floor**:
-The lowest contrast a role may have on a surface, over any backdrop. Solid surfaces are measured as drawn, translucent ones over pure black and pure white.
+The lowest contrast a role may have on a surface, over any backdrop. Solid surfaces are measured as drawn, translucent ones over pure black and pure white. Opacity-only glass has its own, lower rows.
 
 **Wash**:
 A color role at the variant's wash alpha, laid over a panel to mark something without hiding the text on it: selections, diff lines, find matches.
