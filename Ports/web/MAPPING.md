@@ -13,7 +13,11 @@ The port has no app slots. It exposes every role as a CSS custom property, so th
 | `-chrome-rgb`, `-panel-rgb`, `-raised-rgb` | same, `rgb` | Channels for sites that need another alpha |
 | `-chrome-alpha`, `-panel-alpha`, `-raised-alpha` | same, `alpha` | The palette's alpha on its own |
 | `-chrome-flat`, `-panel-flat`, `-raised-flat` | `*_flat` | Solid fallbacks |
+| `-chrome-clamp`, `-panel-clamp` | `chrome`, `panel` with `clamp` | The `backdrop-filter` value (ADR 0008) |
+| `-chrome-tint`, `-panel-tint` | `chrome`, `panel` with `clamptint` | The thin tint over the clamp |
 | `-line`, `-text`, `-text-dim`, `-text-muted` | same | |
+| `-edge`, `-window-edge` | `edge`, `window_edge` with `rgba` | |
+| `-edge-flat`, `-window-edge-flat` | `edge_flat`, `window_edge_flat` | |
 | `-accent`, `-on-accent` | same | |
 | `-red` to `-orange` | the seven color roles | |
 | `-accent-wash`, `-<color>-wash` | wash roles, `wash` | The variant's wash alpha, for selections and diff lines (ADR 0006) |
@@ -25,7 +29,7 @@ The port has no app slots. It exposes every role as a CSS custom property, so th
 - The file is `theme.css` in each variant folder. A filtered placeholder cannot go in a file name, because `|` is not allowed in Windows file names.
 - `-rgb` is comma-separated (the `rgb` filter's output), which works in `rgba(var(--x-rgb), a)` but not in the space and slash syntax. Catppuccin's `-rgb` is space-separated. Changing the filter would change other ports' output, so the README names the comma form instead.
 - No `color-scheme` in the files: with both loaded, the site sets it alongside its own switch.
-- Tier 1 because every surface ships at its alpha. Blur is the site's `backdrop-filter`. The contrast floor over a wallpaper assumes 18 px blur and the palette alpha (ADR 0004); a site that lowers alpha through `-rgb` leaves that floor.
+- Tier 1: chrome and panel ship their clamp and tint for `backdrop-filter`, which pass the full floor with translucent `raised` on top (`build/contrast.ps1`). Without the clamp, the plain rgba is opacity-only glass: it passes only the opacity-only rows (ADR 0013), and raised must be solid there, so the README pairs the plain colors with `-raised-flat`. The tint alone passes nothing without the clamp. A site that lowers alpha through `-rgb` leaves the contrast floor.
 - The repo has no `go.mod`. Hugo and Go fetch it as a module anyway, pinned in the site's `go.mod` as a pseudo-version. Checked with `hugo mod get github.com/mookeyj79/Hyaline@279e2ec` (Hugo 0.131, Go 1.24), a commit from before this port, so it proves the fetch and pin but not the mount; the mount was checked separately through `module.replacements`. Redo the fetch against a commit that has `Ports/web/dist` once this is on `main`.
 - Hyaline does not tag releases, so sites pin by commit hash. A bump is a new hash.
 

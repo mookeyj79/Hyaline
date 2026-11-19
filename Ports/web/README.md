@@ -1,7 +1,7 @@
 # Hyaline for the web
 
-**Tier:** 1 Full glass
-**Variants:** Hyaline Dark, Hyaline Light
+**Tier:** 1 Full glass\
+**Variants:** Hyaline Dark, Hyaline Light\
 **Tested with:** Hugo 0.131 on Linux
 
 This port is two CSS files of custom properties, one per variant, for a website you build. It does not style a page by itself. Your own CSS reads the properties with `var()`.
@@ -75,15 +75,18 @@ Each file sets these on `:root`. Swap `dark` for `light` in the names for the ot
 | `--hyaline-dark-panel` | The main content area |
 | `--hyaline-dark-raised` | Cards, code blocks, inputs, and tags on top of a panel |
 | `--hyaline-dark-line` | Borders and dividers |
+| `--hyaline-dark-edge` | A thin lit line along the top inside of chrome and raised surfaces |
+| `--hyaline-dark-window-edge` | The thin line around a whole window or dialog |
 | `--hyaline-dark-text`, `-text-dim`, `-text-muted` | Body text, supporting text, captions and dates |
 | `--hyaline-dark-accent`, `-on-accent` | Links, focus rings, primary buttons, and the text on them |
 | `--hyaline-dark-red`, `-green`, `-yellow`, `-blue`, `-magenta`, `-cyan`, `-orange` | Errors, success, warnings, info, and syntax colors |
 | `--hyaline-dark-<color>-wash` | A see-through tint of a color, for selections and highlighted lines |
 
-Chrome, panel, and raised also come in three more forms:
+Chrome, panel, and raised also come in more forms:
 
-- `-flat`: a solid color, for places where see-through looks wrong, such as a printed page.
+- `-flat`: a solid color, for places where see-through looks wrong, such as a printed page. The edges have one too.
 - `-rgb` and `-alpha`: the color's channels and its see-through amount, so you can change the amount, as in `rgba(var(--hyaline-dark-panel-rgb), 0.6)`. The channels are comma-separated, so use the comma form of `rgba()`, not the slash form.
+- `-clamp` and `-tint`, on chrome and panel only: the blurred glass. See [Turn on the glass effect](#turn-on-the-glass-effect).
 
 A site that defaults to Dark and has a Light switch can map the properties once:
 
@@ -129,11 +132,20 @@ Both variants are loaded at once, so switching is your site's choice:
 
 ## Turn on the glass effect
 
-`chrome`, `panel`, and `raised` are already see-through. To blur what is behind them:
+Chrome and panel are see-through in two ways. The plain colors work in every browser: text stays readable on them over any backdrop, and cards on them should use `--hyaline-dark-raised-flat`. For frosted glass that blurs what is behind it, use the clamp on chrome and panel, and the see-through `--hyaline-dark-raised` for cards on top:
 
-1. Add `backdrop-filter: blur(18px);` to the element that uses the glass.
-2. Put a backdrop image or color on `body` so there is something to see through.
-3. Keep body text on `panel`, not on `chrome`. Chrome is clear enough that small or colored text gets hard to read.
+1. Put a backdrop image or color on `body` so there is something to see through.
+2. On the element, set `backdrop-filter` to the clamp and the background to the tint:
+
+   ```css
+   main {
+     background: var(--hyaline-dark-panel-tint);
+     backdrop-filter: var(--hyaline-dark-panel-clamp);
+   }
+   ```
+
+3. For browsers without `backdrop-filter`, go back to the plain `--hyaline-dark-panel` and solid cards inside `@supports not (backdrop-filter: blur(1px))`. The tint alone is too thin to read on.
+4. Keep body text on the panel, not on chrome. Chrome is clearer glass, so dim, muted, or colored text on it gets hard to read.
 
 ## Uninstall
 
@@ -151,7 +163,7 @@ Both variants are loaded at once, so switching is your site's choice:
 
 - The files only define properties. Your site decides which elements use them.
 - There is no ready-made light and dark switch. You write the few lines that pick a set.
-- Blur needs `backdrop-filter`, which some older browsers do not support. Without it the glass still shows, just not blurred.
+- The frosted glass needs `backdrop-filter`, which some older browsers do not support. Use the plain see-through colors there.
 
 ## Sources
 

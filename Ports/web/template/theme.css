@@ -8,7 +8,9 @@
  * Every property is named after the variant, so the Dark and Light files
  * can be loaded together and a site picks which set to use.
  * Glass surfaces come as rgba, as rgb channels plus alpha, and as a flat
- * fallback. Wash is the see-through tint for selections and highlights.
+ * fallback. Chrome and panel also come as a clamp: a backdrop-filter value
+ * and the thin tint laid over it. Wash is the see-through tint for
+ * selections and highlights.
  */
 
 :root {
@@ -18,15 +20,23 @@
   --{{variant.name|slug}}-chrome-rgb: {{chrome|rgb}};
   --{{variant.name|slug}}-chrome-alpha: {{chrome|alpha}};
   --{{variant.name|slug}}-chrome-flat: {{chrome_flat}};
+  --{{variant.name|slug}}-chrome-clamp: {{chrome|clamp}};
+  --{{variant.name|slug}}-chrome-tint: {{chrome|clamptint}};
   --{{variant.name|slug}}-panel: {{panel|rgba}};
   --{{variant.name|slug}}-panel-rgb: {{panel|rgb}};
   --{{variant.name|slug}}-panel-alpha: {{panel|alpha}};
   --{{variant.name|slug}}-panel-flat: {{panel_flat}};
+  --{{variant.name|slug}}-panel-clamp: {{panel|clamp}};
+  --{{variant.name|slug}}-panel-tint: {{panel|clamptint}};
   --{{variant.name|slug}}-raised: {{raised|rgba}};
   --{{variant.name|slug}}-raised-rgb: {{raised|rgb}};
   --{{variant.name|slug}}-raised-alpha: {{raised|alpha}};
   --{{variant.name|slug}}-raised-flat: {{raised_flat}};
   --{{variant.name|slug}}-line: {{line}};
+  --{{variant.name|slug}}-edge: {{edge|rgba}};
+  --{{variant.name|slug}}-edge-flat: {{edge_flat}};
+  --{{variant.name|slug}}-window-edge: {{window_edge|rgba}};
+  --{{variant.name|slug}}-window-edge-flat: {{window_edge_flat}};
 
   /* Text */
   --{{variant.name|slug}}-text: {{text}};
