@@ -48,7 +48,7 @@ if [ "$glass" = true ]; then
 background-color='#1c2028'
 use-theme-transparency=false
 use-transparent-background=true
-background-transparency-percent=$((100 - 82))
+background-transparency-percent=$((100 - 80))
 EOF
 else
   dconf load "$base/:$uuid/" <<'EOF'

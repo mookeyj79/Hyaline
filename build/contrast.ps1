@@ -34,7 +34,7 @@
     Show only surfaces like this, such as "panel*" or "*clamp over white".
 
 .PARAMETER Failing
-    Show only failures.
+    Show only measurements under the floor: failures, and glass set by eye.
 
 .EXAMPLE
     pwsh build/contrast.ps1
@@ -108,11 +108,12 @@ $line = '{0,-6} {1,-11} {2,-42} {3,7} {4,5}  {5}'
 Write-Output ($line -f 'Var', 'Role', 'Surface', 'Ratio', 'Floor', 'Result')
 foreach ($m in $shown) {
     Write-Output ($line -f $m.Variant, $m.Role, $m.Surface, $m.Ratio.ToString('0.00', [cultureinfo]::InvariantCulture),
-        $m.Floor.ToString('0.0', [cultureinfo]::InvariantCulture), $(if ($m.Pass) { 'pass' } else { 'FAIL' }))
+        $m.Floor.ToString('0.0', [cultureinfo]::InvariantCulture), $(if ($m.Pass) { 'pass' } elseif ($m.Enforced) { 'FAIL' } else { 'by eye' }))
 }
 
-$fails = @($all | Where-Object { -not $_.Pass })
+$fails = @($all | Where-Object { -not $_.Pass -and $_.Enforced })
+$byEye = @($all | Where-Object { -not $_.Pass -and -not $_.Enforced })
 Write-Output ''
-Write-Output "$($all.Count) measurements, $($fails.Count) failing ($($shown.Count) shown)."
+Write-Output "$($all.Count) measurements, $($fails.Count) failing, $($byEye.Count) under the floor on glass set by eye ($($shown.Count) shown)."
 if ($fails.Count) { exit 1 }
 exit 0

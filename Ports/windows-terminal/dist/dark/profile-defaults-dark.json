@@ -2,7 +2,7 @@
   "profiles": {
     "defaults": {
       "colorScheme": "Hyaline Dark",
-      "opacity": 82,
+      "opacity": 80,
       "useAcrylic": true,
       "font": {
         "face": "FiraCode Nerd Font Mono"

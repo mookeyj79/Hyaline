@@ -774,6 +774,21 @@ Test 'Entry: wallpaper.ps1 -Check passes a wide image and fails a small one' {
     Assert-True ($r.Text -like "*Fails:*- 200 px wide, needs at least 1920.*") "no reason in:`n$($r.Text)"
 }
 
+Test 'Contrast: with glass_floor false, glass is measured but only solid surfaces fail' {
+    $d = New-PaletteData
+    $d.variants.dark.roles.panel.alpha = 0.3
+    $d.variants.dark.glass_floor = $false
+    $c = Test-PaletteContrast (Get-TestPalette $d)
+    Assert-NoFailure $c '*dark.text on panel over white*'
+    $m = @($c.Measurements | Where-Object { $_.Variant -eq 'dark' -and $_.Role -eq 'text' -and $_.Surface -eq 'panel over white' })
+    Assert-True (-not $m[0].Pass -and -not $m[0].Enforced) 'glass row measured, under the floor, not enforced'
+    $d.variants.dark.roles.panel_flat = '#a0a0a0'
+    Assert-Failure (Test-PaletteContrast (Get-TestPalette $d)) '*dark.text on panel_flat*'
+    $d.variants.dark.glass_floor = 'no'
+    $r = Get-TestPalette $d
+    Assert-True (($r.Errors -join ' ') -like '*glass_floor must be true or false*') "bad glass_floor not reported: $($r.Errors -join '; ')"
+}
+
 Test 'Entry: contrast.ps1 lists every measurement of the palette and passes' {
     $r = Invoke-Script 'contrast.ps1' @()
     Assert-Equal 0 $r.Exit "exit code, output:`n$($r.Text)"
@@ -782,9 +797,9 @@ Test 'Entry: contrast.ps1 lists every measurement of the palette and passes' {
 }
 
 Test 'Entry: contrast.ps1 -Set tries a value and fails it' {
-    $r = Invoke-Script 'contrast.ps1' @('-Set', 'dark.roles.panel.alpha=0.3', '-Variant', 'dark', '-Role', 'text', '-Surface', 'panel over white')
+    $r = Invoke-Script 'contrast.ps1' @('-Set', 'dark.roles.panel_flat=#a0a0a0', '-Variant', 'dark', '-Role', 'text', '-Surface', 'panel_flat')
     Assert-Equal 1 $r.Exit "exit code, output:`n$($r.Text)"
-    Assert-True ($r.Text -match '(?m)^dark +text +panel over white +\d+\.\d\d +4\.5 +FAIL$') "no failing line in:`n$($r.Text)"
+    Assert-True ($r.Text -match '(?m)^dark +text +panel_flat +\d+\.\d\d +4\.5 +FAIL$') "no failing line in:`n$($r.Text)"
     $r = Invoke-Script 'contrast.ps1' @('-Set', 'dark.roles.nope=#000000')
     Assert-Equal 2 $r.Exit "unknown path exit code, output:`n$($r.Text)"
 }

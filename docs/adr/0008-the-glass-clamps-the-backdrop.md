@@ -2,6 +2,8 @@
 
 Amended by [ADR 0013](0013-opacity-only-glass-has-its-own-floor-rows.md): opacity-only glass passes its own rows of the contrast floor, and Light's panel alpha is 0.82.
 
+Superseded by [ADR 0014](0014-the-glass-is-set-by-eye.md): the glass is a tint and a blur set by eye, with no clamp.
+
 Hyaline's glass used to rely on the wallpaper: a thin tint, a blur, and a rule that wallpapers be light and calm. No OS glass works that way. Each one blurs hard, then pulls the backdrop's lightness toward a chosen near-white or near-black and lets only its hue through, so text stays readable over anything. So the glass is now responsible for readability, not the wallpaper.
 
 Where the app allows backdrop filters (CSS), the glass blurs 30 px, squeezes the backdrop into a light band (Light) or a dark band (Dark), boosts its saturation, and lays a thin tint on top. The panel is clamped harder than the chrome.
