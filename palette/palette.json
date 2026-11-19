@@ -1,7 +1,7 @@
 {
   "meta": {
     "name": "Hyaline",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "repository": "https://github.com/mookeyj79/Hyaline"
   },
   "variants": {
@@ -14,13 +14,13 @@
         "chrome": {
           "hex": "#1c2028",
           "alpha": 0.74,
-          "clamp": { "blur": 30, "contrast": 0.35, "brightness": 0.5, "saturate": 1.8, "alpha": 0.45 }
+          "clamp": { "blur": 30, "contrast": 0.7, "brightness": 0.55, "saturate": 1.8, "alpha": 0.25 }
         },
         "chrome_flat": "#575b63",
         "panel": {
           "hex": "#1c2028",
           "alpha": 0.82,
-          "clamp": { "blur": 30, "contrast": 0.15, "brightness": 0.45, "saturate": 2.5, "alpha": 0.6 }
+          "clamp": { "blur": 30, "contrast": 0.45, "brightness": 0.5, "saturate": 2.5, "alpha": 0.35 }
         },
         "panel_flat": "#434850",
         "raised": { "hex": "#ffffff", "alpha": 0.1 },
@@ -53,13 +53,13 @@
         "chrome": {
           "hex": "#ffffff",
           "alpha": 0.55,
-          "clamp": { "blur": 30, "contrast": 0.35, "brightness": 1.55, "saturate": 1.8, "alpha": 0.3 }
+          "clamp": { "blur": 30, "contrast": 0.4, "brightness": 1.4, "saturate": 1.8, "alpha": 0.2 }
         },
         "chrome_flat": "#e3e8ee",
         "panel": {
           "hex": "#ffffff",
           "alpha": 0.82,
-          "clamp": { "blur": 30, "contrast": 0.1, "brightness": 2.1, "saturate": 3, "alpha": 0.55 }
+          "clamp": { "blur": 30, "contrast": 0.02, "brightness": 1.96, "saturate": 8, "alpha": 0.1 }
         },
         "panel_flat": "#fafbfc",
         "raised": { "hex": "#ffffff", "alpha": 0.85 },

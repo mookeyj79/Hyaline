@@ -21,7 +21,8 @@
     A value to change before measuring, as path=value. The path starts at a
     variant: dark.roles.panel=#40444b, dark.roles.panel.alpha=0.8,
     light.roles.chrome.clamp.brightness=1.6, dark.wash=0.2. Setting a hex on
-    a role that has an alpha keeps the alpha. Repeat for several values.
+    a role that has an alpha keeps the alpha. Separate several values with
+    commas.
 
 .PARAMETER Variant
     Show only this variant.
@@ -39,7 +40,7 @@
     pwsh build/contrast.ps1
 
 .EXAMPLE
-    pwsh build/contrast.ps1 -Set dark.roles.panel=#40444b -Set dark.roles.panel.alpha=0.8 -Variant dark -Surface 'panel*'
+    pwsh build/contrast.ps1 -Set dark.roles.panel=#40444b,dark.roles.panel.alpha=0.8 -Variant dark -Surface 'panel*'
 
 .EXAMPLE
     pwsh build/contrast.ps1 -Palette ./candidate.json -Failing
@@ -67,7 +68,8 @@ if (-not (Test-Path -LiteralPath $Palette)) { Write-Host "$Palette does not exis
 try { $data = Get-Content -Raw -LiteralPath $Palette | ConvertFrom-Json -AsHashtable }
 catch { Write-Host "$Palette is not valid JSON: $($_.Exception.Message)"; exit 2 }
 
-foreach ($s in $Set) {
+# From bash, -Set a,b arrives as one string: split it here.
+foreach ($s in ($Set -split ',')) {
     if ($s -notmatch '^([A-Za-z0-9_.]+)=(.+)$') { Write-Host "-Set '$s' is not path=value."; exit 2 }
     $keys = @('variants') + ($Matches[1] -split '\.')
     $text = $Matches[2].Trim()
