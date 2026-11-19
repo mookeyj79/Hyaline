@@ -1,0 +1,14 @@
+{
+  "name": "Web (CSS)",
+  "category": "web",
+  "tier": 1,
+  "platforms": ["web"],
+  "icon": {
+    "kind": "glyph",
+    "set": "Lucide 1.72.0",
+    "name": "globe",
+    "author": "Lucide Icons and Contributors",
+    "source": "https://lucide.dev/icons/globe",
+    "license": "ISC"
+  }
+}

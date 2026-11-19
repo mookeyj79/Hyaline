@@ -48,7 +48,8 @@ function Resolve-Placeholder {
         catch { return @{ Error = "$token`: $($_.Exception.Message)." } }
     }
     if ($null -eq $value) { return @{ Error = "Unknown placeholder $token." } }
-    if ($Filter) { return @{ Error = "Filters only apply to color roles: $token." } }
+    if ($Filter -eq 'slug') { return @{ Value = ($value.ToLowerInvariant() -replace '[^a-z0-9]+', '-').Trim('-') } }
+    if ($Filter) { return @{ Error = "Only slug applies to text placeholders: $token." } }
     return @{ Value = $value }
 }
 

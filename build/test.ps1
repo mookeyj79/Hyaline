@@ -400,6 +400,16 @@ Test 'Placeholders: expand every kind' {
     Assert-Equal '#202020 Test light Test light vs #202020 202020' $out 'expanded'
 }
 
+Test 'Placeholders: slug turns a name into an identifier' {
+    $p = Get-TestPalette (New-PaletteData)
+    $out = Expand-Template -Text '--{{variant.name|slug}}-red {{ meta.name | slug }}' `
+        -Palette $p -Variant $p.Variants['light'] -PortValues $null -Source 'test'
+    Assert-Equal '--test-light-red test' $out 'slugged'
+    $punct = Expand-Template -Text '{{port.label|slug}}' -Palette $p -Variant $p.Variants['dark'] `
+        -PortValues @{ dark = @{ label = ' Hyaline: Dark (v2)! ' } } -Source 'test'
+    Assert-Equal 'hyaline-dark-v2' $punct 'runs of punctuation become one hyphen, trimmed'
+}
+
 Test 'Placeholders: the first bad placeholder throws, naming the source' {
     $p = Get-TestPalette (New-PaletteData)
     Assert-Throws { Expand-Template -Text '{{nope}}' -Palette $p -Variant $p.Variants['dark'] -PortValues $null -Source 'x.css' } '*Unknown placeholder {{nope}}*x.css*'
@@ -408,8 +418,8 @@ Test 'Placeholders: the first bad placeholder throws, naming the source' {
 Test 'Placeholders: every problem is listed, once' {
     $p = Get-TestPalette (New-PaletteData)
     $values = @{ dark = @{ only = 'x' }; light = @{} }
-    $errs = @(Find-PlaceholderError -Text '{{nope}} {{nope}} {{text|washflat}} {{meta.name|rgb}} {{port.only}} {{red|bogus}} {{red}}' -Palette $p -PortValues $values)
-    Assert-Equal 5 $errs.Count "errors ($($errs -join '; '))"
+    $errs = @(Find-PlaceholderError -Text '{{nope}} {{nope}} {{text|washflat}} {{meta.name|rgb}} {{port.only}} {{red|bogus}} {{red|slug}} {{red}}' -Palette $p -PortValues $values)
+    Assert-Equal 6 $errs.Count "errors ($($errs -join '; '))"
     Assert-True (($errs -join "`n") -like '*port.only*light*') 'names the variant missing a port value'
     Assert-Equal 0 @(Find-PlaceholderError -Text 'plain {{red|wash}}' -Palette $p -PortValues $null).Count 'a good template'
 }

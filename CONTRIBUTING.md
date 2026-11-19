@@ -85,6 +85,7 @@ The quickest way is [Claude Code](https://claude.com/claude-code): open the repo
    | `{{ansi.<slot>}}` | the role for a terminal ANSI slot per ADR 0001 (`black` to `white`, `bright_<slot>`), takes the same filters |
    | `{{meta.name}}`, `{{meta.version}}`, `{{meta.repository}}` | theme name, palette version, repo URL |
    | `{{variant.name}}`, `{{variant.mode}}`, `{{variant.key}}` | variant name, `dark` or `light`, the variant's key in the palette |
+   | `{{variant.name\|slug}}` | the name as an identifier, such as `hyaline-dark`: lowercase, words joined by hyphens. Works on any `meta.`, `variant.`, or `port.` value |
    | `{{port.<key>}}` | a per-variant app value that is not a color, from `Ports/<app_name>/values.json` (`{ "dark": { "<key>": "..." }, "light": { ... } }`) |
 
    `build/lib/Placeholders.psm1` defines them. `build/check.ps1` reports every placeholder that does not resolve, and fails if this table misses a filter.
