@@ -117,15 +117,6 @@ If you used the folder install, close VS Code and delete the two `hyaline.hyalin
 - **The title bar is the Windows default**: set `"window.titleBarStyle": "custom"`. On Windows this is the default.
 - **Some colors look like VS Code's own theme**: a setting in `workbench.colorCustomizations` or `editor.tokenColorCustomizations` overrides Hyaline. Remove it, or check for another theme extension forcing colors.
 
-## Layout
-
-VS Code cannot make its window see-through, so every surface is solid.
-
-- **Frame**: the title bar, activity bar, status bar, and the empty part of the tab strip share one gray. They show plain text and solid blue highlights only.
-- **Content**: the editor, side bar, bottom panel, tabs, and the hover, suggest, and peek popups share the main background.
-- **Lifted**: inputs, dropdowns, menus, quick pick, and the command center sit on a slightly lighter surface.
-- **Highlights**: selections, find matches, word highlights, and diff and merge lines are see-through tints, so the code under them keeps its colors.
-
 ## Known limits
 
 - **No glass.** VS Code cannot make its window translucent.
