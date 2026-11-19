@@ -14,7 +14,7 @@ A single web page that shows what Hyaline looks like before you install anything
 - Preview: <https://mookeyj79.github.io/Hyaline/>
 - Ports page: <https://mookeyj79.github.io/Hyaline/ports/>
 
-Both open in Dark or Light to match your OS setting. To view the preview from a copy of this repo, open `Ports/preview/dist/dark/index.html` or `Ports/preview/dist/light/index.html` in a browser. The two files are the same page; only the starting variant differs.
+Both open in Dark or Light to match your OS setting, and remember the variant you pick with the switch. Add `?variant=dark` or `?variant=light` to a link to open a set variant. To view the preview from a copy of this repo, open `Ports/preview/dist/dark/index.html` or `Ports/preview/dist/light/index.html` in a browser. The two files are the same page; only the starting variant differs.
 
 ## Known limits
 

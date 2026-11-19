@@ -10,12 +10,13 @@
         what each port's site.json lists under "copy" (the preview port's
         dist/ and assets/), at its repo path
         each port's icon.svg, and the wallpapers
-        one entry page per site.json "entries" item (/, /ports/), which
-        opens that page in the visitor's OS variant
+        each page once, at a short address: a site.json "entries" item
+        (/, /ports/) or a guide (/Ports/<port>/). The page picks its variant:
+        ?variant=, then the visitor's last choice, then the OS. The old
+        dist/<variant>/ addresses redirect to it
         _site/ports.js      the port list, from Ports/*/port.json and Ports/ports.json
         an install guide per listed port, its README.md rendered into the
-        site.json "guide" page (dist/<variant>/guides/<port>.html), with an
-        entry page at /Ports/<port>/ and the images the README shows
+        site.json "guide" page, with the images the README shows
 
     In a guide, links to another port's README.md open that port's guide,
     links to other repo files open them on GitHub, and a link to a file
@@ -24,7 +25,7 @@
     The list is generated, never written by hand, so it cannot go stale.
 
     GitHub Pages lets browsers cache files for 10 minutes. So a deploy shows
-    up on a normal reload, the copied pages load ports.js and their CSS with
+    up on a normal reload, the copied pages load ports.js, their CSS, and variant.js with
     ?v=<content hash>, which changes whenever the file does.
 
     Stops if the port list or a site.json has errors; build/check.ps1 lists them.
@@ -171,52 +172,94 @@ $portsJsHash = Get-ShortHash (Join-Path $Out 'ports.js')
 foreach ($page in Get-ChildItem -Path $siteOut -Recurse -File -Filter '*.html') {
     $html = [System.IO.File]::ReadAllText($page.FullName)
     $html = $html -creplace '(src="[^"?]*/ports\.js)"', "`$1?v=$portsJsHash`""
-    $html = [regex]::Replace($html, 'href="([^"?:]+\.css)"', {
+    $html = [regex]::Replace($html, '(?<attr>href|src)="(?<url>[^"?:]+\.(css|js))"', {
         param($m)
-        $target = Join-Path $page.DirectoryName $m.Groups[1].Value
-        if (Test-Path $target) { 'href="' + $m.Groups[1].Value + '?v=' + (Get-ShortHash $target) + '"' }
+        $target = Join-Path $page.DirectoryName $m.Groups['url'].Value
+        if (Test-Path $target) { $m.Groups['attr'].Value + '="' + $m.Groups['url'].Value + '?v=' + (Get-ShortHash $target) + '"' }
         else { $m.Value }
     })
     [System.IO.File]::WriteAllText($page.FullName, $html, $Utf8)
 }
 
-# --- Entry pages that pick the visitor's variant ------------------------------
+# --- One address per page -----------------------------------------------------
 
-function Write-EntryPage([string]$Path, [string]$Title, [string]$Page) {
-    # A page at $Path (relative to _site/) that opens $Page of the site port's
-    # dist/<variant>/ in the visitor's OS variant, keeping the query and hash.
-    $depth = ($Path -split '/').Count - 1
-    $base = ('../' * $depth) + "Ports/$($site.Name)/dist/"
-    $links = ($variants | ForEach-Object {
-        $label = (Get-Culture).TextInfo.ToTitleCase($_)
-        "<a href=`"$base$_/$Page`">$name $label</a>"
-    }) -join ' / '
-    $html = @"
+# Each page is published once, at a short address (/, /ports/, /Ports/<port>/),
+# from the first variant's copy. The page picks its variant itself (variant.js):
+# ?variant=, then the visitor's last choice, then the OS. The old per-variant
+# addresses under dist/<variant>/ become redirects to it, so old links still work.
+$distRel = "Ports/$($site.Name)/dist"
+$pages = [ordered]@{}   # page path inside dist/<variant>/ -> published path (relative to _site/)
+foreach ($entry in $site.Site['entries']) { $pages[$entry['page']] = $entry['path'] }
+foreach ($p in $listedPorts) { $pages["$guideDir/$($p.Name).html"] = "Ports/$($p.Name)/index.html" }
+
+function Get-Address([string]$Path) {
+    # The address of a published page: its folder for an index.html.
+    if ($Path -eq 'index.html') { return '' }
+    return ($Path -replace '(^|/)index\.html$', '$1')
+}
+
+function Get-RelativeUrl([string]$FromDir, [string]$To) {
+    # A relative URL from a folder to a path, both relative to _site/.
+    $rel = [System.IO.Path]::GetRelativePath((Join-Path $Out $FromDir), (Join-Path $Out $To)) -replace '\\', '/'
+    if ($rel -eq '.') { return './' }
+    if ($To -eq '' -or $To.EndsWith('/')) { $rel = $rel.TrimEnd('/') + '/' }
+    return $rel
+}
+
+function ConvertTo-PublishedPage([string]$Html, [string]$SourceDir, [string]$TargetDir) {
+    # Rewrites every relative link in a page from $SourceDir to $TargetDir (both
+    # relative to _site/). Links to another page in the list go to its short address.
+    $Html = $Html -creplace '(<html[^>]*?) data-variant="[^"]*"', '$1'
+    return [regex]::Replace($Html, '(?<attr>href|src|data-root|data-guide)="(?<url>[^"]*)"', {
+        param($m)
+        $attr = $m.Groups['attr'].Value
+        $url = [System.Net.WebUtility]::HtmlDecode($m.Groups['url'].Value)
+        if ($attr -eq 'data-guide') {
+            return "data-guide=`"$(Get-RelativeUrl $TargetDir 'Ports/'){port}/`""
+        }
+        if ($url -eq '' -or $url -match '^(#|\?|[a-z][a-z0-9+.-]*:|//)') { return $m.Value }
+        $path = $url -replace '[?#].*$', ''
+        $rest = $url.Substring($path.Length)
+        $full = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($Out, $SourceDir, $path))
+        $rel = [System.IO.Path]::GetRelativePath($Out, $full) -replace '\\', '/'
+        $inDist = if ($rel -match "^$([regex]::Escape($distRel))/[^/]+/(?<page>.+)$") { $Matches['page'] } else { $null }
+        if ($inDist -and $pages.Contains($inDist)) { $target = Get-RelativeUrl $TargetDir (Get-Address $pages[$inDist]) }
+        else {
+            $target = Get-RelativeUrl $TargetDir $rel
+            if ($path.EndsWith('/') -and -not $target.EndsWith('/')) { $target += '/' }
+        }
+        return "$attr=`"$([System.Net.WebUtility]::HtmlEncode($target + $rest))`""
+    })
+}
+
+foreach ($page in $pages.Keys) {
+    $published = $pages[$page]
+    $source = "$distRel/$($variants[0])/$page"
+    $html = [System.IO.File]::ReadAllText((Join-Path $Out $source))
+    $html = ConvertTo-PublishedPage $html (Split-Path -Parent $source) (Split-Path -Parent $published)
+    $full = Join-Path $Out $published
+    New-Item -ItemType Directory -Path (Split-Path -Parent $full) -Force | Out-Null
+    [System.IO.File]::WriteAllText($full, $html, $Utf8)
+
+    foreach ($v in $variants) {
+        $old = "$distRel/$v/$page"
+        $to = Get-RelativeUrl (Split-Path -Parent $old) (Get-Address $published)
+        $redirect = @"
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>$Title</title>
-<meta http-equiv="refresh" content="0; url=$base$($variants[0])/$Page">
-<script>
-  var light = window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches;
-  location.replace("$base" + (light ? "light" : "dark") + "/$Page" + location.search + location.hash);
-</script>
+<title>$name</title>
+<link rel="canonical" href="$to">
+<meta http-equiv="refresh" content="0; url=$to`?variant=$v">
+<script>location.replace("$to`?variant=$v" + location.hash);</script>
 </head>
-<body>$links</body>
+<body><a href="$to`?variant=$v">$name</a></body>
 </html>
 
 "@
-    $full = Join-Path $Out $Path
-    New-Item -ItemType Directory -Path (Split-Path -Parent $full) -Force | Out-Null
-    [System.IO.File]::WriteAllText($full, $html, $Utf8)
-}
-
-foreach ($entry in $site.Site['entries']) {
-    Write-EntryPage -Path $entry['path'] -Title "$name $($entry['title'])" -Page $entry['page']
-}
-foreach ($p in $listedPorts) {
-    Write-EntryPage -Path "Ports/$($p.Name)/index.html" -Title ([System.Net.WebUtility]::HtmlEncode("$name for $($p.Meta['name'])")) -Page "$guideDir/$($p.Name).html"
+        [System.IO.File]::WriteAllText((Join-Path $Out $old), $redirect, $Utf8)
+    }
 }
 
 Write-Host "Site written to $Out ($($listedPorts.Count) port(s) with install guides, $(@($catalog.Planned).Count) planned)."

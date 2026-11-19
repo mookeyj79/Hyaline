@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="../dark/theme.css">
 <link rel="stylesheet" href="../light/theme.css">
 <link rel="stylesheet" href="base.css">
+<script src="variant.js"></script>
 <style>
 /* Every color on this page is a role variable from theme.css. Do not add color values here. */
 main {
@@ -108,16 +109,17 @@ footer p + p { margin-top: 4px; }
 <div class="topbar">
   <span class="brand">Hyaline<small>v1.0.2</small></span>
   <div class="topbar-end">
-    <a class="repo" href="index.html" data-page="index.html"><span class="repo-label">Preview</span></a>
+    <a class="repo" href="index.html"><span class="repo-label">Preview</span></a>
     <a class="repo" href="https://github.com/mookeyj79/Hyaline"><span class="repo-icon" aria-hidden="true">&#xF09B;</span><span class="repo-label">GitHub</span></a>
     <nav class="switch" aria-label="Variant">
-      <a href="../dark/ports.html" data-set="dark">Dark</a>
-      <a href="../light/ports.html" data-set="light">Light</a>
+      <a href="?variant=dark" data-set="dark">Dark</a>
+      <a href="?variant=light" data-set="light">Light</a>
     </nav>
   </div>
 </div>
 
-<main id="app" data-repository="https://github.com/mookeyj79/Hyaline">
+<!-- data-root and data-guide are relative to this page; build/site.ps1 rewrites them for the published site. -->
+<main id="app" data-repository="https://github.com/mookeyj79/Hyaline" data-root="../../../../" data-guide="guides/{port}.html">
   <section class="panel intro" aria-labelledby="title">
     <h1 id="title">Ports</h1>
     <p>Every app Hyaline is ported to. Each port ships Hyaline Dark and Hyaline Light from the same palette, with a step-by-step install guide. Not every app can do glass, so each port says how far it gets:</p>
@@ -183,21 +185,11 @@ footer p + p { margin-top: 4px; }
     document.querySelectorAll(".switch a").forEach(function (a) {
       a.setAttribute("aria-current", String(a.dataset.set === mode));
     });
-    syncLinks();
-  }
-  function syncLinks() {
-    const mode = root.dataset.variant;
-    const query = location.search;
-    document.querySelectorAll("[data-page]").forEach(function (a) {
-      a.href = "../" + mode + "/" + a.dataset.page;
-    });
-    document.querySelectorAll(".switch a").forEach(function (a) {
-      a.href = "../" + a.dataset.set + "/ports.html" + query;
-    });
   }
   document.querySelectorAll(".switch a").forEach(function (a) {
     a.addEventListener("click", function (ev) {
       ev.preventDefault();
+      window.HyalineVariant.choose(a.dataset.set);
       setVariant(a.dataset.set);
     });
   });
@@ -228,7 +220,7 @@ footer p + p { margin-top: 4px; }
     const b = el("div", "mono", monogram(p));
     b.setAttribute("aria-hidden", "true");
     if (p.icon) {
-      const url = "../../../../" + p.icon.path;
+      const url = app.dataset.root + p.icon.path;
       const probe = new Image();
       probe.onload = function () {
         const i = el("span", "icon" + (p.icon.kind === "brand" ? " is-brand" : ""));
@@ -255,9 +247,8 @@ footer p + p { margin-top: 4px; }
 
   function card(p) {
     const portUrl = repo + "/tree/main/Ports/" + p.folder;
-    // Install guides are built by build/site.ps1, next to this page; syncLinks keeps them on the shown variant.
-    const guidePage = "guides/" + p.folder + ".html";
-    const guideUrl = "../" + root.dataset.variant + "/" + guidePage;
+    // Install guides are built by build/site.ps1; the variant carries over through the visitor's choice.
+    const guideUrl = app.dataset.guide.replace("{port}", p.folder);
     const c = el("article", "panel card" + (p.planned ? " is-planned" : ""));
 
     const head = el("div", "head");
@@ -268,7 +259,6 @@ footer p + p { margin-top: 4px; }
     else {
       const a = el("a", null, p.name);
       a.href = guideUrl;
-      a.dataset.page = guidePage;
       h3.appendChild(a);
     }
     title.appendChild(h3);
@@ -290,7 +280,6 @@ footer p + p { margin-top: 4px; }
       const links = el("div", "links");
       const guide = el("a", null, "Install guide");
       guide.href = guideUrl;
-      guide.dataset.page = guidePage;
       const files = el("a", null, "Theme files");
       files.href = portUrl + "/dist";
       links.appendChild(guide);
@@ -358,9 +347,10 @@ footer p + p { margin-top: 4px; }
     const next = new URLSearchParams();
     if (state.q) next.set("q", state.q);
     if (state.c) next.set("c", state.c);
+    const variant = new URLSearchParams(location.search).get("variant");
+    if (variant) next.set("variant", variant);
     const qs = next.toString();
     history.replaceState(null, "", location.pathname + (qs ? "?" + qs : "") + location.hash);
-    syncLinks();
   }
   update();
 })();

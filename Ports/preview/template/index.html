@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="../dark/theme.css">
 <link rel="stylesheet" href="../light/theme.css">
 <link rel="stylesheet" href="base.css">
+<script src="variant.js"></script>
 <style>
 main {
   max-width: 780px;
@@ -175,11 +176,11 @@ footer p + p { margin-top: 4px; }
 <div class="topbar">
   <span class="brand">{{meta.name}}<small>v{{meta.version}}</small></span>
   <div class="topbar-end">
-    <a class="repo" href="ports.html" data-page="ports.html"><span class="repo-label">Ports</span></a>
+    <a class="repo" href="ports.html"><span class="repo-label">Ports</span></a>
     <a class="repo" href="{{meta.repository}}"><span class="repo-icon" aria-hidden="true">&#xF09B;</span><span class="repo-label">GitHub</span></a>
     <nav class="switch" aria-label="Variant">
-      <a href="../dark/index.html" data-set="dark">Dark</a>
-      <a href="../light/index.html" data-set="light">Light</a>
+      <a href="?variant=dark" data-set="dark">Dark</a>
+      <a href="?variant=light" data-set="light">Light</a>
     </nav>
   </div>
 </div>
@@ -552,9 +553,6 @@ footer p + p { margin-top: 4px; }
   function setVariant(mode) {
     root.dataset.variant = mode;
     document.getElementById("variant-name").textContent = names[mode];
-    document.querySelectorAll("[data-page]").forEach(function (a) {
-      a.href = "../" + mode + "/" + a.dataset.page;
-    });
     document.querySelectorAll(".switch a").forEach(function (a) {
       a.setAttribute("aria-current", String(a.dataset.set === mode));
     });
@@ -565,6 +563,7 @@ footer p + p { margin-top: 4px; }
   document.querySelectorAll(".switch a").forEach(function (a) {
     a.addEventListener("click", function (ev) {
       ev.preventDefault();
+      window.HyalineVariant.choose(a.dataset.set);
       setVariant(a.dataset.set);
     });
   });
