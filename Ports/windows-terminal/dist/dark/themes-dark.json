@@ -9,8 +9,8 @@
         "unfocusedFrame": "#6d7077"
       },
       "tabRow": {
-        "background": "#1c2028bd",
-        "unfocusedBackground": "#1c2028bd"
+        "background": "#1c2028cc",
+        "unfocusedBackground": "#1c2028cc"
       },
       "tab": {
         "background": "#434850",

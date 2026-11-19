@@ -1,6 +1,6 @@
 # The contrast floor holds over any backdrop
 
-Amends ADR 0006. Amended by [ADR 0013](0013-opacity-only-glass-has-its-own-floor-rows.md): opacity-only glass has its own rows of the floor.
+Amends ADR 0006. Amended by [ADR 0013](0013-opacity-only-glass-has-its-own-floor-rows.md): opacity-only glass has its own rows of the floor. Amended by [ADR 0014](0014-the-glass-is-set-by-eye.md): the floor holds on solid surfaces; the glass is set by eye.
 
 The contrast floor was measured against the flat fallback, "since that is the worst case". With a backdrop that can be anything and glass that must pass with or without blur (ADR 0008), it no longer is. The floor now names the surface under the text, not the app setting or the tier: a solid surface is measured as drawn, and a translucent surface over pure black and pure white, after whatever the port applies (a clamp counts, blur does not). The lower result counts. For a tint at a fixed opacity, black and white bound every possible backdrop, so no other test image is needed.
 

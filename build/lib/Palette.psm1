@@ -142,6 +142,13 @@ function Read-Palette {
             $errors.Add("variants.$vKey.wash must be a number between 0 and 1.")
             $wash = $null
         }
+        # glass_floor: false means the glass values were chosen by eye (ADR 0014).
+        # Glass is still measured and listed, but only solid surfaces can fail.
+        $glassFloor = $true
+        if ($v.Contains('glass_floor')) {
+            if ($v['glass_floor'] -is [bool]) { $glassFloor = $v['glass_floor'] }
+            else { $errors.Add("variants.$vKey.glass_floor must be true or false.") }
+        }
         $roles = @{}
         if ($v['roles'] -isnot [System.Collections.IDictionary]) { $errors.Add("variants.$vKey.roles is missing.") }
         else {
@@ -179,6 +186,7 @@ function Read-Palette {
         $result.Variants[$vKey] = @{
             Key = $vKey; Name = [string]$v['name']; Mode = [string]$v['mode']
             Wash = if ($null -ne $wash) { [double]$wash } else { $null }
+            GlassFloor = $glassFloor
             Roles = $roles
         }
     }
@@ -333,6 +341,11 @@ function Test-PaletteContrast {
         panel and a wash (ADR 0013). The clamped panel, panel_flat, raised,
         and chrome keep the full rows. PHILOSOPHY.md, "Contrast floor", has
         the numbers. A failure message states the floor that was missed.
+
+        A variant with glass_floor false (ADR 0014) keeps its glass values as
+        chosen by eye: glass rows are still measured, with Enforced false, and
+        only solid surfaces (the flat values, fills, washes over panel_flat)
+        can fail.
     #>
     param($Palette)
     $failures = [System.Collections.Generic.List[string]]::new()
@@ -343,8 +356,10 @@ function Test-PaletteContrast {
         $measure = {
             param([string]$Role, [string]$Surface, [string]$Where, [double]$Floor)
             $on = Get-Contrast (& $hex $Role) $Surface
-            $measurements.Add([pscustomobject]@{ Variant = $k; Role = $Role; Surface = $Where; Ratio = $on; Floor = $Floor; Pass = $on -ge $Floor })
-            if ($on -lt $Floor) { $failures.Add(('{0}.{1} on {2} is {3:0.00}:1, needs {4}:1.' -f $k, $Role, $Where, $on, $Floor)) }
+            # Glass is drawn over a backdrop (black or white); solid surfaces are drawn as they are.
+            $enforced = $v.GlassFloor -or $Where -notmatch ' over (black|white)$'
+            $measurements.Add([pscustomobject]@{ Variant = $k; Role = $Role; Surface = $Where; Ratio = $on; Floor = $Floor; Pass = $on -ge $Floor; Enforced = $enforced })
+            if ($enforced -and $on -lt $Floor) { $failures.Add(('{0}.{1} on {2} is {3:0.00}:1, needs {4}:1.' -f $k, $Role, $Where, $on, $Floor)) }
         }
         # Every way each surface can be drawn: name -> #rrggbb.
         $glass = {

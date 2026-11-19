@@ -1,7 +1,7 @@
 {
   "meta": {
     "name": "Hyaline",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "repository": "https://github.com/mookeyj79/Hyaline"
   },
   "variants": {
@@ -9,18 +9,19 @@
       "name": "Hyaline Dark",
       "mode": "dark",
       "wash": 0.18,
+      "glass_floor": false,
       "roles": {
         "backdrop": "#2c323b",
         "chrome": {
           "hex": "#1c2028",
-          "alpha": 0.74,
-          "clamp": { "blur": 30, "contrast": 0.7, "brightness": 0.55, "saturate": 1.8, "alpha": 0.25 }
+          "alpha": 0.8,
+          "clamp": { "blur": 6.5, "contrast": 1, "brightness": 1, "saturate": 1, "alpha": 0.65 }
         },
         "chrome_flat": "#575b63",
         "panel": {
           "hex": "#1c2028",
-          "alpha": 0.82,
-          "clamp": { "blur": 30, "contrast": 0.45, "brightness": 0.5, "saturate": 2.5, "alpha": 0.35 }
+          "alpha": 0.8,
+          "clamp": { "blur": 6.5, "contrast": 1, "brightness": 1, "saturate": 1, "alpha": 0.65 }
         },
         "panel_flat": "#434850",
         "raised": { "hex": "#ffffff", "alpha": 0.1 },
@@ -48,21 +49,22 @@
       "name": "Hyaline Light",
       "mode": "light",
       "wash": 0.24,
+      "glass_floor": false,
       "roles": {
         "backdrop": "#dfe6ee",
         "chrome": {
           "hex": "#ffffff",
-          "alpha": 0.55,
-          "clamp": { "blur": 30, "contrast": 0.4, "brightness": 1.4, "saturate": 1.8, "alpha": 0.2 }
+          "alpha": 0.85,
+          "clamp": { "blur": 6.5, "contrast": 1, "brightness": 1, "saturate": 1, "alpha": 0.6 }
         },
         "chrome_flat": "#e3e8ee",
         "panel": {
           "hex": "#ffffff",
-          "alpha": 0.82,
-          "clamp": { "blur": 30, "contrast": 0.02, "brightness": 1.96, "saturate": 8, "alpha": 0.1 }
+          "alpha": 0.85,
+          "clamp": { "blur": 6.5, "contrast": 1, "brightness": 1, "saturate": 1, "alpha": 0.6 }
         },
         "panel_flat": "#fafbfc",
-        "raised": { "hex": "#ffffff", "alpha": 0.85 },
+        "raised": { "hex": "#ffffff", "alpha": 0.5 },
         "raised_flat": "#ffffff",
         "line": "#c4ccd7",
         "edge": { "hex": "#ffffff", "alpha": 0.85 },

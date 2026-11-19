@@ -29,7 +29,7 @@ The preview is not an app theme. It is treated as a port so it gets the same bui
 
 ## Glass and edge
 
-- Glass (ADR 0008). Where the browser has `backdrop-filter`, chrome and panel use the clamp: blur, contrast, brightness, and saturate from the palette's `clamp` block, under the thin tint. The panel is clamped harder than the chrome. Without `backdrop-filter` (checked with `@supports`), they fall back to the dense `chrome` and `panel` tint alone, which passes over any backdrop. `raised` sits on the glass at its own alpha, with no filter.
+- Glass (ADR 0014). Where the browser has `backdrop-filter`, chrome and panel use the palette's `clamp` block, which is now just a blur (contrast, brightness, and saturate at 1), under the thin tint. Without `backdrop-filter` (checked with `@supports`), they fall back to the denser `chrome` and `panel` tint alone. `raised` sits on the glass at its own alpha, with no filter.
 - Edge (ADR 0009). A 1 px inset hairline in `edge` (translucent, since every surface here is glass) on the top inside of the top bar, window title bars, ports page headings, and raised surfaces. Every panel and window has a 1 px outline in `window_edge`.
 - In Light, `edge` is white on white raised surfaces, so `line` carries the lift instead: raised surfaces with a `line` border keep just that, and the borderless ones (tabs, address bars) get a 1 px `line` ring. The per-variant switch is `--lift` and `--lift-ring` in `base.css`.
 - `edge_flat` has no surface to sit on here (the only flat surface is the Mermaid diagram, which has its own border). It is shown in the Roles section.
@@ -54,8 +54,8 @@ To turn it on once:
 | Page element | Role |
 |---|---|
 | Page background | `backdrop`, under the variant's wallpaper |
-| Top bar, window title bars, ports page headings | `chrome` (clamped), primary `text` only |
-| Cards, window contents | `panel` (clamped harder) |
+| Top bar, window title bars, ports page headings | `chrome` (glass), primary `text` only |
+| Cards, window contents | `panel` (glass) |
 | Tabs, address bars, inputs, tiles, callouts | `raised` |
 | Top inside of chrome and raised | `edge` |
 | Panel and window outline | `window_edge` |
@@ -96,7 +96,7 @@ Status is never color alone: every status also has a word (passed, failed, runni
 
 ## Gaps and trade-offs
 
-- Content glass is the clamped panel, or the dense `panel` tint where the browser has no `backdrop-filter`. `check.ps1` measures both over pure black and pure white. The clear glass is in the chrome.
+- Content glass is the blurred panel, or the denser `panel` tint where the browser has no `backdrop-filter`. Both are set by eye (ADR 0014); `check.ps1` lists them over pure black and pure white without failing them.
 - The roles table measures contrast against `panel_flat`, not the glass.
 - No panel shadow. PHILOSOPHY.md allows one soft shadow, but the palette has no shadow role. Adding one is a palette change.
 - Display and body fonts load from Google Fonts. Offline, the page falls back to system fonts. The mono font is bundled and works offline.

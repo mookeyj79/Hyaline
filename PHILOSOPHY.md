@@ -30,9 +30,9 @@ Every port is built from the same layers, back to front:
 
 | Layer | What it is |
 |---|---|
-| **Backdrop** | Whatever is behind the app: a wallpaper, or the `backdrop` fill where there is none. It can be anything; the glass, not the backdrop, keeps text readable. Hyaline's wallpapers come in pairs where possible, one for each variant. |
+| **Backdrop** | Whatever is behind the app: a wallpaper, or the `backdrop` fill where there is none. Hyaline's glass is set to read well over the wallpapers it ships. Hyaline's wallpapers come in pairs where possible, one for each variant. |
 | **Chrome** | The frame around content, such as title bars, tabs, toolbars, and sidebars that list only names. Clearer glass than the panel. Carries primary text and solid fills only. |
-| **Panel** | The main surface, where content lives. Smoke-tinted in Dark, frost-tinted in Light. Translucent where possible, and dense enough that every role passes over any backdrop. |
+| **Panel** | The main surface, where content lives. Smoke-tinted in Dark, frost-tinted in Light. Translucent where possible. |
 | **Raised** | A slightly lifted surface on top of a panel: title bars, tabs, cards, inputs. |
 | **Line** | Borders and dividers. Thin, low contrast, never decorative. |
 | **Edge** | A lit hairline where light catches the glass: on the top of chrome and raised surfaces, and around the window. Carries no meaning. |
@@ -40,7 +40,7 @@ Every port is built from the same layers, back to front:
 
 ### The glass
 
-The glass, not the wallpaper, keeps text readable. Where the app allows it, the glass blurs the backdrop, squeezes its lightness into a narrow band (light in Light, dark in Dark), lets its hue through, and lays the tint on top. The panel is clamped harder than the chrome. Where the app allows only an opacity, the tint is dense enough to pass over pure black and pure white, and raised surfaces are solid. Blur is welcome but never counted on. See [ADR 0008](docs/adr/0008-the-glass-clamps-the-backdrop.md).
+The glass is a tint and a blur, set by eye for each variant. Where the app allows blur, the tint is thinner (Dark 35% transparent, Light 40%, both with a 6.5 px blur). Where it allows only an opacity, the tint is denser (Dark 20% transparent, Light 15%). Raised surfaces are a white layer on the panel: 10% in Dark, 50% in Light. Blur is welcome but never counted on. See [ADR 0014](docs/adr/0014-the-glass-is-set-by-eye.md).
 
 ### The flat fallback
 
@@ -96,7 +96,7 @@ Not every app can do everything. Each port declares its tier in its README.
 
 | Tier | Name | What it delivers |
 |---|---|---|
-| **1** | Full glass | Complete palette on translucent surfaces that pass the contrast floor over any backdrop, with or without blur. Also ships flat. |
+| **1** | Full glass | Complete palette on translucent surfaces, with or without blur. Also ships flat. |
 | **2** | Flat | Complete palette on solid surfaces. |
 | **3** | Minimal | The app only allows limited theming: background, accent, and status colors |
 
@@ -106,7 +106,7 @@ A Tier 3 port is a win, not a compromise. The tier exists so "close enough" is a
 
 ## Contrast floor
 
-Every surface must pass, over any backdrop. A solid surface is measured as drawn. A translucent surface is measured over pure black and pure white, with whatever the port applies (a clamp counts, blur does not), and the lower result counts.
+Every solid surface must pass, measured as drawn. The glass is set by eye (ADR 0014): it is still measured over pure black and pure white and the numbers are listed, but it does not have to pass.
 
 | On | Primary text | Dim text | Muted text | Role colors |
 |---|---|---|---|---|
@@ -183,9 +183,9 @@ Every palette change rebuilds every port. CI fails if any committed output does 
 - **Accent.** One fixed blue. See [ADR 0002](docs/adr/0002-one-fixed-accent.md).
 - **Backdrop.** The repo ships wallpapers: found images with a license that allows redistribution and a recorded credit, chosen by taste and marked with the variant they suit. They are the one exception to the palette rule. See [ADR 0012](docs/adr/0012-wallpapers-are-chosen-by-taste.md).
 - **Font.** FiraCode Nerd Font, set in every app that allows it. See [ADR 0005](docs/adr/0005-recommended-font.md).
-- **How the glass stays readable.** It clamps the backdrop, or uses a tint dense enough for any backdrop. See [ADR 0008](docs/adr/0008-the-glass-clamps-the-backdrop.md).
+- **The glass.** A tint and a blur, set by eye for each variant. See [ADR 0014](docs/adr/0014-the-glass-is-set-by-eye.md).
 - **Flat values.** Chosen to match the glass, with a lit edge. See [ADR 0009](docs/adr/0009-flat-is-the-glass-as-it-looks.md).
 - **What chrome carries.** Primary text and solid fills, because only those pass everywhere. See [ADR 0010](docs/adr/0010-chrome-carries-what-passes-everywhere.md).
-- **Contrast floor.** Holds over any backdrop. See [ADR 0011](docs/adr/0011-the-contrast-floor-holds-over-any-backdrop.md). Opacity-only glass has its own rows. See [ADR 0013](docs/adr/0013-opacity-only-glass-has-its-own-floor-rows.md).
+- **Contrast floor.** Holds on solid surfaces; the glass is set by eye. See [ADR 0011](docs/adr/0011-the-contrast-floor-holds-over-any-backdrop.md) and [ADR 0014](docs/adr/0014-the-glass-is-set-by-eye.md). Opacity-only glass has its own rows. See [ADR 0013](docs/adr/0013-opacity-only-glass-has-its-own-floor-rows.md).
 - **See-through highlights.** One wash alpha per variant, applied to any color role. See [ADR 0006](docs/adr/0006-one-wash-alpha-for-highlights.md), amended by [ADR 0011](docs/adr/0011-the-contrast-floor-holds-over-any-backdrop.md).
 - **Port icons.** Single-color, colored by the page, so they follow the palette rule. A brand mark where the app allows it, otherwise a glyph. See [ADR 0007](docs/adr/0007-port-icons-are-single-color.md).
