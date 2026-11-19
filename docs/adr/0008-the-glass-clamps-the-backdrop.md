@@ -8,10 +8,12 @@ Where the app allows backdrop filters (CSS), the glass blurs 30 px, squeezes the
 
 | Surface | Blur | Contrast | Brightness | Saturate | Tint |
 |---|---|---|---|---|---|
-| Dark chrome | 30 px | 0.35 | 0.5 | 1.8 | smoke `#1c2028` at 0.45 |
-| Dark panel | 30 px | 0.15 | 0.45 | 2.5 | smoke at 0.60 |
-| Light chrome | 30 px | 0.35 | 1.55 | 1.8 | frost `#ffffff` at 0.30 |
-| Light panel | 30 px | 0.10 | 2.1 | 3 | frost at 0.55 |
+| Dark chrome | 30 px | 0.7 | 0.55 | 1.8 | smoke `#1c2028` at 0.25 |
+| Dark panel | 30 px | 0.45 | 0.5 | 2.5 | smoke at 0.35 |
+| Light chrome | 30 px | 0.4 | 1.4 | 1.8 | frost `#ffffff` at 0.20 |
+| Light panel | 30 px | 0.02 | 1.96 | 8 | frost at 0.10 |
+
+The clamp keeps white below the top of the range. A brightness that pushes the band past white clips it flat, and the glass stops showing anything; palette 1.0.0 did this to Light's panel. Dark has room to let the backdrop's light and shade through. Light's panel does not: Light's role colors need it near white over black, so it keeps a band only a few percent wide and lets the hue through with a strong saturate.
 
 Most translucent apps offer only a tint color and one opacity, and blur, where there is any, is an on/off request. Those apps use a tint dense enough to pass over pure black and pure white: Dark chrome 0.74 and panel 0.82, Light chrome 0.55 and panel 0.96. Blur is welcome but never counted on.
 
