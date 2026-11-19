@@ -27,7 +27,7 @@ The port has no app slots. It exposes every role as a CSS custom property, so th
 - No `color-scheme` in the files: with both loaded, the site sets it alongside its own switch.
 - Tier 1 because every surface ships at its alpha. Blur is the site's `backdrop-filter`. The contrast floor over a wallpaper assumes 18 px blur and the palette alpha (ADR 0004); a site that lowers alpha through `-rgb` leaves that floor.
 - The repo has no `go.mod`. Hugo and Go fetch it as a module anyway, pinned in the site's `go.mod` as a pseudo-version. Checked with `hugo mod get github.com/mookeyj79/Hyaline@279e2ec` (Hugo 0.131, Go 1.24), a commit from before this port, so it proves the fetch and pin but not the mount; the mount was checked separately through `module.replacements`. Redo the fetch against a commit that has `Ports/web/dist` once this is on `main`.
-- There are no release tags yet, so the README pins by commit hash or tag. A `v<meta.version>` tag per palette release would let sites pin to a Hyaline version.
+- Hyaline does not tag releases, so sites pin by commit hash. A bump is a new hash.
 
 ## Research
 

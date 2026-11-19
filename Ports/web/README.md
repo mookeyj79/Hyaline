@@ -30,8 +30,8 @@ Every property name starts with the variant, such as `--hyaline-dark-panel` and 
          target = 'assets/hyaline'
    ```
 
-3. Pick the Hyaline version to pin. Open the [commit list](https://github.com/mookeyj79/Hyaline/commits/main) and copy the short hash of the commit you want, or use a release tag if there is one.
-4. In the site folder, run `hugo mod get github.com/mookeyj79/Hyaline@<hash or tag>`. Hugo writes that exact version into your `go.mod`, and it stays there until you change it.
+3. Pick the Hyaline version to pin. Open the [commit list](https://github.com/mookeyj79/Hyaline/commits/main) and copy the short hash of the commit you want.
+4. In the site folder, run `hugo mod get github.com/mookeyj79/Hyaline@<hash>`. Hugo writes that exact version into your `go.mod`, and it stays there until you change it.
 5. In the template that writes your page's `<head>`, load both files as one stylesheet:
 
    ```go-html-template
@@ -44,7 +44,7 @@ Every property name starts with the variant, such as `--hyaline-dark-panel` and 
 6. In your own CSS, use the properties. See [Use the properties](#use-the-properties).
 7. Run `hugo server`. The site builds without errors, and your page's `<head>` links a `hyaline` stylesheet.
 
-To move to a newer Hyaline later, run step 4 again with the new hash or tag. On Hugo 0.150 or later you can also put `version = '<tag or hash>'` under the import in `hugo.toml` instead. Hugo then ignores `hugo mod get` for it, so edit that line to update.
+To move to a newer Hyaline later, run step 4 again with the new hash. On Hugo 0.150 or later you can also put `version = '<hash>'` under the import in `hugo.toml` instead. Hugo then ignores `hugo mod get` for it, so edit that line to update.
 
 ### Any other site
 
