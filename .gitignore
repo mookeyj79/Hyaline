@@ -12,3 +12,6 @@ desktop.ini
 
 # Local helper scripts, not part of the repo
 scripts/
+
+# Throwaway prototypes, kept on your machine only
+prototypes/

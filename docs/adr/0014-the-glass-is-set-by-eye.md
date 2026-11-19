@@ -9,7 +9,7 @@ The clamp made the glass pass the contrast floor over pure black and pure white,
 | Dark | 35% transparent, 6.5 px blur | 20% transparent | 10% white |
 | Light | 40% transparent, 6.5 px blur | 15% transparent | 50% white |
 
-Chrome and panel take the same values. There is no clamp: its contrast, brightness, and saturate stay at 1. Raised keeps its alpha with or without blur. The two variants do not share numbers; each is set where it looks right.
+Chrome and panel take the same values. There is no clamp: the palette's `glass` block holds only the blur and the alpha used with it. Raised keeps its alpha with or without blur. The two variants do not share numbers; each is set where it looks right.
 
 ## Considered options
 

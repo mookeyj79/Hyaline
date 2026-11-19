@@ -86,7 +86,7 @@ Chrome, panel, and raised also come in more forms:
 
 - `-flat`: a solid color, for places where see-through looks wrong, such as a printed page. The edges have one too.
 - `-rgb` and `-alpha`: the color's channels and its see-through amount, so you can change the amount, as in `rgba(var(--hyaline-dark-panel-rgb), 0.6)`. The channels are comma-separated, so use the comma form of `rgba()`, not the slash form.
-- `-clamp` and `-tint`, on chrome and panel only: the blurred glass. See [Turn on the glass effect](#turn-on-the-glass-effect).
+- `-blur` and `-tint`, on chrome and panel only: the blurred glass. See [Turn on the glass effect](#turn-on-the-glass-effect).
 
 A site that defaults to Dark and has a Light switch can map the properties once:
 
@@ -132,15 +132,15 @@ Both variants are loaded at once, so switching is your site's choice:
 
 ## Turn on the glass effect
 
-Chrome and panel are see-through in two ways. The plain colors work in every browser: text stays readable on them over any backdrop, and cards on them should use `--hyaline-dark-raised-flat`. For frosted glass that blurs what is behind it, use the clamp on chrome and panel, and the see-through `--hyaline-dark-raised` for cards on top:
+Chrome and panel are see-through in two ways. The plain colors work in every browser: text stays readable on them over any backdrop, and cards on them should use `--hyaline-dark-raised-flat`. For frosted glass that blurs what is behind it, use the blur on chrome and panel, and the see-through `--hyaline-dark-raised` for cards on top:
 
 1. Put a backdrop image or color on `body` so there is something to see through.
-2. On the element, set `backdrop-filter` to the clamp and the background to the tint:
+2. On the element, set `backdrop-filter` to the blur and the background to the tint:
 
    ```css
    main {
      background: var(--hyaline-dark-panel-tint);
-     backdrop-filter: var(--hyaline-dark-panel-clamp);
+     backdrop-filter: var(--hyaline-dark-panel-blur);
    }
    ```
 

@@ -16,7 +16,7 @@ The preview is not an app theme. It is treated as a port so it gets the same bui
 
 ## How it is built
 
-- `template/theme.css` holds every role as a CSS variable, scoped to `:root[data-variant="<mode>"]`. The build renders it once per variant. Chrome and panel also get their clamp (`{{chrome|clamp}}`, `{{panel|clamp}}`) and thin tint (`{{chrome|clamptint}}`, `{{panel|clamptint}}`), so the page holds no blur, filter, or alpha numbers of its own.
+- `template/theme.css` holds every role as a CSS variable, scoped to `:root[data-variant="<mode>"]`. The build renders it once per variant. Chrome and panel also get their blur (`{{chrome|blur}}`, `{{panel|blur}}`) and thinner tint (`{{chrome|glasstint}}`, `{{panel|glasstint}}`), so the page holds no blur, filter, or alpha numbers of its own.
 - `template/base.css` holds what both pages share: fonts, surfaces, the glass, the edge, the top bar, and the variant switch.
 - `template/ports.html` reads the port list from `ports.js`, which `build/site.ps1` generates from every `Ports/<app>/port.json` and `Ports/ports.json`. Variants on each card come from which `dist/` folders exist. Tier and platform names come with the list too.
 - `site.json` tells `build/site.ps1` what to publish: the folders to copy, and the short addresses (`/` and `/ports/`). The site publishes each page once at its short address, and each guide at `/Ports/<port>/`. The old `dist/<variant>/` addresses redirect there with `?variant=`.
@@ -29,7 +29,7 @@ The preview is not an app theme. It is treated as a port so it gets the same bui
 
 ## Glass and edge
 
-- Glass (ADR 0014). Where the browser has `backdrop-filter`, chrome and panel use the palette's `clamp` block, which is now just a blur (contrast, brightness, and saturate at 1), under the thin tint. Without `backdrop-filter` (checked with `@supports`), they fall back to the denser `chrome` and `panel` tint alone. `raised` sits on the glass at its own alpha, with no filter.
+- Glass (ADR 0014). Where the browser has `backdrop-filter`, chrome and panel use the palette's `glass` block: a blur under a thinner tint. Without `backdrop-filter` (checked with `@supports`), they fall back to the denser `chrome` and `panel` tint alone. `raised` sits on the glass at its own alpha, with no filter.
 - Edge (ADR 0009). A 1 px inset hairline in `edge` (translucent, since every surface here is glass) on the top inside of the top bar, window title bars, ports page headings, and raised surfaces. Every panel and window has a 1 px outline in `window_edge`.
 - In Light, `edge` is white on white raised surfaces, so `line` carries the lift instead: raised surfaces with a `line` border keep just that, and the borderless ones (tabs, address bars) get a 1 px `line` ring. The per-variant switch is `--lift` and `--lift-ring` in `base.css`.
 - `edge_flat` has no surface to sit on here (the only flat surface is the Mermaid diagram, which has its own border). It is shown in the Roles section.
