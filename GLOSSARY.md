@@ -52,7 +52,7 @@ The solid color of a surface, chosen to look like its glass. Used wherever the a
 _Avoid_: Opaque version, lite version
 
 **Opacity-only glass**:
-Translucent surfaces in an app that offers a tint and a single opacity, with no clamp. Blur, if the app has any, is not counted.
+Translucent surfaces in an app that offers a tint and a single opacity. Blur, if the app has any, is not counted.
 _Avoid_: Dense tint, transparency
 
 ## Color roles

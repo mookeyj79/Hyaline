@@ -4,11 +4,11 @@
   --backdrop: #dfe6ee;
   --wallpaper: url("../../../../wallpapers/white-sands-dunes.jpg");
   --chrome: rgba(255, 255, 255, 0.85);
-  --chrome-clamp: blur(6.5px) contrast(1) brightness(1) saturate(1);
+  --chrome-blur: blur(6.5px);
   --chrome-tint: rgba(255, 255, 255, 0.6);
   --chrome-flat: #e3e8ee;
   --panel: rgba(255, 255, 255, 0.85);
-  --panel-clamp: blur(6.5px) contrast(1) brightness(1) saturate(1);
+  --panel-blur: blur(6.5px);
   --panel-tint: rgba(255, 255, 255, 0.6);
   --panel-flat: #fafbfc;
   --raised: rgba(255, 255, 255, 0.5);

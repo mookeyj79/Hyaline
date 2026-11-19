@@ -15,10 +15,10 @@ $RequiredRoles = @(
     'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'orange'
 )
 
-# Translucent surfaces with a clamp block beside their dense alpha (ADR 0008):
-# the CSS recipe of blur, contrast, brightness, saturate, and a thin tint alpha.
-$ClampRoles = @('chrome', 'panel')
-$ClampKeys = [ordered]@{ blur = 'Blur'; contrast = 'Contrast'; brightness = 'Brightness'; saturate = 'Saturate'; alpha = 'Alpha' }
+# Translucent surfaces with a glass block beside their dense alpha (ADR 0014):
+# the blur and the thinner tint alpha used where the app can blur.
+$GlassRoles = @('chrome', 'panel')
+$GlassKeys = [ordered]@{ blur = 'Blur'; alpha = 'Alpha' }
 
 # Roles that may be used as a wash (ADR 0006). Only these are contrast
 # checked on a wash, so only these take |wash and |washflat.
@@ -37,8 +37,8 @@ $Filters = [ordered]@{
     'wash'     = '#rrggbbaa at the wash alpha'
     'washflat' = 'the wash over panel_flat, #rrggbb'
     'clear'    = '#rrggbb00'
-    'clamp'    = 'the clamp as a CSS backdrop-filter value'
-    'clamptint' = 'the clamp''s thin tint, rgba(r, g, b, a)'
+    'blur'     = 'the glass blur as a CSS backdrop-filter value'
+    'glasstint' = 'the glass tint used with blur, rgba(r, g, b, a)'
 }
 
 # Terminal ANSI slots (ADR 0001). The six hues and their bright versions
@@ -73,24 +73,27 @@ $Backdrops   = [ordered]@{ black = '#000000'; white = '#ffffff' }
 
 function Test-Number($Value) { return $Value -is [double] -or $Value -is [long] -or $Value -is [int] }
 
-function Read-Clamp {
-    # A role's clamp block as @{ Blur; Contrast; Brightness; Saturate; Alpha },
-    # or $null after adding every problem to $Errors.
+function Read-Glass {
+    # A role's glass block as @{ Blur; Alpha }, or $null after adding every
+    # problem to $Errors.
     param($Raw, [string]$Where, $Errors)
     if ($Raw -isnot [System.Collections.IDictionary]) {
-        $Errors.Add("$Where clamp must be an object: { blur, contrast, brightness, saturate, alpha }.")
+        $Errors.Add("$Where glass must be an object: { blur, alpha }.")
         return $null
     }
-    $clamp = @{}
+    $glass = @{}
     $ok = $true
-    foreach ($k in $ClampKeys.Keys) {
-        $n = $Raw[$k]
-        if (-not (Test-Number $n)) { $Errors.Add("$Where clamp.$k must be a number."); $ok = $false; continue }
-        if ($k -eq 'alpha' -and ($n -le 0 -or $n -gt 1)) { $Errors.Add("$Where clamp.alpha must be between 0 and 1."); $ok = $false; continue }
-        if ($n -lt 0) { $Errors.Add("$Where clamp.$k must not be negative."); $ok = $false; continue }
-        $clamp[$ClampKeys[$k]] = [double]$n
+    foreach ($k in @($Raw.Keys)) {
+        if ($k -notin $GlassKeys.Keys) { $Errors.Add("$Where glass.$k is not a glass key. Use: $($GlassKeys.Keys -join ', ')."); $ok = $false }
     }
-    if ($ok) { return $clamp }
+    foreach ($k in $GlassKeys.Keys) {
+        $n = $Raw[$k]
+        if (-not (Test-Number $n)) { $Errors.Add("$Where glass.$k must be a number."); $ok = $false; continue }
+        if ($k -eq 'alpha' -and ($n -le 0 -or $n -gt 1)) { $Errors.Add("$Where glass.alpha must be between 0 and 1."); $ok = $false; continue }
+        if ($n -lt 0) { $Errors.Add("$Where glass.$k must not be negative."); $ok = $false; continue }
+        $glass[$GlassKeys[$k]] = [double]$n
+    }
+    if ($ok) { return $glass }
     return $null
 }
 
@@ -101,8 +104,8 @@ function Read-Palette {
     .DESCRIPTION
         Variants is an ordered map of 'dark' and 'light' to
         @{ Key; Name; Mode; Wash; Roles }, where Roles maps a role name to
-        @{ Hex (lowercase #rrggbb); Alpha; Clamp }. Clamp is $null except on
-        chrome and panel: @{ Blur; Contrast; Brightness; Saturate; Alpha }. Errors lists every problem found.
+        @{ Hex (lowercase #rrggbb); Alpha; Glass }. Glass is $null except on
+        chrome and panel: @{ Blur; Alpha }. Errors lists every problem found.
         When Errors is not empty, Variants may be incomplete: do not build.
     .PARAMETER Data
         The parsed JSON instead of a file, as from ConvertFrom-Json -AsHashtable.
@@ -157,7 +160,7 @@ function Read-Palette {
             }
             foreach ($rKey in @($v['roles'].Keys)) {
                 $r = $v['roles'][$rKey]
-                $hex = $null; $alpha = 1.0; $clamp = $null
+                $hex = $null; $alpha = 1.0; $glass = $null
                 if ($r -is [string]) { $hex = $r }
                 elseif ($r -is [System.Collections.IDictionary]) {
                     $hex = [string]$r['hex']
@@ -168,19 +171,19 @@ function Read-Palette {
                             continue
                         }
                     }
-                    if ($r.Contains('clamp')) {
-                        if ($rKey -notin $ClampRoles) { $errors.Add("$vKey.$rKey cannot have a clamp. Only $($ClampRoles -join ' and ') do.") }
-                        else { $clamp = Read-Clamp $r['clamp'] "$vKey.$rKey" $errors }
+                    if ($r.Contains('glass')) {
+                        if ($rKey -notin $GlassRoles) { $errors.Add("$vKey.$rKey cannot have a glass block. Only $($GlassRoles -join ' and ') do.") }
+                        else { $glass = Read-Glass $r['glass'] "$vKey.$rKey" $errors }
                     }
                 }
-                if ($rKey -in $ClampRoles -and -not ($r -is [System.Collections.IDictionary] -and $r.Contains('clamp'))) {
-                    $errors.Add("$vKey.$rKey needs a clamp block: { blur, contrast, brightness, saturate, alpha }.")
+                if ($rKey -in $GlassRoles -and -not ($r -is [System.Collections.IDictionary] -and $r.Contains('glass'))) {
+                    $errors.Add("$vKey.$rKey needs a glass block: { blur, alpha }.")
                 }
                 if ($null -eq $hex -or $hex -notmatch '^#[0-9a-fA-F]{6}$') {
                     $errors.Add("$vKey.$rKey is not a valid #rrggbb value (or { hex, alpha }).")
                     continue
                 }
-                $roles[$rKey] = @{ Hex = $hex.ToLowerInvariant(); Alpha = [double]$alpha; Clamp = $clamp }
+                $roles[$rKey] = @{ Hex = $hex.ToLowerInvariant(); Alpha = [double]$alpha; Glass = $glass }
             }
         }
         $result.Variants[$vKey] = @{
@@ -259,8 +262,8 @@ function Format-RoleColor {
         throw "|$Filter only applies to the wash roles ($($WashRoles -join ', ')), not '$Role'"
     }
     $c = $Variant.Roles[$Role]
-    if ($Filter -in 'clamp', 'clamptint' -and -not $c.Clamp) {
-        throw "|$Filter only applies to the clamped surfaces ($($ClampRoles -join ', ')), not '$Role'"
+    if ($Filter -in 'blur', 'glasstint' -and -not $c.Glass) {
+        throw "|$Filter only applies to the glass surfaces ($($GlassRoles -join ', ')), not '$Role'"
     }
     $hex = $c.Hex
     $rgb = ConvertFrom-Hex $hex
@@ -276,11 +279,8 @@ function Format-RoleColor {
         'clear'    { return $hex + '00' }
         'wash'     { return $hex + ([int][math]::Round($Variant.Wash * 255)).ToString('x2') }
         'washflat' { return Get-WashColor $Variant $Role }
-        'clamp'    {
-            $n = { param($x) $x.ToString('0.###', $Invariant) }
-            return 'blur({0}px) contrast({1}) brightness({2}) saturate({3})' -f (& $n $c.Clamp.Blur), (& $n $c.Clamp.Contrast), (& $n $c.Clamp.Brightness), (& $n $c.Clamp.Saturate)
-        }
-        'clamptint' { return "rgba($($rgb -join ', '), $($c.Clamp.Alpha.ToString('0.###', $Invariant)))" }
+        'blur'     { return "blur($($c.Glass.Blur.ToString('0.###', $Invariant))px)" }
+        'glasstint' { return "rgba($($rgb -join ', '), $($c.Glass.Alpha.ToString('0.###', $Invariant)))" }
     }
 }
 
@@ -289,24 +289,16 @@ function Get-GlassColor {
     .SYNOPSIS
         What a translucent role looks like over a solid backdrop, as #rrggbb.
     .DESCRIPTION
-        Without -Clamp: the tint at the role's dense alpha, as an opacity-only
-        app draws it. With -Clamp: the backdrop squeezed by the clamp's contrast,
-        then its brightness (CSS filter functions, in sRGB, each step capped to
-        0..1), then the tint at the clamp's thin alpha. Blur does not change a
-        solid backdrop, and saturate does not change black or white, so neither
-        is applied (ADR 0011: blur does not count).
+        Without -Blurred: the tint at the role's dense alpha, as an opacity-only
+        app draws it. With -Blurred: the tint at the glass block's thinner
+        alpha, as an app with blur draws it. Blur does not change a solid
+        backdrop, so it is not applied.
     #>
-    param($Variant, [string]$Role, [string]$Backdrop, [switch]$Clamp)
+    param($Variant, [string]$Role, [string]$Backdrop, [switch]$Blurred)
     $c = $Variant.Roles[$Role]
-    if (-not $Clamp) { return Get-Blend $c.Hex $Backdrop $c.Alpha }
-    if (-not $c.Clamp) { throw "'$Role' has no clamp" }
-    $k = $c.Clamp
-    $squeezed = foreach ($ch in (ConvertFrom-Hex $Backdrop)) {
-        $x = [math]::Min(1.0, [math]::Max(0.0, ($ch / 255 - 0.5) * $k.Contrast + 0.5))
-        $x = [math]::Min(1.0, [math]::Max(0.0, $x * $k.Brightness))
-        ([int][math]::Round($x * 255)).ToString('x2')
-    }
-    return Get-Blend $c.Hex ('#' + ($squeezed -join '')) $k.Alpha
+    if (-not $Blurred) { return Get-Blend $c.Hex $Backdrop $c.Alpha }
+    if (-not $c.Glass) { throw "'$Role' has no glass block" }
+    return Get-Blend $c.Hex $Backdrop $c.Glass.Alpha
 }
 
 function Get-ContrastFloor {
@@ -331,14 +323,13 @@ function Test-PaletteContrast {
     .DESCRIPTION
         A solid surface is measured as drawn. A translucent surface (chrome,
         panel) is measured over pure black and pure white, both at its dense
-        alpha and through its clamp; every result must pass, so the lower one
-        counts. Translucent raised is only drawn on clamped glass (ADR 0008:
-        with opacity only, raised is solid), so it is measured over the clamped
-        panel. Washes are measured over every panel surface.
+        alpha and at its blurred alpha; every result must pass, so the lower one
+        counts. Translucent raised is only drawn on blurred glass (with opacity
+        only, raised is solid), so it is measured over the blurred panel. Washes are measured over every panel surface.
 
         The panel at its dense alpha is opacity-only glass, and it and the
         washes over it are measured against the opacity-only rows for the
-        panel and a wash (ADR 0013). The clamped panel, panel_flat, raised,
+        panel and a wash (ADR 0013). The blurred panel, panel_flat, raised,
         and chrome keep the full rows. PHILOSOPHY.md, "Contrast floor", has
         the numbers. A failure message states the floor that was missed.
 
@@ -366,17 +357,17 @@ function Test-PaletteContrast {
             param([string]$Role)
             $out = [ordered]@{ "${Role}_flat" = & $hex "${Role}_flat" }
             foreach ($b in $Backdrops.Keys) { $out["$Role over $b"] = Get-GlassColor $v $Role $Backdrops[$b] }
-            foreach ($b in $Backdrops.Keys) { $out["$Role clamp over $b"] = Get-GlassColor $v $Role $Backdrops[$b] -Clamp }
+            foreach ($b in $Backdrops.Keys) { $out["$Role blurred over $b"] = Get-GlassColor $v $Role $Backdrops[$b] -Blurred }
             $out
         }
         $panels = & $glass 'panel'
         $chromes = & $glass 'chrome'
         $raiseds = [ordered]@{ raised_flat = & $hex 'raised_flat' }
         foreach ($b in $Backdrops.Keys) {
-            $raiseds["raised over panel clamp over $b"] = Get-Blend (& $hex 'raised') $panels["panel clamp over $b"] $v.Roles['raised'].Alpha
+            $raiseds["raised over panel blurred over $b"] = Get-Blend (& $hex 'raised') $panels["panel blurred over $b"] $v.Roles['raised'].Alpha
         }
 
-        # The panel at its dense alpha is opacity-only glass; the clamp and panel_flat are not.
+        # The panel at its dense alpha is opacity-only glass; the blurred panel and panel_flat are not.
         $opacityOnlySurfaces = @(foreach ($b in $Backdrops.Keys) { "panel over $b" })
         $panelKind = { param([string]$Surface) if ($Surface -in $opacityOnlySurfaces) { 'opacityOnly' } else { 'panel' } }
 

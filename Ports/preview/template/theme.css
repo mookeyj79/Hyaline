@@ -4,12 +4,12 @@
   --backdrop: {{backdrop}};
   --wallpaper: {{port.wallpaper}};
   --chrome: {{chrome|rgba}};
-  --chrome-clamp: {{chrome|clamp}};
-  --chrome-tint: {{chrome|clamptint}};
+  --chrome-blur: {{chrome|blur}};
+  --chrome-tint: {{chrome|glasstint}};
   --chrome-flat: {{chrome_flat}};
   --panel: {{panel|rgba}};
-  --panel-clamp: {{panel|clamp}};
-  --panel-tint: {{panel|clamptint}};
+  --panel-blur: {{panel|blur}};
+  --panel-tint: {{panel|glasstint}};
   --panel-flat: {{panel_flat}};
   --raised: {{raised|rgba}};
   --raised-flat: {{raised_flat}};

@@ -32,14 +32,13 @@
   --lift: var(--edge-top);
   --lift-ring: var(--edge-top);
 }
-/* With backdrop filters, the glass clamps the backdrop into a dark or light band
-   and lays a thin tint on top. The panel is clamped harder than the chrome. */
+/* With backdrop filters, the glass blurs the backdrop and lays a thinner tint on top. */
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   :root {
     --chrome-glass: var(--chrome-tint);
     --panel-glass: var(--panel-tint);
-    --chrome-filter: var(--chrome-clamp);
-    --panel-filter: var(--panel-clamp);
+    --chrome-filter: var(--chrome-blur);
+    --panel-filter: var(--panel-blur);
   }
 }
 /* In Light the edge is white on white: on raised surfaces line carries the lift. */

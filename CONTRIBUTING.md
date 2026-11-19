@@ -80,8 +80,8 @@ The quickest way is [Claude Code](https://claude.com/claude-code): open the repo
    | `{{role\|wash}}` | `#rrggbbaa` using the variant's `wash` alpha, for see-through highlights. Wash roles only: `accent` and the seven colors |
    | `{{role\|washflat}}` | `#rrggbb`, the wash laid over `panel_flat`, for apps that take solid colors only. Wash roles only |
    | `{{role\|clear}}` | `#rrggbb00`, fully transparent, for app settings that can only be switched off with a color |
-   | `{{role\|clamp}}` | the CSS `backdrop-filter` value for the glass, `blur(b) contrast(c) brightness(b) saturate(s)`. `chrome` and `panel` only |
-   | `{{role\|clamptint}}` | `rgba(r, g, b, a)`, the thin tint laid over the clamp, for the same surface's background. `chrome` and `panel` only |
+   | `{{role\|blur}}` | the CSS `backdrop-filter` value for the glass, `blur(b)`. `chrome` and `panel` only |
+   | `{{role\|glasstint}}` | `rgba(r, g, b, a)`, the thinner tint used with the blur, for the same surface's background. `chrome` and `panel` only |
    | `{{ansi.<slot>}}` | the role for a terminal ANSI slot per ADR 0001 (`black` to `white`, `bright_<slot>`), takes the same filters |
    | `{{meta.name}}`, `{{meta.version}}`, `{{meta.repository}}` | theme name, palette version, repo URL |
    | `{{variant.name}}`, `{{variant.mode}}`, `{{variant.key}}` | variant name, `dark` or `light`, the variant's key in the palette |

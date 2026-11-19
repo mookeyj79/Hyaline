@@ -12,7 +12,7 @@
     values with -Set.
 
     One line per measurement: variant, foreground role, surface (with the
-    backdrop and whether the glass is clamped), ratio, floor, and pass or FAIL.
+    backdrop and whether the glass is blurred), ratio, floor, and pass or FAIL.
 
 .PARAMETER Palette
     The palette to measure. Default palette/palette.json.
@@ -20,7 +20,7 @@
 .PARAMETER Set
     A value to change before measuring, as path=value. The path starts at a
     variant: dark.roles.panel=#40444b, dark.roles.panel.alpha=0.8,
-    light.roles.chrome.clamp.brightness=1.6, dark.wash=0.2. Setting a hex on
+    light.roles.chrome.glass.alpha=0.5, dark.wash=0.2. Setting a hex on
     a role that has an alpha keeps the alpha. Separate several values with
     commas.
 
@@ -31,7 +31,7 @@
     Show only these foreground roles. Wildcards work.
 
 .PARAMETER Surface
-    Show only surfaces like this, such as "panel*" or "*clamp over white".
+    Show only surfaces like this, such as "panel*" or "*blurred over white".
 
 .PARAMETER Failing
     Show only measurements under the floor: failures, and glass set by eye.

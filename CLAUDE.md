@@ -7,7 +7,7 @@ This repo holds one color theme and every app port of it. The theme has two vari
 
 The theme's family name lives in `palette/palette.json` under `meta.name`. Read it from there. Never hardcode it.
 
-The design rules are in PHILOSOPHY.md. They are binding, not background reading:
+The design rules are in PHILOSOPHY.md. They are binding, not background reading. The user owns them: when what the user sees disagrees with a rule or an ADR, render it, show both, and offer to change the rule.
 
 @PHILOSOPHY.md
 
@@ -16,6 +16,7 @@ The design rules are in PHILOSOPHY.md. They are binding, not background reading:
 ```
 PHILOSOPHY.md               design rules (source of truth for decisions)
 GLOSSARY.md                 project terms
+prototypes/                 throwaway prototype pages, gitignored: hand the user a Windows path or an artifact link
 docs/adr/                   recorded decisions and why
 wallpapers/                 found backdrop images, thumbnails, and credits (README.md)
 palette/palette.json        every color, for both variants (source of truth for values)
@@ -106,10 +107,11 @@ The edge (ADR 0009) follows the same pattern: `edge` is the glass value and `edg
 
 - Work on a branch named `port/<app_name>`, `palette/<change>`, or `build/<change>` for tooling and docs. Do not commit to `main` directly.
 - Do not install a theme on the user's machine or change system settings unless asked. Building files in the repo is the job.
-- Retake the preview screenshots with headless Chromium, as CONTRIBUTING.md describes, and show them to the user before committing. Screenshots of a port in the real app come from the user: ask, and add the screenshot table to the port README only once the files exist.
+- Retake the preview screenshots with headless Chromium, as CONTRIBUTING.md describes, and show them to the user before committing. For your own look at a render, capture at 1280x800 or crop to the area in question before reading the image: full-size screenshots fill the context. Screenshots of a port in the real app come from the user: ask, and add the screenshot table to the port README only once the files exist.
 - Judge a candidate surface value against the real glass, not a mock window: sample the built preview (`Ports/preview/dist/<variant>/index.html`) in headless Chromium and show it beside each candidate.
 - Before asking the user to lock a palette candidate, list every check it fails.
 - Run `node --check` on a prototype page's script before rendering it: a syntax error leaves the page blank with no message.
+- A prototype is done when every control works: in headless Chromium, move each control to both ends and confirm the render changes. For an artifact, test the folder you publish, with each file at its published path.
 - READMEs are for their readers: a port README for the person installing it, the root README for a visitor. No measurements, role names, palette versions, ADR links, research notes, or notes to an agent in them.
 - Writing style for docs: plain and short. `check.ps1` fails on em dashes.
 

@@ -8,9 +8,9 @@
     2. Contrast      Text and color roles meet the contrast floor in PHILOSOPHY.md
                      (ADR 0011). Solid surfaces are measured as drawn. Chrome and
                      panel glass are measured over pure black and pure white, at
-                     the dense alpha and through the clamp, and every result must
+                     the dense alpha and at the blurred alpha, and every result must
                      pass. Chrome carries primary text only. Raised is
-                     raised_flat, and translucent raised on the clamped panel.
+                     raised_flat, and translucent raised on the blurred panel.
                      Washes are measured over every panel surface. Opacity-only
                      glass (the panel at its dense alpha, and washes over it)
                      is held to the opacity-only rows for the panel and a wash
