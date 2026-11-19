@@ -9,7 +9,7 @@ Smoke by night, frost by day. One color theme with two variants, ported to every
 
 | Hyaline Dark | Hyaline Light |
 |---|---|
-| [![Hyaline Dark](Ports/preview/screenshots/dark.jpg)](https://mookeyj79.github.io/Hyaline/Ports/preview/dist/dark/index.html) | [![Hyaline Light](Ports/preview/screenshots/light.jpg)](https://mookeyj79.github.io/Hyaline/Ports/preview/dist/light/index.html) |
+| [![Hyaline Dark](Ports/preview/screenshots/dark.jpg)](https://mookeyj79.github.io/Hyaline/?variant=dark) | [![Hyaline Light](Ports/preview/screenshots/light.jpg)](https://mookeyj79.github.io/Hyaline/?variant=light) |
 | Smoked, frosted panels with light text | Frosted white panels with dark ink |
 
 **[Open the live preview](https://mookeyj79.github.io/Hyaline/)** to see every color, mock apps, and diagrams in both variants, or **[browse the ports](https://mookeyj79.github.io/Hyaline/ports/)**.
@@ -35,7 +35,7 @@ Smoke by night, frost by day. One color theme with two variants, ported to every
 
 | Diagrams | Every color | Font |
 |---|---|---|
-| [![Mermaid diagrams in Hyaline Dark](Ports/preview/screenshots/mermaid.jpg)](https://mookeyj79.github.io/Hyaline/) | [![Color swatches in Hyaline Light](Ports/preview/screenshots/roles.jpg)](https://mookeyj79.github.io/Hyaline/Ports/preview/dist/light/index.html) | [![FiraCode Nerd Font specimen](Ports/preview/screenshots/font.jpg)](https://mookeyj79.github.io/Hyaline/) |
+| [![Mermaid diagrams in Hyaline Dark](Ports/preview/screenshots/mermaid.jpg)](https://mookeyj79.github.io/Hyaline/) | [![Color swatches in Hyaline Light](Ports/preview/screenshots/roles.jpg)](https://mookeyj79.github.io/Hyaline/?variant=light) | [![FiraCode Nerd Font specimen](Ports/preview/screenshots/font.jpg)](https://mookeyj79.github.io/Hyaline/) |
 
 ## Ports
 

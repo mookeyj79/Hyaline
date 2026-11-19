@@ -19,8 +19,9 @@ The preview is not an app theme. It is treated as a port so it gets the same bui
 - `template/theme.css` holds every role as a CSS variable, scoped to `:root[data-variant="<mode>"]`. The build renders it once per variant. Chrome and panel also get their clamp (`{{chrome|clamp}}`, `{{panel|clamp}}`) and thin tint (`{{chrome|clamptint}}`, `{{panel|clamptint}}`), so the page holds no blur, filter, or alpha numbers of its own.
 - `template/base.css` holds what both pages share: fonts, surfaces, the glass, the edge, the top bar, and the variant switch.
 - `template/ports.html` reads the port list from `ports.js`, which `build/site.ps1` generates from every `Ports/<app>/port.json` and `Ports/ports.json`. Variants on each card come from which `dist/` folders exist. Tier and platform names come with the list too.
-- `site.json` tells `build/site.ps1` what to publish: the folders to copy, and the site entry pages (`/` and `/ports/`) that open a page in the visitor's variant.
-- `template/index.html` loads both `../dark/theme.css` and `../light/theme.css`, so the switch repaints instantly without a reload. Without JavaScript, the switch links to the other variant's page.
+- `site.json` tells `build/site.ps1` what to publish: the folders to copy, and the short addresses (`/` and `/ports/`). The site publishes each page once at its short address, and each guide at `/Ports/<port>/`. The old `dist/<variant>/` addresses redirect there with `?variant=`.
+- `template/index.html` loads both `../dark/theme.css` and `../light/theme.css`, so the switch repaints instantly without a reload.
+- `template/variant.js` picks the variant before the page paints: `?variant=`, then the page's own `data-variant` (set in the `dist/` files, dropped on the site), then the visitor's last choice, then the OS. The switch saves the choice and writes `?variant=` into the address, so a reload or a shared link keeps it. Links between pages carry no variant.
 - Mono text uses the recommended font, FiraCode Nerd Font Mono, from `assets/fonts/`. Those files are trimmed to the characters the page uses (Latin, ligatures, and the icons shown), so they total about 90 KB instead of 5 MB.
 - The page itself holds no color values. The role values and contrast ratios in the Roles section are read from the CSS variables at runtime.
 - Text never sits directly on the backdrop. Everything is on a panel, so text reads over any backdrop.
@@ -35,7 +36,7 @@ The preview is not an app theme. It is treated as a port so it gets the same bui
 
 ## Publish with GitHub Pages
 
-`.github/workflows/pages.yml` runs `build/site.ps1` and deploys `_site/` on every push to `main`. The root page and `/ports/` open the variant matching the visitor's OS setting.
+`.github/workflows/pages.yml` runs `build/site.ps1` and deploys `_site/` on every push to `main`. Every page opens the variant matching the visitor's OS setting until they pick one.
 
 To turn it on once:
 

@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="../../dark/theme.css">
 <link rel="stylesheet" href="../../light/theme.css">
 <link rel="stylesheet" href="../base.css">
+<script src="../variant.js"></script>
 <style>
 /* Every color on this page is a role variable from theme.css. Do not add color values here. */
 main {
@@ -63,18 +64,18 @@ footer p { margin: 0; }
 <div class="topbar">
   <span class="brand">{{meta.name}}<small>v{{meta.version}}</small></span>
   <div class="topbar-end">
-    <a class="repo" href="../index.html" data-page="index.html"><span class="repo-label">Preview</span></a>
+    <a class="repo" href="../index.html"><span class="repo-label">Preview</span></a>
     <a class="repo" href="{{meta.repository}}"><span class="repo-icon" aria-hidden="true">&#xF09B;</span><span class="repo-label">GitHub</span></a>
     <nav class="switch" aria-label="Variant">
-      <a href="../../dark/guides/guide.html" data-set="dark">Dark</a>
-      <a href="../../light/guides/guide.html" data-set="light">Light</a>
+      <a href="?variant=dark" data-set="dark">Dark</a>
+      <a href="?variant=light" data-set="light">Light</a>
     </nav>
   </div>
 </div>
 
 <main>
   <nav class="panel crumbs" aria-label="Guide">
-    <p><a href="../ports.html" data-page="ports.html">All ports</a></p>
+    <p><a href="../ports.html">All ports</a></p>
     <p><a href="<!-- guide:files -->">Theme files</a> <a href="<!-- guide:source -->">This guide on GitHub</a></p>
   </nav>
 
@@ -89,22 +90,18 @@ footer p { margin: 0; }
 
 <script>
 (function () {
-  // Both theme.css files are loaded, so the switch repaints in place and keeps the links on the shown variant.
+  // Both theme.css files are loaded, so the switch repaints in place.
   const root = document.documentElement;
-  const page = location.pathname.split("/").pop();
   function setVariant(mode) {
     root.dataset.variant = mode;
     document.querySelectorAll(".switch a").forEach(function (a) {
       a.setAttribute("aria-current", String(a.dataset.set === mode));
-      a.href = "../../" + a.dataset.set + "/guides/" + page + location.hash;
-    });
-    document.querySelectorAll("[data-page]").forEach(function (a) {
-      a.href = "../../" + mode + "/" + a.dataset.page;
     });
   }
   document.querySelectorAll(".switch a").forEach(function (a) {
     a.addEventListener("click", function (ev) {
       ev.preventDefault();
+      window.HyalineVariant.choose(a.dataset.set);
       setVariant(a.dataset.set);
     });
   });
